@@ -1,0 +1,94 @@
+[    7411ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[    7411ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[    7411ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[    8379ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.cdninstagram.com/rsrc.php/yQ/r/-pkMfchyeAZ.woff2 @ https://www.instagram.com/?hl=bn:0
+[    8485ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.instagram.com/?hl=bn:0
+[    8557ms] [LOG] 
+%cথামুন! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.cdninstagram.com/rsrc.php/v4iDgx4/yn/l/bn_IN/WlJgN3O9xO9.js:8
+[    8558ms] [LOG] 
+%cএই ব্রাউজার ফিচারটি ডেভেলপারদের ব্যবহারের জন্য। যদি কেউ আপনাকে কোনো Instagram ফিচার চালু করতে বা কারও অ্যাকাউন্ট "হ্যাক" করার প্রতিশ্রুতি দিয়ে এখানে কিছু কপি-পেস্ট করতে বলেন, তবে জানবেন যে সেটি স্ক্যাম এবং এভাবে তিনি আপনার Instagram অ্যাকাউন্টের অ্যাক্সেস পেয়ে যাবেন। font-family:helvetica; font-size:20px;  @ https://static.cdninstagram.com/rsrc.php/v4iDgx4/yn/l/bn_IN/WlJgN3O9xO9.js:8
+[    8560ms] [LOG] 
+%cআরও তথ্যের জন্য https://www.facebook.com/selfxss লিঙ্কটি দেখুন। font-family:helvetica; font-size:20px;  @ https://static.cdninstagram.com/rsrc.php/v4iDgx4/yn/l/bn_IN/WlJgN3O9xO9.js:8
+[    8560ms] [LOG] 
+%c  @ https://static.cdninstagram.com/rsrc.php/v4iDgx4/yn/l/bn_IN/WlJgN3O9xO9.js:8
+[    9130ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://www.instagram.com/?hl=bn:0
+[   33535ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.cdninstagram.com/rsrc.php/yG/r/517-wBLDKVB.woff2 @ https://static.cdninstagram.com/rsrc.php/v4igQv4/yU/l/bn_IN/7Wg2RmeahdayJbnAe5PqP_IO0cF0gbmTVsZ63V-srr23BHQh3AJmIt82OCKBriXPYrbTOvEsUCJT0zQLbc9bQyojKce8JoEJK755yirLDYMk4QZZiRtRGZ6rJ_SusV-f5lgcMm3F-oH2zh-BIB9hmqqbJQAZT4F4JTzpiWnKkgq_IDR-CXfPZ0kdZ_2nNGK1U3EiEv.js:661
+[   66077ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://www.instagram.com/ajax/bootloader-endpoint/?modules=PolarisCAAIGAccountRecoverySearchRoot.react&hl=bn&__d=www&__user=0&__a=1&__req=g&__hs=20734.HYP%3Ainstagram_web_pkg.2.1...0&dpr=1&__ccg=GOOD&__rev=1049694147&__s=nuq6y5%3Ay34ng0%3Aphcz4s&__hsi=7694338895019992614&__dyn=7xe6E5q5U5ObwKBAg5S1Dxu13w8CewSwMwNw9G2S0lW4o0B-q1ew6ywaq0yE7i0n24o5-1ywOwv89k2C1FwnE6a0D85m1mxe0EUjwGzEaE2iwNwmE2eU5O0HU1wEbUGdwtU662O0Lo6-3u2WE5B0bK1Iwqo5p385XhA6bwg8rAwHxW1ow8q0EoK9x60luaCwt86K0DE2swRwoE&__csr=g8QIli2ltqsjnKzlF88RFh2ERayRZ8gBRt88lhaZuCyFVkicF2eBBsraG4NarQAgxurmiq55G9A9QO5roCLABCpbj9lHV4MwqhAlaVkGHJ1iuXzECJ5gXzFp8CEGqaxa494EkwzzojAAx-3a4US3m7oC15x6i78S6HxOawiA8y8iKiuEy31a9oCp1K2q0_U5i0uq0Fo01tu809-Uy9gO0Czwd-680aC60S819A1eU0qQIK13xa8gvBba0kO8U0Yu8yovAw0gPE02lEw&__hsdp=n1AwHBP8O13ky4gMAdxgUnwjV9U8-q2or5wmA78pghwoE5y0y81vk050E2pG037-08uw16q0d5w&__hblp=05cDwzVE9Umw9a3mq3y0Jo7G361owiopwgEboWfw2wo1AUbU6S0xE2K-0I80Uy0qCcx605882-w6jw8G08JwhE22wgE18-mawby14w9i0qu0vm0dXwgE4G6E188&__sjsp=n1AwHBP8O13Ey4h4uAdxgUnwjV9U8-q2r5No5F1O6oiwoE3xw5Zg0k2w&__comet_req=7&__spin_r=1049694147&__spin_b=trunk&__spin_t=1791477877&__crn=comet.igweb.PolarisCAAIGLoginHomepageRoute&qpl_active_flow_ids=175125627%2C516759801:0
+[  104533ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  104534ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  104534ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  104690ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.xx.fbcdn.net/rsrc.php/yl/r/9AJbVCy4-G1.woff2 @ https://www.facebook.com/login.php?next=https%3A%2F%2Fwww.facebook.com%2Foidc%2F%3Fapp_id%3D124024574287414%26redirect_uri%3Dhttps%253A%252F%252Fwww.instagram.com%252Faccounts%252Fsignupviafb%252F%26response_type%3Dcode%26scope%3Dopenid%2Bemail%2Bprofile%2Blinking%26state%3DATr7_NKE6T7M_iDCRuf7a-jTFkMJXG87bgY8iyQT4E-p2pAiC1ANchQS5GiqexyV4aOagCzicH4lIJ8HlhPHErFK6Wqq3eSf2sMAJ3js48m4Y8aNqcffaMDkRYCSg2fV1AADSjWReLpqfmBRY1L2xChC3QLD_mZ0rXpsw3shRDJTM-08SxV8tdet88dUWrJfgsueCsMZxaNS7WthdYahd-9dSfE8lXA97qI4R0vONoxJ5En1HTSZ0C69IaWFn1m7UoFJgcp85zbuSB75yRyO55cUIg:120
+[  104690ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.xx.fbcdn.net/rsrc.php/yQ/r/-pkMfchyeAZ.woff2 @ https://www.facebook.com/login.php?next=https%3A%2F%2Fwww.facebook.com%2Foidc%2F%3Fapp_id%3D124024574287414%26redirect_uri%3Dhttps%253A%252F%252Fwww.instagram.com%252Faccounts%252Fsignupviafb%252F%26response_type%3Dcode%26scope%3Dopenid%2Bemail%2Bprofile%2Blinking%26state%3DATr7_NKE6T7M_iDCRuf7a-jTFkMJXG87bgY8iyQT4E-p2pAiC1ANchQS5GiqexyV4aOagCzicH4lIJ8HlhPHErFK6Wqq3eSf2sMAJ3js48m4Y8aNqcffaMDkRYCSg2fV1AADSjWReLpqfmBRY1L2xChC3QLD_mZ0rXpsw3shRDJTM-08SxV8tdet88dUWrJfgsueCsMZxaNS7WthdYahd-9dSfE8lXA97qI4R0vONoxJ5En1HTSZ0C69IaWFn1m7UoFJgcp85zbuSB75yRyO55cUIg:120
+[  104798ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.facebook.com/login.php?next=https%3A%2F%2Fwww.facebook.com%2Foidc%2F%3Fapp_id%3D124024574287414%26redirect_uri%3Dhttps%253A%252F%252Fwww.instagram.com%252Faccounts%252Fsignupviafb%252F%26response_type%3Dcode%26scope%3Dopenid%2Bemail%2Bprofile%2Blinking%26state%3DATr7_NKE6T7M_iDCRuf7a-jTFkMJXG87bgY8iyQT4E-p2pAiC1ANchQS5GiqexyV4aOagCzicH4lIJ8HlhPHErFK6Wqq3eSf2sMAJ3js48m4Y8aNqcffaMDkRYCSg2fV1AADSjWReLpqfmBRY1L2xChC3QLD_mZ0rXpsw3shRDJTM-08SxV8tdet88dUWrJfgsueCsMZxaNS7WthdYahd-9dSfE8lXA97qI4R0vONoxJ5En1HTSZ0C69IaWFn1m7UoFJgcp85zbuSB75yRyO55cUIg:0
+[  104920ms] [ERROR] ErrorUtils caught an error:
+
+ServerJS payload nonce validation failed:  v/s 9hsOrRB9
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 17878, clientTime: 1791477971, extra: Object, guardList: Array(1), hash: pp2kj2} @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:84
+[  105149ms] [LOG] 
+%cStop! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  105149ms] [LOG] 
+%cThis is a browser feature intended for developers. If someone told you to copy and paste something here to enable a Facebook feature or "hack" someone's account, it's a scam and will give them access to your Facebook account. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  105149ms] [LOG] 
+%cSee https://www.facebook.com/selfxss for more information. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  105149ms] [LOG] 
+%c  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  105737ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ https://static.xx.fbcdn.net/rsrc.php/v4iT_L4/yN/l/en_GB-j/1cbRHTOIfUHTV8TORQKW257aQ0tIzpYe-atBZ6RzieZ482Yz_4vfOJLldlUDUZRIYNjMVGcktGGRpgsrdnM8aO5U4SU6MZnBjqvvgbP17nadgYVIPNHOqVL96-6WbiBCT8LXrruBGGEYFdG-3cg2A1TYpFRiy88PrQTXQ40307glsc25Diwkb1NO6WcHOuTKPHdF_PAdF4Q4yS3Q5XV_vKBEegn7yLIhLjdtTF563T-omr2qwML2OjEpNOBjYciA8WtYtX2KRtKQGwG0ihEa-9ML_Y_MRXHBlvxuIMFsRSR_169Kn2AO9V3TtN2HhP5-Qx8lcabVTD.js:191
+[  123188ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  123188ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  123188ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  138460ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  138460ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  138460ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  139456ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.xx.fbcdn.net/rsrc.php/yH/r/c_1vdG88uNh.woff2 @ https://static.xx.fbcdn.net/rsrc.php/v4i8Sk4/yf/l/en_GB-j/9TtSG-zoLfvfQagRRCzLs3eD4YIyhHjF01ASgbdoO7fSHV_83TDKV3natBZ6RzieZ4tDWlMzFaZDiGKX9I3cdSFuSYH1VKMgOSnCAbtu0QbKno131EgksHw1S3o6T2Hw3CeE5LLpd-T4dAR9B8XRgcmIpGs8iKaFvlAkFHXZihB-cufjFcoZe-M7GclK5FVVF5jZySqgBZB0ewqNVPDmY9-9mGFkOa2oM1Rs0DGdyRjSS81t8PVxXFdkgwtuDkwTTp9-17ujcn8k0y_thONo444dPwK5j6QJVpVPbbSJfUBC-AdTQJOPpvz-pT1g7byw1d9s_8UiX9.js:271
+[  139728ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://static.xx.fbcdn.net/rsrc.php/yU/r/zSaFQ46AO2w.woff2 @ https://static.xx.fbcdn.net/rsrc.php/v4i8Sk4/yf/l/en_GB-j/9TtSG-zoLfvfQagRRCzLs3eD4YIyhHjF01ASgbdoO7fSHV_83TDKV3natBZ6RzieZ4tDWlMzFaZDiGKX9I3cdSFuSYH1VKMgOSnCAbtu0QbKno131EgksHw1S3o6T2Hw3CeE5LLpd-T4dAR9B8XRgcmIpGs8iKaFvlAkFHXZihB-cufjFcoZe-M7GclK5FVVF5jZySqgBZB0ewqNVPDmY9-9mGFkOa2oM1Rs0DGdyRjSS81t8PVxXFdkgwtuDkwTTp9-17ujcn8k0y_thONo444dPwK5j6QJVpVPbbSJfUBC-AdTQJOPpvz-pT1g7byw1d9s_8UiX9.js:271
+[  139738ms] [WARNING] Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently @ https://static.xx.fbcdn.net/rsrc.php/v4i8Sk4/yf/l/en_GB-j/9TtSG-zoLfvfQagRRCzLs3eD4YIyhHjF01ASgbdoO7fSHV_83TDKV3natBZ6RzieZ4tDWlMzFaZDiGKX9I3cdSFuSYH1VKMgOSnCAbtu0QbKno131EgksHw1S3o6T2Hw3CeE5LLpd-T4dAR9B8XRgcmIpGs8iKaFvlAkFHXZihB-cufjFcoZe-M7GclK5FVVF5jZySqgBZB0ewqNVPDmY9-9mGFkOa2oM1Rs0DGdyRjSS81t8PVxXFdkgwtuDkwTTp9-17ujcn8k0y_thONo444dPwK5j6QJVpVPbbSJfUBC-AdTQJOPpvz-pT1g7byw1d9s_8UiX9.js:271
+[  140130ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  140130ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  140130ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  146544ms] [ERROR] Permissions policy violation: unload is not allowed in this document. @ https://static.xx.fbcdn.net/rsrc.php/v4/yc/r/WwVK1XiKvTy.js:332
+[  169268ms] [ERROR] ErrorUtils caught an error:
+
+terminate stream because StartStreamFailure with msg : UNAUTHENTICATED [Caught in: Subscription error in preprocessResponse]
+
+Subsequent non-fatal errors won't be logged; see https://fburl.com/debugjs. {column: 180, clientTime: 1791478035, extra: Object, guardList: Array(0), hash: o4zqru} @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:84
+[  169277ms] [LOG] 
+%cStop! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  169277ms] [LOG] 
+%cThis is a browser feature intended for developers. If someone told you to copy and paste something here to enable a Facebook feature or "hack" someone's account, it's a scam and will give them access to your Facebook account. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  169277ms] [LOG] 
+%cSee https://www.facebook.com/selfxss for more information. font-family:helvetica; font-size:20px;  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  169277ms] [LOG] 
+%c  @ https://static.xx.fbcdn.net/rsrc.php/v4/yo/r/FBqdPl9WBmW.js:251
+[  170246ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2 @ https://www.gstatic.com/recaptcha/releases/guXhH0v-XMxlzmbTwqkaT4i5/recaptcha__en_gb.js:92
+[  170246ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2 @ https://www.gstatic.com/recaptcha/releases/guXhH0v-XMxlzmbTwqkaT4i5/recaptcha__en_gb.js:92
+[  183668ms] [INFO] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: https://fonts.gstatic.com/s/roboto/v48/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2 @ https://www.gstatic.com/recaptcha/releases/guXhH0v-XMxlzmbTwqkaT4i5/recaptcha__en_gb.js:92
+[  304034ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  304034ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  304034ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  304957ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  304957ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  304957ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  304962ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  304962ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  304962ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  304972ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  304972ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  304972ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  305067ms] [LOG] 
+%cStop! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ :0
+[  305067ms] [LOG] 
+%cThis is a browser feature intended for developers. If someone told you to copy and paste something here to enable a Facebook feature or "hack" someone's account, it's a scam and will give them access to your Facebook account. font-family:helvetica; font-size:20px;  @ :0
+[  305067ms] [LOG] 
+%cSee https://www.facebook.com/selfxss for more information. font-family:helvetica; font-size:20px;  @ :0
+[  305068ms] [LOG] 
+%c  @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  305083ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0
+[  305097ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'attribution-reporting'. @ :0
+[  305097ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage'. @ :0
+[  305097ms] [WARNING] Error with Permissions-Policy header: Unrecognized feature: 'shared-storage-select-url'. @ :0

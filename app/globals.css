@@ -1,26 +1,408 @@
 @import "tailwindcss";
 
+@theme {
+  --color-abyss: #04090d;
+  --color-panel: #0a141b;
+  --color-panel-2: #0d1a23;
+  --color-mint: #2ef2c8;
+  --color-mint-dim: #14c8a5;
+  --color-violet-neon: #a855f7;
+  --color-amber-neon: #f59e0b;
+
+  /* Semantic tokens: var-backed so .light can re-theme every
+     component without touching markup. Opacity modifiers
+     (e.g. bg-accent/15) resolve via color-mix at runtime. */
+  --color-app: var(--app);
+  --color-card: var(--card);
+  --color-raised: var(--raised);
+  --color-inset: var(--inset);
+  --color-chip: var(--chip);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-ubuntu), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #04090d;
+  --foreground: #ededed;
+
+  /* Dark (default) surfaces + text */
+  --app: #04090d;
+  --card: #0a141b;
+  --raised: #0d1a23;
+  --inset: #060d13;
+  --chip: rgba(255, 255, 255, 0.06);
+  --ink: #f1f5f9;
+  --muted: #94a3b8;
+  --faint: #64748b;
+  --line: rgba(255, 255, 255, 0.08);
+  --accent: #2ef2c8;
+  --scroll-thumb: rgba(255, 255, 255, 0.12);
+
+  /* Keycap scrollbar tones */
+  --key-face: #22394e;
+  --key-edge: #0a141b;
+
+  /* In-card backdrop keys: visible on dark cards */
+  --key-soft-top: rgba(34, 57, 78, 0.9);
+  --key-soft-bottom: rgba(10, 20, 27, 0.9);
+
+  /* Keyboard-matrix backdrop lines */
+  --grid-line: rgba(148, 163, 184, 0.1);
+  --grid-dot: rgba(203, 213, 225, 0.14);
+
+  /* Card elevation */
+  --card-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 20px 50px -30px rgba(0, 0, 0, 0.8);
+}
+
+/* Light theme: applied as class="light" on <html> by next-themes */
+.light {
+  --background: #edf1f4;
+  --foreground: #0b1520;
+
+  --app: #edf1f4;
+  --card: #ffffff;
+  --raised: #f5f8fa;
+  --inset: #e3e9ee;
+  --chip: rgba(11, 21, 32, 0.06);
+  --ink: #0b1520;
+  --muted: #50616f;
+  --faint: #7d8fa0;
+  --line: rgba(11, 21, 32, 0.12);
+  --accent: #0b7c66;
+  --scroll-thumb: rgba(11, 21, 32, 0.2);
+
+  /* Keycap scrollbar tones */
+  --key-face: #ffffff;
+  --key-edge: #c3ccd4;
+
+  /* In-card backdrop keys: visible on white cards */
+  --key-soft-top: #eef2f5;
+  --key-soft-bottom: #cfd8df;
+
+  /* Keyboard-matrix backdrop lines */
+  --grid-line: rgba(11, 21, 32, 0.08);
+  --grid-dot: rgba(11, 21, 32, 0.1);
+
+  /* Card elevation: soft in light mode */
+  --card-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 12px 28px -22px rgba(11, 21, 32, 0.28);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-ubuntu);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ubuntu), Arial, Helvetica, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(46, 242, 200, 0.7);
+  outline-offset: 2px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+
+/* Keyboard-keycap scrollbar: chunky beveled thumb floating over a
+   faint key-row tick track. Flashes mint on shortcut presses
+   (html gets .kb-hit from the Navbar for ~450ms). */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--key-edge) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--key-face), var(--key-edge));
+  background-clip: padding-box;
+  border: 2px solid var(--app);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent), var(--key-edge));
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Vertical track etched with faint key-row separators */
+::-webkit-scrollbar-track:vertical {
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 12px,
+    var(--line) 12px 13px
+  );
+}
+
+@keyframes kb-thumb-hit {
+  0% {
+    filter: brightness(1.9) saturate(1.5);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+html.kb-hit::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--accent),
+    color-mix(in srgb, var(--accent) 45%, var(--key-edge))
+  );
+  background-clip: padding-box;
+  border-color: var(--accent);
+  animation: kb-thumb-hit 0.45s ease-out;
+}
+
+/* Scattered keycap shapes floating on the backdrop grid */
+.kb-key {
+  position: absolute;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--key-face), var(--key-edge));
+  opacity: 0.38;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.22);
+}
+
+.kb-key-mint {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  opacity: 0.5;
+}
+
+/* Spotlight keys: brighter rim + soft glow */
+.kb-key-glow {
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.22),
+    0 0 18px color-mix(in srgb, var(--accent) 22%, transparent);
+  opacity: 0.75;
+}
+
+/* Gentle up-down float; per-key rhythm via --kb-dur / --kb-delay / --kb-lift.
+   Uses the independent `translate` property so each key's rotation is kept. */
+@keyframes kb-bounce {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 calc(var(--kb-lift, 10px) * -1);
+  }
+}
+
+.kb-key {
+  animation: kb-bounce var(--kb-dur, 3.4s) ease-in-out var(--kb-delay, 0s)
+    infinite;
+}
+
+/* Softer variant living inside cards (leaderboard backdrop keys) */
+.kb-key-soft {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--key-soft-top), var(--key-soft-bottom));
+  opacity: 0.85;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.22);
+  animation: kb-bounce var(--kb-dur, 3.6s) ease-in-out var(--kb-delay, 0s)
+    infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kb-key,
+  .kb-key-soft {
+    animation: none;
+  }
+}
+
+/* Full-page keyboard-matrix backdrop: faint key grid etched over the
+   app background with a soft accent aura up top. Static (no motion)
+   so it costs nothing at runtime. Fades out toward the footer. */
+.kb-grid-bg {
+  background-image:
+    radial-gradient(
+      ellipse 70% 42% at 50% -6%,
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--grid-line) 0 1px,
+      transparent 1px 54px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      var(--grid-line) 0 1px,
+      transparent 1px 54px
+    ),
+    radial-gradient(
+      circle,
+      var(--grid-dot) 1.5px,
+      transparent 1.6px
+    );
+  background-size:
+    auto,
+    auto,
+    auto,
+    54px 54px;
+  /* Full landing height: strong throughout, gentle fade at the very bottom */
+  mask-image: linear-gradient(
+    180deg,
+    black 0%,
+    black 78%,
+    transparent 100%
+  );
+}
+
+::selection {
+  background: rgba(46, 242, 200, 0.3);
+}
+
+.typing-caret {
+  animation: caret-blink 1s step-end infinite;
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rise {
+  animation: rise-in 0.7s ease both;
+}
+
+@keyframes wave-bar {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.live-dot {
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+
+/* Mini key-press ripple for benefit cards: keys depress in sequence */
+@keyframes kb-press {
+  0%,
+  100% {
+    translate: 0 0;
+    filter: brightness(1);
+  }
+  12% {
+    translate: 0 2px;
+    filter: brightness(1.5);
+  }
+  24% {
+    translate: 0 0;
+    filter: brightness(1);
+  }
+}
+
+.mini-key {
+  animation: kb-press 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mini-key {
+    animation: none;
+  }
+}
+
+/* Practice cards: stopwatch sweep hand */
+@keyframes dial-sweep {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dial-hand {
+  transform-origin: 50% 100%;
+  animation: dial-sweep 6s linear infinite;
+}
+
+/* Practice cards: word spotlight cycles top → bottom */
+@keyframes word-cycle {
+  0%,
+  100% {
+    background: transparent;
+    color: var(--muted);
+  }
+  6% {
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--ink);
+  }
+  26% {
+    background: transparent;
+    color: var(--muted);
+  }
+}
+
+.word-cycle {
+  animation: word-cycle 4.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dial-hand,
+  .word-cycle {
+    animation: none;
+  }
+}
+
+/* Battle arena: racers surge back and forth down their lanes */
+@keyframes lane-race {
+  0%,
+  100% {
+    width: var(--from, 64%);
+  }
+  50% {
+    width: var(--to, 76%);
+  }
+}
+
+.lane-fill {
+  animation: lane-race 3.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lane-fill {
+    animation: none;
+  }
 }

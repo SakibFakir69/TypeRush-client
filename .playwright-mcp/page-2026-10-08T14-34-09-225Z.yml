@@ -1,0 +1,382 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - link "⚡ TypeRush" [ref=f2e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f2e6]: ⚡
+          - generic [ref=f2e7]: TypeRush
+        - navigation "Primary" [ref=f2e8]:
+          - link "Practice" [ref=f2e9] [cursor=pointer]:
+            - /url: /#practice
+            - text: Practice1
+          - link "Challenges" [ref=f2e11] [cursor=pointer]:
+            - /url: /#challenges
+            - text: Challenges2
+          - link "Leaderboard" [ref=f2e13] [cursor=pointer]:
+            - /url: /#leaderboard
+            - text: Leaderboard3
+          - link "Contests" [ref=f2e15] [cursor=pointer]:
+            - /url: /#contests
+            - text: Contests4
+          - link "About" [ref=f2e17] [cursor=pointer]:
+            - /url: /#about
+            - text: About5
+        - generic [ref=f2e19]:
+          - button "Switch to light mode (press t)" [ref=f2e20]: ☾
+          - link "Log in" [ref=f2e21] [cursor=pointer]:
+            - /url: /#about
+          - link "Start test" [ref=f2e22] [cursor=pointer]:
+            - /url: /test
+    - main [ref=f2e23]:
+      - generic [ref=f2e24]:
+        - generic [ref=f2e26]:
+          - generic [ref=f2e27]: ⚡ The modern way to type
+          - heading "Type faster. Go further." [level=1] [ref=f2e28]: Type faster.Go further.
+          - paragraph [ref=f2e29]: Improve your speed, accuracy, and consistency with focused practice and real competition.
+          - generic [ref=f2e30]:
+            - link "Start Typing Now →" [ref=f2e31] [cursor=pointer]:
+              - /url: /test
+            - link "View Leaderboard" [ref=f2e32] [cursor=pointer]:
+              - /url: /#leaderboard
+          - generic [ref=f2e33]:
+            - generic [ref=f2e34]:
+              - generic [ref=f2e35]: SM
+              - generic [ref=f2e36]: TN
+              - generic [ref=f2e37]: KB
+              - generic [ref=f2e38]: SK
+              - generic [ref=f2e39]: ST
+            - paragraph [ref=f2e40]: 50K+ typistsalready improving
+        - generic [ref=f2e42]:
+          - generic [ref=f2e43]:
+            - generic [ref=f2e44]: 60s
+            - generic [ref=f2e45]: 30s
+            - generic [ref=f2e46]: 15s
+            - generic [ref=f2e47]: Quotes
+          - paragraph [ref=f2e49]: The quick brown fox jumps over the lazy dog. A fast movement of the…
+          - generic [ref=f2e50]:
+            - generic [ref=f2e51]:
+              - paragraph [ref=f2e52]: WPM
+              - paragraph [ref=f2e53]: "97"
+            - generic [ref=f2e54]:
+              - paragraph [ref=f2e55]: ACCURACY
+              - paragraph [ref=f2e56]: 98%
+            - generic [ref=f2e57]:
+              - paragraph [ref=f2e58]: ERRORS
+              - paragraph [ref=f2e59]: "2"
+          - link "Start live test →" [ref=f2e60] [cursor=pointer]:
+            - /url: /test
+          - paragraph [ref=f2e61]: 60 seconds · live WPM · no sign-up needed
+      - generic [ref=f2e63]:
+        - generic [ref=f2e64]:
+          - generic [ref=f2e65]: ⚡
+          - generic [ref=f2e66]:
+            - paragraph [ref=f2e67]: Improve Speed
+            - paragraph [ref=f2e68]: Train faster typing through focused practice.
+        - generic [ref=f2e69]:
+          - generic [ref=f2e70]: ◎
+          - generic [ref=f2e71]:
+            - paragraph [ref=f2e72]: Better Accuracy
+            - paragraph [ref=f2e73]: Reduce mistakes and type with confidence.
+        - generic [ref=f2e74]:
+          - generic [ref=f2e75]: 🏆
+          - generic [ref=f2e76]:
+            - paragraph [ref=f2e77]: Compete & Win
+            - paragraph [ref=f2e78]: Challenge others in battles and contests.
+        - generic [ref=f2e79]:
+          - generic [ref=f2e80]: 📊
+          - generic [ref=f2e81]:
+            - paragraph [ref=f2e82]: Track Progress
+            - paragraph [ref=f2e83]: Detailed stats to beat your personal best.
+      - generic [ref=f2e85]:
+        - generic [ref=f2e86]:
+          - paragraph [ref=f2e87]: "03"
+          - heading "Practice your way" [level=2] [ref=f2e88]: Practiceyour way
+          - paragraph [ref=f2e89]: Choose a mode that matches your goal. Short sprints, word lists, or real quotes.
+          - link "Explore Practice →" [ref=f2e91] [cursor=pointer]:
+            - /url: "#challenges"
+        - generic [ref=f2e93]:
+          - generic [ref=f2e94]:
+            - paragraph [ref=f2e95]: 🕐 Time
+            - paragraph [ref=f2e96]: Race the clock and push your limits.
+            - generic [ref=f2e97]:
+              - generic [ref=f2e98]: 15s
+              - generic [ref=f2e99]: 30s
+              - generic [ref=f2e100]: 60s
+              - generic [ref=f2e101]: 120s
+            - generic [ref=f2e102]: ◷
+          - generic [ref=f2e103]:
+            - paragraph [ref=f2e104]: 📄 Words
+            - paragraph [ref=f2e105]: Build speed with curated word lists.
+            - generic [ref=f2e106]:
+              - generic [ref=f2e107]: Easy
+              - generic [ref=f2e108]: Medium
+              - generic [ref=f2e109]: Hard
+            - generic [ref=f2e110]:
+              - paragraph [ref=f2e111]: focus
+              - paragraph [ref=f2e112]: speed
+              - paragraph [ref=f2e113]: improve
+              - paragraph [ref=f2e114]: consistent
+          - generic [ref=f2e115]:
+            - paragraph [ref=f2e116]: ❝ Quotes
+            - paragraph [ref=f2e117]: Real sentences and themes.
+            - generic [ref=f2e118]:
+              - generic [ref=f2e119]: Motivation
+              - generic [ref=f2e120]: Wisdom
+              - generic [ref=f2e121]: Fun
+            - paragraph [ref=f2e122]: “The secret of getting ahead is getting started.”
+            - paragraph [ref=f2e123]: — Mark Twain
+      - generic [ref=f2e125]:
+        - generic [ref=f2e126]:
+          - paragraph [ref=f2e127]: "04"
+          - heading "1v1 Typing Battles" [level=2] [ref=f2e128]
+          - paragraph [ref=f2e129]: Real-time battles. Real challengers. Real fun.
+          - link "Find an Opponent →" [ref=f2e131] [cursor=pointer]:
+            - /url: "#contests"
+        - generic [ref=f2e133]:
+          - generic [ref=f2e134]:
+            - paragraph [ref=f2e135]: LIVE
+            - generic [ref=f2e137]:
+              - generic [ref=f2e138]: S
+              - generic [ref=f2e139]:
+                - paragraph [ref=f2e140]: Sakib
+                - paragraph [ref=f2e141]: 124 WPM
+            - paragraph [ref=f2e158]: 98% Accuracy
+          - generic [ref=f2e159]:
+            - paragraph [ref=f2e160]: VS
+            - paragraph [ref=f2e161]: 00:24
+          - generic [ref=f2e162]:
+            - generic [ref=f2e163]:
+              - generic [ref=f2e164]:
+                - paragraph [ref=f2e165]: Alex
+                - paragraph [ref=f2e166]: 119 WPM
+              - generic [ref=f2e167]: A
+            - paragraph [ref=f2e184]: 96% Accuracy
+      - generic [ref=f2e186]:
+        - generic [ref=f2e187]:
+          - paragraph [ref=f2e188]: "05"
+          - heading "Climb the leaderboard" [level=2] [ref=f2e189]
+          - paragraph [ref=f2e190]: Every test is another step toward the top.
+          - link "View Leaderboard →" [ref=f2e192] [cursor=pointer]:
+            - /url: "#leaderboard"
+        - generic [ref=f2e194]:
+          - generic [ref=f2e195]:
+            - paragraph [ref=f2e196]: Top Typists
+            - generic [ref=f2e197]:
+              - generic [ref=f2e198]: Today
+              - generic [ref=f2e199]: This Week
+              - generic [ref=f2e200]: This Month
+              - generic [ref=f2e201]: All Time
+          - list [ref=f2e202]:
+            - listitem [ref=f2e203]:
+              - generic [ref=f2e204]: 🥇
+              - generic [ref=f2e205]: S
+              - generic [ref=f2e206]: SpeedMaster
+              - generic [ref=f2e207]: 167 WPM
+            - listitem [ref=f2e208]:
+              - generic [ref=f2e209]: 🥈
+              - generic [ref=f2e210]: T
+              - generic [ref=f2e211]: TypeNinja
+              - generic [ref=f2e212]: 156 WPM
+            - listitem [ref=f2e213]:
+              - generic [ref=f2e214]: 🥉
+              - generic [ref=f2e215]: K
+              - generic [ref=f2e216]: KeyBlazer
+              - generic [ref=f2e217]: 148 WPM
+            - listitem [ref=f2e218]:
+              - generic [ref=f2e219]: "4"
+              - generic [ref=f2e220]: S
+              - generic [ref=f2e221]: Sakib
+              - generic [ref=f2e222]: 123 WPM
+            - listitem [ref=f2e223]:
+              - generic [ref=f2e224]: "5"
+              - generic [ref=f2e225]: S
+              - generic [ref=f2e226]: SwiftTyper
+              - generic [ref=f2e227]: 118 WPM
+          - paragraph [ref=f2e228]: View Full Leaderboard →
+      - generic [ref=f2e230]:
+        - generic [ref=f2e231]:
+          - paragraph [ref=f2e232]: 05 — B
+          - heading "Weekly TypeRush contest" [level=2] [ref=f2e233]
+          - paragraph [ref=f2e234]: Compete with typists around the world and win exciting rewards.
+          - link "Join Weekly Contest →" [ref=f2e236] [cursor=pointer]:
+            - /url: "#contests"
+        - generic [ref=f2e238]:
+          - generic [ref=f2e239]:
+            - generic [ref=f2e240]:
+              - paragraph [ref=f2e241]: Weekly TypeRush
+              - generic [ref=f2e242]: Ends in 3d 14h 22m
+            - generic [ref=f2e243]:
+              - generic [ref=f2e244]:
+                - paragraph [ref=f2e245]: Top 100
+                - paragraph [ref=f2e246]: Get rewards
+              - generic [ref=f2e247]:
+                - paragraph [ref=f2e248]: 7 Days
+                - paragraph [ref=f2e249]: Competition
+              - generic [ref=f2e250]:
+                - paragraph [ref=f2e251]: No Entry Fee
+                - paragraph [ref=f2e252]: Just type & win
+          - generic [ref=f2e253]: 🏆
+      - generic [ref=f2e255]:
+        - generic [ref=f2e256]:
+          - paragraph [ref=f2e257]: "06"
+          - heading "Track your progress" [level=2] [ref=f2e258]
+          - paragraph [ref=f2e259]: Detailed insights to help you improve every day.
+          - link "View Dashboard →" [ref=f2e261] [cursor=pointer]:
+            - /url: "#progress"
+        - generic [ref=f2e263]:
+          - generic [ref=f2e264]:
+            - paragraph [ref=f2e265]: Your Progress
+            - generic [ref=f2e266]:
+              - generic [ref=f2e267]:
+                - paragraph [ref=f2e268]: Best WPM
+                - paragraph [ref=f2e269]: "123"
+              - generic [ref=f2e270]:
+                - paragraph [ref=f2e271]: Tests Taken
+                - paragraph [ref=f2e272]: "56"
+              - generic [ref=f2e273]:
+                - paragraph [ref=f2e274]: Accuracy
+                - paragraph [ref=f2e275]: 96%
+              - generic [ref=f2e276]:
+                - paragraph [ref=f2e277]: Time Typed
+                - paragraph [ref=f2e278]: 3h 24m
+              - generic [ref=f2e279]:
+                - paragraph [ref=f2e280]: Streak
+                - paragraph [ref=f2e281]: 🔥 7d
+            - generic [ref=f2e287]:
+              - generic [ref=f2e288]: May 10
+              - generic [ref=f2e289]: May 24
+              - generic [ref=f2e290]: Jun 7
+              - generic [ref=f2e291]: Jun 21
+          - generic [ref=f2e292]:
+            - generic [ref=f2e293]:
+              - paragraph [ref=f2e294]: Recent Achievements
+              - link "View All →" [ref=f2e295] [cursor=pointer]:
+                - /url: "#"
+            - list [ref=f2e296]:
+              - listitem [ref=f2e297]:
+                - generic [ref=f2e298]: ◎
+                - generic [ref=f2e299]:
+                  - paragraph [ref=f2e300]: Speed Demon
+                  - paragraph [ref=f2e301]: Achieved 100 WPM
+                - generic [ref=f2e302]: 2d ago
+              - listitem [ref=f2e303]:
+                - generic [ref=f2e304]: ⚡
+                - generic [ref=f2e305]:
+                  - paragraph [ref=f2e306]: Week Warrior
+                  - paragraph [ref=f2e307]: 7-day streak
+                - generic [ref=f2e308]: 5d ago
+              - listitem [ref=f2e309]:
+                - generic [ref=f2e310]: 🎯
+                - generic [ref=f2e311]:
+                  - paragraph [ref=f2e312]: Accuracy Master
+                  - paragraph [ref=f2e313]: 98%+ accuracy
+                - generic [ref=f2e314]: 1w ago
+      - generic [ref=f2e316]:
+        - generic [ref=f2e317]:
+          - paragraph [ref=f2e318]: "07"
+          - heading "Built for teams & organizations" [level=2] [ref=f2e319]: Built for teams& organizations
+          - paragraph [ref=f2e320]: Create contests, invite participants, and track results in real time.
+        - generic [ref=f2e322]:
+          - generic [ref=f2e323]:
+            - paragraph [ref=f2e324]: ◈ Create Contest
+            - paragraph [ref=f2e325]: Set rules, duration, and participants.
+            - list [ref=f2e326]:
+              - listitem [ref=f2e327]: Paragraph Competition
+              - listitem [ref=f2e328]: 3 Minutes
+              - listitem [ref=f2e329]: All Participants
+          - generic [ref=f2e330]:
+            - paragraph [ref=f2e331]: ◈ Invite Participants
+            - paragraph [ref=f2e332]: Share a link and invite anyone to join.
+            - list [ref=f2e333]:
+              - listitem [ref=f2e334]: Alex Johnson ✓
+              - listitem [ref=f2e335]: Maria Garcia ✓
+              - listitem [ref=f2e336]: James Lee ✓
+          - generic [ref=f2e337]:
+            - paragraph [ref=f2e338]: ◈ Track Results
+            - paragraph [ref=f2e339]: Live rankings and detailed performance.
+            - list [ref=f2e340]:
+              - listitem [ref=f2e341]: 🥈 2nd — Alex
+              - listitem [ref=f2e342]: 🥇 1st — Sakib
+              - listitem [ref=f2e343]: 🥉 3rd — Mia
+      - generic [ref=f2e345]:
+        - generic [ref=f2e346]:
+          - paragraph [ref=f2e347]: Ready to test your typing speed?
+          - paragraph [ref=f2e348]: Join thousands of typists and start your journey today.
+        - generic [aria-hidden] [ref=f2e349]: ⚡
+        - generic [ref=f2e350]:
+          - paragraph [ref=f2e351]: Practice. Improve. Compete. Win.
+          - paragraph [ref=f2e352]: ✓ Free to start • No credit card required • Start in seconds
+        - link "Start Typing Now →" [ref=f2e353] [cursor=pointer]:
+          - /url: "#practice"
+    - contentinfo [ref=f2e354]:
+      - generic [ref=f2e355]:
+        - generic [ref=f2e356]:
+          - paragraph [ref=f2e357]: ⚡ TypeRush
+          - paragraph [ref=f2e358]: The modern way to practice typing and compete. Free to start, no credit card required.
+        - generic [ref=f2e359]:
+          - paragraph [ref=f2e360]: Product
+          - list [ref=f2e361]:
+            - listitem [ref=f2e362]:
+              - link "Practice" [ref=f2e363] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e364]:
+              - link "Challenges" [ref=f2e365] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e366]:
+              - link "1v1 Battle" [ref=f2e367] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e368]:
+              - link "Leaderboard" [ref=f2e369] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e370]:
+              - link "Contests" [ref=f2e371] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e372]:
+          - paragraph [ref=f2e373]: Resources
+          - list [ref=f2e374]:
+            - listitem [ref=f2e375]:
+              - link "Help Center" [ref=f2e376] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e377]:
+              - link "Guides" [ref=f2e378] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e379]:
+              - link "Blog" [ref=f2e380] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e381]:
+              - link "API" [ref=f2e382] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e383]:
+          - paragraph [ref=f2e384]: Company
+          - list [ref=f2e385]:
+            - listitem [ref=f2e386]:
+              - link "About" [ref=f2e387] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e388]:
+              - link "Careers" [ref=f2e389] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e390]:
+              - link "Contact" [ref=f2e391] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e392]:
+          - paragraph [ref=f2e393]: Legal
+          - list [ref=f2e394]:
+            - listitem [ref=f2e395]:
+              - link "Privacy Policy" [ref=f2e396] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e397]:
+              - link "Terms of Service" [ref=f2e398] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f2e399]:
+              - link "Cookie Policy" [ref=f2e400] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f2e401]:
+          - paragraph [ref=f2e402]: Join the community
+          - generic [ref=f2e403]:
+            - generic [ref=f2e404]: 𝔻
+            - generic [ref=f2e405]: 𝕏
+            - generic [ref=f2e406]: ▶
+            - generic [ref=f2e407]: ◎
+          - paragraph [ref=f2e408]: © 2026 TypeRush. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=f2e414] [cursor=pointer]

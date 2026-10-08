@@ -1,0 +1,166 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - link "⚡ TypeRush" [ref=f1e5] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f1e6]: ⚡
+          - generic [ref=f1e7]: TypeRush
+        - navigation "Primary" [ref=f1e8]:
+          - link "Practice" [ref=f1e9] [cursor=pointer]:
+            - /url: /#practice
+            - text: Practice1
+          - link "Challenges" [ref=f1e11] [cursor=pointer]:
+            - /url: /#challenges
+            - text: Challenges2
+          - link "Leaderboard" [ref=f1e13] [cursor=pointer]:
+            - /url: /#leaderboard
+            - text: Leaderboard3
+          - link "Contests" [ref=f1e15] [cursor=pointer]:
+            - /url: /#contests
+            - text: Contests4
+          - link "About" [ref=f1e17] [cursor=pointer]:
+            - /url: /#about
+            - text: About5
+        - generic [ref=f1e19]:
+          - button "Switch to light mode (press t)" [ref=f1e20]: ☾
+          - link "Log in" [ref=f1e21] [cursor=pointer]:
+            - /url: /#about
+          - link "Start test" [ref=f1e22] [cursor=pointer]:
+            - /url: /test
+    - main [ref=f1e23]:
+      - generic [ref=f1e24]:
+        - generic [ref=f1e25]:
+          - link "← Back to home" [ref=f1e26] [cursor=pointer]:
+            - /url: /
+          - heading "Typing test" [level=1] [ref=f1e27]
+          - paragraph [ref=f1e28]: Pick a duration, click the text box, and type. Your score appears automatically — nothing to submit, nothing to configure.
+        - list [ref=f1e30]:
+          - listitem [ref=f1e31]:
+            - paragraph [ref=f1e32]: "1"
+            - paragraph [ref=f1e33]: Pick a duration
+            - paragraph [ref=f1e34]: 60s for warm-up, 15s for sprints.
+          - listitem [ref=f1e35]:
+            - paragraph [ref=f1e36]: "2"
+            - paragraph [ref=f1e37]: Just start typing
+            - paragraph [ref=f1e38]: The timer begins on your first keystroke.
+          - listitem [ref=f1e39]:
+            - paragraph [ref=f1e40]: "3"
+            - paragraph [ref=f1e41]: Read your score
+            - paragraph [ref=f1e42]: WPM, accuracy and errors update live.
+        - generic [ref=f1e44]:
+          - generic [ref=f1e45]:
+            - tablist "Duration" [ref=f1e46]:
+              - button "60s" [ref=f1e47]
+              - button "30s" [ref=f1e48]
+              - button "15s" [ref=f1e49]
+            - generic [ref=f1e50]:
+              - button "Words" [ref=f1e51]
+              - button "Quotes" [ref=f1e52]
+              - button "Custom" [ref=f1e53]
+          - generic [ref=f1e54]:
+            - paragraph [ref=f1e55]: The quick brown fox jumps over the lazy dog. A fast movement of the enemy will jeopardize six gunboats. Pack my box with five dozen liquor jugs.
+            - paragraph [ref=f1e56]: Click anywhere and start typing…
+            - textbox "Typing input" [ref=f1e57]
+          - generic [ref=f1e58]:
+            - generic [ref=f1e59]:
+              - generic [ref=f1e60]: ◉
+              - generic [ref=f1e61]:
+                - paragraph [ref=f1e62]: WPM
+                - paragraph [ref=f1e63]: "97"
+              - generic [ref=f1e64]: 0s in
+            - generic [ref=f1e65]:
+              - generic [ref=f1e66]: ◉
+              - generic [ref=f1e67]:
+                - paragraph [ref=f1e68]: ACCURACY
+                - paragraph [ref=f1e69]: 98%
+              - generic [ref=f1e70]: live
+            - generic [ref=f1e71]:
+              - generic [ref=f1e72]: ◉
+              - generic [ref=f1e73]:
+                - paragraph [ref=f1e74]: ERRORS
+                - paragraph [ref=f1e75]: "2"
+              - generic [ref=f1e76]: 60s left
+        - generic [ref=f1e78]:
+          - paragraph [ref=f1e79]: How scoring works
+          - list [ref=f1e80]:
+            - listitem [ref=f1e81]:
+              - generic [ref=f1e82]: ✓
+              - text: WPM = (correct characters ÷ 5) ÷ minutes.
+            - listitem [ref=f1e83]:
+              - generic [ref=f1e84]: ✓
+              - text: Accuracy counts every keystroke against the text.
+            - listitem [ref=f1e85]:
+              - generic [ref=f1e86]: ✓
+              - text: Slow down on unfamiliar words — errors cost more than speed gains.
+    - contentinfo [ref=f1e87]:
+      - generic [ref=f1e88]:
+        - generic [ref=f1e89]:
+          - paragraph [ref=f1e90]: ⚡ TypeRush
+          - paragraph [ref=f1e91]: The modern way to practice typing and compete. Free to start, no credit card required.
+        - generic [ref=f1e92]:
+          - paragraph [ref=f1e93]: Product
+          - list [ref=f1e94]:
+            - listitem [ref=f1e95]:
+              - link "Practice" [ref=f1e96] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e97]:
+              - link "Challenges" [ref=f1e98] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e99]:
+              - link "1v1 Battle" [ref=f1e100] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e101]:
+              - link "Leaderboard" [ref=f1e102] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e103]:
+              - link "Contests" [ref=f1e104] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f1e105]:
+          - paragraph [ref=f1e106]: Resources
+          - list [ref=f1e107]:
+            - listitem [ref=f1e108]:
+              - link "Help Center" [ref=f1e109] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e110]:
+              - link "Guides" [ref=f1e111] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e112]:
+              - link "Blog" [ref=f1e113] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e114]:
+              - link "API" [ref=f1e115] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f1e116]:
+          - paragraph [ref=f1e117]: Company
+          - list [ref=f1e118]:
+            - listitem [ref=f1e119]:
+              - link "About" [ref=f1e120] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e121]:
+              - link "Careers" [ref=f1e122] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e123]:
+              - link "Contact" [ref=f1e124] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f1e125]:
+          - paragraph [ref=f1e126]: Legal
+          - list [ref=f1e127]:
+            - listitem [ref=f1e128]:
+              - link "Privacy Policy" [ref=f1e129] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e130]:
+              - link "Terms of Service" [ref=f1e131] [cursor=pointer]:
+                - /url: "#"
+            - listitem [ref=f1e132]:
+              - link "Cookie Policy" [ref=f1e133] [cursor=pointer]:
+                - /url: "#"
+        - generic [ref=f1e134]:
+          - paragraph [ref=f1e135]: Join the community
+          - generic [ref=f1e136]:
+            - generic [ref=f1e137]: 𝔻
+            - generic [ref=f1e138]: 𝕏
+            - generic [ref=f1e139]: ▶
+            - generic [ref=f1e140]: ◎
+          - paragraph [ref=f1e141]: © 2026 TypeRush. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=f1e147] [cursor=pointer]

@@ -1,0 +1,10 @@
+[     703ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://www.instagram.com/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgFicmlkETFYdXpoY09HS0c3N25ySmoxc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEeuth-3wCcRbTvJoct9rrktu20fX1SCmsTIsHWd03dMIQKS0mXgV1fs_8G3qM_aem_lft01tMQmI2uABd8Uf6hig:0
+[     919ms] [LOG] 
+%cStop! font-family:helvetica; font-size:20px; font-size:50px; font-weight:bold; color:red; -webkit-text-stroke:1px black; @ https://static.cdninstagram.com/rsrc.php/v4ijWG4/yG/l/en_US/WlJgN3O9xO9.js:8
+[     920ms] [LOG] 
+%cThis is a browser feature intended for developers. If someone told you to copy-paste something here to enable an Instagram feature or "hack" someone's account, it is a scam and will give them access to your Instagram account. font-family:helvetica; font-size:20px;  @ https://static.cdninstagram.com/rsrc.php/v4ijWG4/yG/l/en_US/WlJgN3O9xO9.js:8
+[     921ms] [LOG] 
+%cSee https://www.facebook.com/selfxss for more information. font-family:helvetica; font-size:20px;  @ https://static.cdninstagram.com/rsrc.php/v4ijWG4/yG/l/en_US/WlJgN3O9xO9.js:8
+[     921ms] [LOG] 
+%c  @ https://static.cdninstagram.com/rsrc.php/v4ijWG4/yG/l/en_US/WlJgN3O9xO9.js:8
+[    1030ms] [INFO] Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner. @ https://www.instagram.com/?fbclid=IwZXh0bgNhZW0CMTEAcGRvZgFicmlkETFYdXpoY09HS0c3N25ySmoxc3J0YwZhcHBfaWQMMjU2MjgxMDQwNTU4AAEeuth-3wCcRbTvJoct9rrktu20fX1SCmsTIsHWd03dMIQKS0mXgV1fs_8G3qM_aem_lft01tMQmI2uABd8Uf6hig:0
