@@ -1,7 +1,13 @@
-import Image from "next/image";
+import { Avatar } from "@/components/ui/Avatar";
 import { Card, PrimaryButton, SectionTag } from "@/components/ui/primitives";
 
-const AVATARS = [12, 32, 5, 47, 68];
+const AVATARS = [
+  { img: 12, name: "Alex Carter" },
+  { img: 32, name: "Maria Garcia" },
+  { img: 5, name: "James Lee" },
+  { img: 47, name: "Mia Chen" },
+  { img: 68, name: "Sofia Reyes" },
+];
 
 export function Hero() {
   return (
@@ -29,11 +35,11 @@ export function Hero() {
       </div>
       <div className="mt-6 flex items-center gap-3">
         <div className="flex -space-x-2">
-          {AVATARS.map((img) => (
-            <Image
-              key={img}
-              src={`https://i.pravatar.cc/64?img=${img}`}
-              alt="TypeRush typist"
+          {AVATARS.map((a) => (
+            <Avatar
+              key={a.img}
+              src={`https://i.pravatar.cc/64?img=${a.img}`}
+              alt={a.name}
               width={32}
               height={32}
               className="h-8 w-8 rounded-full border-2 border-card object-cover"

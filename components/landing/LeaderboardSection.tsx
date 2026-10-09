@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import Image from "next/image";
+import { Avatar } from "@/components/ui/Avatar";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
@@ -189,7 +189,7 @@ export function LeaderboardSection() {
               >
                 {i + 1}
               </span>
-              <Image
+              <Avatar
                 src={`https://i.pravatar.cc/56?img=${r.img}`}
                 alt={r.name}
                 width={28}

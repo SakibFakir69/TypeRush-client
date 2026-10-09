@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { TYPING_TARGET } from "@/lib/landing";
 
-export function useTypingTest() {
+export function useTypingTest(target: string) {
   const [typed, setTyped] = useState("");
   const [duration, setDuration] = useState(60);
   const [timeLeft, setTimeLeft] = useState(60);
@@ -24,7 +23,7 @@ export function useTypingTest() {
     let err = 0;
     let correct = 0;
     for (let i = 0; i < typed.length; i++) {
-      if (typed[i] === TYPING_TARGET[i]) correct++;
+      if (typed[i] === target[i]) correct++;
       else err++;
     }
     const acc =
@@ -36,7 +35,7 @@ export function useTypingTest() {
       accuracy: acc,
       wpm: started ? Math.round(correct / 5 / minutes) : 97,
     };
-  }, [typed, started, timeLeft, duration]);
+  }, [typed, started, timeLeft, duration, target]);
 
   const reset = (d?: number) => {
     const nd = d ?? duration;
@@ -50,8 +49,8 @@ export function useTypingTest() {
   const onChange = (v: string) => {
     if (finished) return;
     if (!started && v.length > 0) setStarted(true);
-    if (v.length <= TYPING_TARGET.length) setTyped(v);
-    if (v.length >= TYPING_TARGET.length) setFinished(true);
+    if (v.length <= target.length) setTyped(v);
+    if (v.length >= target.length) setFinished(true);
   };
 
   return {

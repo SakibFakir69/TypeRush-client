@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Avatar } from "@/components/ui/Avatar";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { Swords, Timer } from "lucide-react";
@@ -51,7 +51,7 @@ function LaneRow({ lane }: { lane: Lane }) {
   const mirrored = lane.side === "right";
   return (
     <div className={cn("flex items-center gap-3", mirrored && "flex-row-reverse")}>
-      <Image
+      <Avatar
         src={`https://i.pravatar.cc/88?img=${lane.img}`}
         alt={lane.name}
         width={44}

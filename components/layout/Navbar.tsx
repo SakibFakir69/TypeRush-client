@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { NAV_ITEMS } from "@/lib/landing";
+import { CONTEST_TAB_EVENT } from "@/components/landing/ContestsSection";
 import { LEADERBOARD_TAB_EVENT } from "@/components/landing/LeaderboardSection";
 import { playLoginKey, playNavKey, playStartKey, playThemeToggle } from "@/lib/keySound";
 import { useActiveSection } from "@/hooks/useActiveSection";
@@ -14,9 +15,11 @@ import { cn } from "@/lib/cn";
  * Navbar with two interactive layers that share one glow language:
  * - Scrollspy: the section in view glows mint (desktop + mobile).
  * - Keyboard: 1–5 jump to sections, T toggles theme, L goes to
- *   Log in, S starts the test, B finds an opponent, R jumps to the
- *   ranks, D/W/M/A switch leaderboard periods — each with its own
- *   signature sound. Ignored while typing in inputs.
+ *   Log in, S starts the test, B finds an opponent, C joins the
+ *   contest, G starts a team contest, R jumps to the ranks,
+ *   P jumps to progress, D/W/M/A switch leaderboard periods,
+ *   E/O switch contests — each with its own sound.
+ *   Ignored while typing.
  */
 export function Navbar() {
   const active = useActiveSection(NAV_ITEMS.map((n) => n.sectionId));
@@ -95,6 +98,20 @@ export function Navbar() {
             .getElementById("leaderboard")
             ?.scrollIntoView({ behavior: "smooth", block: "start" });
           break;
+        case "p":
+          playNavKey(4);
+          document
+            .getElementById("progress")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          break;
+        case "c":
+          playNavKey(3);
+          router.push("/test");
+          break;
+        case "g":
+          playNavKey(1);
+          router.push("/test");
+          break;
         case "d":
         case "w":
         case "m":
@@ -113,6 +130,22 @@ export function Navbar() {
           );
           document
             .getElementById("leaderboard")
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          break;
+        }
+        case "e":
+        case "o": {
+          const names: Record<string, string> = {
+            e: "Weekly",
+            o: "Monthly",
+          };
+          const key = e.key.toLowerCase();
+          playNavKey(key === "e" ? 0 : 1);
+          window.dispatchEvent(
+            new CustomEvent(CONTEST_TAB_EVENT, { detail: names[key] })
+          );
+          document
+            .getElementById("contests")
             ?.scrollIntoView({ behavior: "smooth", block: "start" });
           break;
         }

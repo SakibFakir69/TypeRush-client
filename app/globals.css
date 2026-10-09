@@ -197,6 +197,11 @@ html.kb-hit::-webkit-scrollbar-thumb {
   opacity: 0.5;
 }
 
+/* Dimmer variant for busy sections (progress keeps keys whisper-quiet) */
+.kb-key-dim {
+  opacity: 0.35;
+}
+
 /* Spotlight keys: brighter rim + soft glow */
 .kb-key-glow {
   border-color: color-mix(in srgb, var(--accent) 60%, transparent);

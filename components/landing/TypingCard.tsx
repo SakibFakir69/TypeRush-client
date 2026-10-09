@@ -1,15 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Maximize, Minimize } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTypingTest } from "@/hooks/useTypingTest";
-import { TYPING_TARGET } from "@/lib/landing";
 import { cn } from "@/lib/cn";
 
-function CharView({ typed }: { typed: string }) {
+function CharView({ typed, target }: { typed: string; target: string }) {
   return (
     <p className="font-mono text-[16px] leading-8 tracking-wide">
-      {TYPING_TARGET.split("").map((ch, i) => {
+      {target.split("").map((ch, i) => {
         let cls = "text-faint";
         if (i < typed.length) {
           cls = typed[i] === ch ? "text-ink" : "rounded bg-rose-500/15 text-rose-500";
@@ -25,7 +25,7 @@ function CharView({ typed }: { typed: string }) {
   );
 }
 
-export function TypingCard() {
+export function TypingCard({ target }: { target: string }) {
   const {
     typed,
     timeLeft,
@@ -38,19 +38,39 @@ export function TypingCard() {
     setDuration,
     reset,
     onChange,
-  } = useTypingTest();
-  const [mode, setMode] = useState("Quotes");
+  } = useTypingTest(target);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const reduceMotion = useReducedMotion();
   const focusInput = () => inputRef.current?.focus();
 
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      cardRef.current?.requestFullscreen().catch(() => {});
+    }
+  };
+
   return (
     <div
+      ref={cardRef}
       className="h-full rounded-2xl border border-line bg-card p-4"
       onClick={focusInput}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <div className="flex rounded-lg border border-line bg-inset p-1 text-xs" role="tablist" aria-label="Duration">
+        <div
+          className="flex rounded-lg border border-line bg-inset p-1 text-xs"
+          role="tablist"
+          aria-label="Duration"
+        >
           {[60, 30, 15].map((d) => (
             <button
               key={d}
@@ -69,29 +89,33 @@ export function TypingCard() {
             </button>
           ))}
         </div>
-        <div className="ml-auto flex rounded-lg border border-line bg-inset p-1 text-xs">
-          {["Words", "Quotes", "Custom"].map((m) => (
-            <button
-              key={m}
-              onClick={(e) => {
-                e.stopPropagation();
-                setMode(m);
-              }}
-              className={cn(
-                "rounded-md px-3 py-1.5 font-semibold transition",
-                mode === m ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"
-              )}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
+        <p className="ml-auto text-[11px] tabular-nums text-faint">
+          {typed.length}/{target.length}
+        </p>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+          }}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen test"}
+          className="grid h-7 w-7 place-items-center rounded-md border border-line text-muted transition hover:text-ink"
+        >
+          {isFullscreen ? (
+            <Minimize size={13} aria-hidden />
+          ) : (
+            <Maximize size={13} aria-hidden />
+          )}
+        </button>
       </div>
 
       <div className="relative mt-3 min-h-[148px] cursor-text rounded-xl border border-line bg-inset p-5">
-        <CharView typed={typed} />
+        <CharView typed={typed} target={target} />
         {typed.length === 0 && (
-          <p className="mt-4 text-center text-xs text-faint">Click anywhere and start typing…</p>
+          <p className="mt-4 text-center text-xs text-faint">
+            Click anywhere and start typing…
+          </p>
         )}
         <input
           ref={inputRef}
@@ -110,8 +134,10 @@ export function TypingCard() {
               className="absolute inset-0 grid place-items-center rounded-xl bg-black/70 backdrop-blur-sm"
             >
               <div className="text-center">
-              <p className="text-lg font-extrabold text-accent">Test complete — {wpm} WPM</p>
-              <p className="mt-1 text-xs text-muted">
+                <p className="text-lg font-extrabold text-accent">
+                  Test complete — {wpm} WPM
+                </p>
+                <p className="mt-1 text-xs text-muted">
                   {accuracy}% accuracy · {errors} errors
                 </p>
                 <button
