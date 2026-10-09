@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/lib/auth";
 import { NAV_ITEMS } from "@/lib/landing";
 import { CONTEST_TAB_EVENT } from "@/components/landing/ContestsSection";
 import { LEADERBOARD_TAB_EVENT } from "@/components/landing/LeaderboardSection";
@@ -15,11 +16,11 @@ import { cn } from "@/lib/cn";
  * Navbar with two interactive layers that share one glow language:
  * - Scrollspy: the section in view glows mint (desktop + mobile).
  * - Keyboard: 1–5 jump to sections, T toggles theme, L goes to
- *   Log in, S starts the test, B finds an opponent, C joins the
- *   contest, G starts a team contest, R jumps to the ranks,
- *   P jumps to progress, D/W/M/A switch leaderboard periods,
- *   E/O switch contests — each with its own sound.
- *   Ignored while typing.
+ *   Log in, F signs up free, S starts the test, B finds an
+ *   opponent, C joins the contest, G starts a team contest,
+ *   R jumps to the ranks, P jumps to progress, D/W/M/A switch
+ *   leaderboard periods, E/O switch contests — each with its
+ *   own sound. Ignored while typing.
  */
 export function Navbar() {
   const active = useActiveSection(NAV_ITEMS.map((n) => n.sectionId));
@@ -86,11 +87,7 @@ export function Navbar() {
         }
         case "l":
           playLoginKey();
-          pulse("login", () =>
-            document
-              .getElementById("about")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" })
-          );
+          pulse("login", () => router.push("/login"));
           break;
         case "r":
           playNavKey(2);
@@ -161,6 +158,10 @@ export function Navbar() {
               router.push("/test");
             }
           });
+          break;
+        case "f":
+          playNavKey(4);
+          router.push("/signup");
           break;
       }
     };
@@ -243,7 +244,7 @@ export function Navbar() {
             </kbd>
           </button>
           <Link
-            href="/#about"
+            href="/login"
             title="Log in (press L)"
             className={cn(
               "hidden rounded-md border border-line px-3 py-1.5 text-[13px] font-medium transition-all duration-200 hover:bg-chip sm:block",
@@ -256,6 +257,19 @@ export function Navbar() {
               className="ml-1.5 rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
             >
               L
+            </kbd>
+          </Link>
+          <Link
+            href="/signup"
+            title="Sign up free (press F)"
+            className="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-muted transition-all duration-200 hover:text-ink md:block"
+          >
+            Sign up free
+            <kbd
+              aria-hidden
+              className="ml-1.5 rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
+            >
+              F
             </kbd>
           </Link>
           <Link
@@ -274,6 +288,7 @@ export function Navbar() {
               S
             </kbd>
           </Link>
+          <SessionChip />
         </div>
       </div>
 
@@ -296,5 +311,41 @@ export function Navbar() {
         ))}
       </nav>
     </header>
+  );
+}
+
+/** Logged-in user chip with logout; hidden while logged out. */
+function SessionChip() {
+  const { user, loading, logout } = useAuth();
+  const [busy, setBusy] = useState(false);
+  if (loading || !user) return null;
+  const label =
+    (typeof user.name === "string" && user.name) ||
+    (typeof user.fullName === "string" && user.fullName) ||
+    (typeof user.email === "string" && user.email) ||
+    "Account";
+  const initial = label.trim().charAt(0).toUpperCase() || "?";
+
+  return (
+    <span className="hidden items-center gap-1.5 sm:inline-flex">
+      <span
+        title={label}
+        className="grid h-8 w-8 place-items-center rounded-full border border-accent/40 bg-accent/15 text-xs font-extrabold text-accent"
+      >
+        {initial}
+      </span>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => {
+          setBusy(true);
+          logout().finally(() => setBusy(false));
+        }}
+        title="Log out"
+        className="rounded-md px-2 py-1.5 text-[13px] font-medium text-muted transition hover:text-ink disabled:opacity-60"
+      >
+        {busy ? "…" : "Log out"}
+      </button>
+    </span>
   );
 }

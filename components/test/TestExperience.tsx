@@ -23,10 +23,7 @@ import { TypingCard } from "@/components/landing/TypingCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
 
-const KINDS = ["Paragraphs", "Words", "Quotes", "Custom"] as const;
-type Kind = (typeof KINDS)[number];
-
-const KIND_META: Array<{ id: Kind; Icon: LucideIcon }> = [
+const KIND_META: Array<{ id: "Paragraphs" | "Words" | "Quotes" | "Custom"; Icon: LucideIcon }> = [
   { id: "Paragraphs", Icon: AlignLeft },
   { id: "Words", Icon: WholeWord },
   { id: "Quotes", Icon: TextQuote },
@@ -91,7 +88,7 @@ function Pager({
  */
 export function TestExperience() {
   const [lang, setLang] = useState<Lang>("en");
-  const [kind, setKind] = useState<Kind>("Paragraphs");
+  const [kind, setKind] = useState<(typeof KIND_META)[number]["id"]>("Paragraphs");
   const [idx, setIdx] = useState(0);
   const [wordSeed, setWordSeed] = useState(1);
   const [draft, setDraft] = useState("");

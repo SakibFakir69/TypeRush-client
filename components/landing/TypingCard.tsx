@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Maximize, Minimize } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTypingTest } from "@/hooks/useTypingTest";
+import { playDemoError, playDemoTick } from "@/lib/keySound";
 import { cn } from "@/lib/cn";
 
 function CharView({ typed, target }: { typed: string; target: string }) {
@@ -41,9 +42,24 @@ export function TypingCard({ target }: { target: string }) {
   } = useTypingTest(target);
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const prevLen = useRef(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const reduceMotion = useReducedMotion();
   const focusInput = () => inputRef.current?.focus();
+
+  // Mechanical feedback: tick per keystroke, deeper thock on backspace.
+  const handleChange = (v: string) => {
+    if (v.length > prevLen.current) playDemoTick(v.length);
+    else if (v.length < prevLen.current) playDemoError();
+    prevLen.current = v.length;
+    onChange(v);
+  };
+
+  const resetAll = (d?: number) => {
+    prevLen.current = 0;
+    reset(d);
+    focusInput();
+  };
 
   useEffect(() => {
     const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -77,8 +93,7 @@ export function TypingCard({ target }: { target: string }) {
               onClick={(e) => {
                 e.stopPropagation();
                 setDuration(d);
-                reset(d);
-                focusInput();
+                resetAll(d);
               }}
               className={cn(
                 "rounded-md px-3 py-1.5 font-semibold transition",
@@ -120,7 +135,7 @@ export function TypingCard({ target }: { target: string }) {
         <input
           ref={inputRef}
           value={typed}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           className="absolute inset-0 cursor-text opacity-0"
           aria-label="Typing input"
         />
@@ -143,8 +158,7 @@ export function TypingCard({ target }: { target: string }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    reset();
-                    focusInput();
+                    resetAll();
                   }}
                   className="mt-3 rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110"
                 >

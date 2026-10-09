@@ -60,7 +60,7 @@ export function playThemeToggle(toLight: boolean) {
   if (!ac) return;
   try {
     const seq = toLight ? [659.25, 880.0] : [880.0, 659.25];
-    seq.forEach((f, i) => tone(ac, f, { at: i * 0.07, dur: 0.12, vol: 0.12 }));
+    seq.forEach((f, i) => tone(ac, f, { at: i * 0.07, dur: 0.12, vol: 0.22 }));
   } catch {
     // stay silent, never break the toggle.
   }
@@ -72,7 +72,7 @@ export function playLoginKey() {
   if (!ac) return;
   try {
     [0, 0.09].forEach((at) =>
-      tone(ac, 587.33, { at, dur: 0.1, vol: 0.12, type: "triangle" })
+      tone(ac, 587.33, { at, dur: 0.1, vol: 0.22, type: "triangle" })
     );
   } catch {
     // stay silent, never break navigation.
@@ -85,7 +85,7 @@ export function playStartKey() {
   if (!ac) return;
   try {
     [523.25, 659.25, 783.99].forEach((f, i) =>
-      tone(ac, f, { at: i * 0.06, dur: 0.13, vol: 0.14 })
+      tone(ac, f, { at: i * 0.06, dur: 0.13, vol: 0.24 })
     );
   } catch {
     // stay silent, never break navigation.
@@ -104,8 +104,8 @@ export function playNavKey(index: number) {
     osc.type = "sine";
     osc.frequency.setValueAtTime(freq, t);
     oscGain.gain.setValueAtTime(0.0001, t);
-    oscGain.gain.exponentialRampToValueAtTime(0.16, t + 0.008);
-    oscGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    oscGain.gain.exponentialRampToValueAtTime(0.3, t + 0.008);
+    oscGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
     osc.connect(oscGain).connect(ac.destination);
     osc.start(t);
     osc.stop(t + 0.16);
@@ -116,7 +116,7 @@ export function playNavKey(index: number) {
     click.type = "triangle";
     click.frequency.setValueAtTime(freq * 4, t);
     clickGain.gain.setValueAtTime(0.0001, t);
-    clickGain.gain.exponentialRampToValueAtTime(0.06, t + 0.004);
+    clickGain.gain.exponentialRampToValueAtTime(0.12, t + 0.004);
     clickGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
     click.connect(clickGain).connect(ac.destination);
     click.start(t);
@@ -137,7 +137,12 @@ export function unlockAudio() {
 /** Soft keystroke tick for the auto-playing demo (skipped while suspended). */
 export function playDemoTick(step: number) {
   const ac = getContext();
-  if (!ac || ac.state !== "running") return;
+  if (!ac) return;
+  if (ac.state !== "running") {
+    // First interaction can arrive while suspended: resume, then replay once.
+    ac.resume().then(() => playDemoTick(step)).catch(() => {});
+    return;
+  }
   try {
     const t = ac.currentTime;
     const osc = ac.createOscillator();
@@ -145,11 +150,11 @@ export function playDemoTick(step: number) {
     osc.type = "sine";
     osc.frequency.setValueAtTime(1900 + (step % 5) * 130, t);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.045, t + 0.004);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
     osc.connect(gain).connect(ac.destination);
     osc.start(t);
-    osc.stop(t + 0.05);
+    osc.stop(t + 0.07);
   } catch {
     // stay silent.
   }
@@ -158,7 +163,11 @@ export function playDemoTick(step: number) {
 /** Dull thud for demo mistypes. */
 export function playDemoError() {
   const ac = getContext();
-  if (!ac || ac.state !== "running") return;
+  if (!ac) return;
+  if (ac.state !== "running") {
+    ac.resume().then(() => playDemoError()).catch(() => {});
+    return;
+  }
   try {
     const t = ac.currentTime;
     const osc = ac.createOscillator();
@@ -166,11 +175,11 @@ export function playDemoError() {
     osc.type = "triangle";
     osc.frequency.setValueAtTime(170, t);
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.09, t + 0.006);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    gain.gain.exponentialRampToValueAtTime(0.2, t + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.11);
     osc.connect(gain).connect(ac.destination);
     osc.start(t);
-    osc.stop(t + 0.11);
+    osc.stop(t + 0.13);
   } catch {
     // stay silent.
   }
