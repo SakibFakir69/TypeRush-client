@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useState, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -70,14 +70,16 @@ export function InlineLink({ href, children }: { href: string; children: ReactNo
 export function Field({
   label,
   error,
+  htmlFor,
   children,
 }: {
   label: string;
   error?: string;
+  htmlFor?: string;
   children: ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className="block" htmlFor={htmlFor}>
       <span className="mb-1.5 block text-[13px] font-bold">{label}</span>
       {children}
       {error && <span className="mt-1 block text-xs text-rose-500">{error}</span>}
@@ -102,10 +104,15 @@ export function PasswordField({
   autoComplete?: string;
 }) {
   const [show, setShow] = useState(false);
+  // Unique id so the label never swallows the eye-button click and both
+  // password fields stay fully independent (the old nested pattern
+  // double-toggled and stole focus).
+  const id = useId();
   return (
-    <Field label={label} error={error}>
+    <Field label={label} error={error} htmlFor={id}>
       <span className="relative block">
         <input
+          id={id}
           type={show ? "text" : "password"}
           placeholder={placeholder}
           autoComplete={autoComplete}
@@ -115,7 +122,10 @@ export function PasswordField({
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
+          // Keep focus in the input: no blur flash, no jumpy validation.
+          onMouseDown={(e) => e.preventDefault()}
           aria-label={show ? "Hide password" : "Show password"}
+          aria-pressed={show}
           className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted transition hover:text-ink"
         >
           {show ? <EyeOff size={16} aria-hidden /> : <Eye size={16} aria-hidden />}
@@ -143,9 +153,11 @@ export function FormOK({ message }: { message: string }) {
 
 export function SubmitButton({
   loading,
+  kbd,
   children,
 }: {
   loading: boolean;
+  kbd?: string;
   children: ReactNode;
 }) {
   return (
@@ -156,6 +168,14 @@ export function SubmitButton({
     >
       {loading && <Loader2 size={16} aria-hidden className="animate-spin" />}
       {children}
+      {kbd && (
+        <kbd
+          aria-hidden
+          className="rounded border border-black/20 bg-black/10 px-1 text-[10px] tabular-nums text-black/60"
+        >
+          {kbd}
+        </kbd>
+      )}
     </button>
   );
 }

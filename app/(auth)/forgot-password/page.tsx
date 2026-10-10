@@ -4,10 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  getApiError,
-  useForgotPasswordMutation,
-} from "@/lib/features/api/base-api";
+import { getApiError } from "@/helper/error-helper";
+import { useForgotPasswordMutation } from "@/lib/features/auth/features.auth";
+import { toast } from "sonner";
 import { forgotSchema, type ForgotInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -36,6 +35,7 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (values: ForgotInput) => {
     try {
       await forgot({ email: values.email }).unwrap();
+      toast.success("Code sent — check your inbox.");
       setDoneEmail(values.email);
     } catch (e) {
       setError("root", { message: getApiError(e) });
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
               className={inputCls}
             />
           </Field>
-          <SubmitButton loading={isLoading}>Send code →</SubmitButton>
+          <SubmitButton loading={isLoading} kbd="⏎">Send code →</SubmitButton>
         </form>
       )}
     </AuthShell>

@@ -37,7 +37,10 @@ export type ForgotInput = z.infer<typeof forgotSchema>;
 
 export const otpSchema = z.object({
   email,
-  otp: z.string().trim().min(1, "Enter the code."),
+  otp: z
+    .string()
+    .trim()
+    .length(6, "Enter the 6-digit code."),
 });
 export type OtpInput = z.infer<typeof otpSchema>;
 

@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLazyGetSessionQuery } from "@/lib/features/api/base-api";
+import { useLazyGetSessionQuery } from "@/lib/features/auth/features.auth";
 import { AuthShell, FormError, InlineLink } from "@/components/auth/ui";
 
 /**
@@ -32,7 +32,7 @@ function CallbackRunner() {
     trigger(undefined, false).then((res) => {
       if (!alive) return;
       if (res.data) {
-        router.replace("/test");
+        router.replace("/home");
       } else {
         setError(
           "Google redirected back but no session was created. Use email login for now."

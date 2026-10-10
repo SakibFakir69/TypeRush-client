@@ -7,17 +7,27 @@ Living notes for future work. Update when conventions change.
 - motion (scroll reveals), next-themes (dark/light), lucide-react (icons only —
   brand icons were REMOVED upstream; hand-roll brand SVGs), next/image
 - react-hook-form + zod + @hookform/resolvers for ALL forms
-- **Redux Toolkit**: per-request store (`lib/store.ts`, `app/StoreProvider.tsx`
-  mounted in root layout), typed hooks (`lib/hooks.ts`), slices
-  `lib/features/auth/authSlice.ts` (session thunks: fetch/login/signup/logout)
-  + `lib/features/user/userSlice.ts` (updateProfile/deleteAccount).
-  `lib/auth.tsx` is a thin facade with the same useAuth API — session truth
-  lives in the store, never duplicated. Empty `features/todos/*` stubs removed.
+- **Redux Toolkit Query**: shared `lib/features/api/base-api.ts`
+  (reducerPath "api", tags Session/Paragraph/Result) + injected feature
+  modules `lib/features/auth/features.auth.ts` (session, login, logout,
+  refresh, OTP, reset) and `lib/features/user/features.user.ts` (getMe,
+  create, update, delete). `lib/auth.tsx` is a hook-only `useAuth`
+  (no provider) over the session query; `helper/error-helper.ts` formats
+  rejections. No manual thunks, no duplicated session state.
 - next/font: Ubuntu (sans) + Geist Mono (typing text)
+- **Theme**: custom `lib/theme.tsx` (blocking pre-paint script via
+  next/script, system support, `typerush-theme` key) — next-themes was
+  removed (its rendered `<script>` tripped React 19 console errors)
+- **Toasts**: sonner via `components/ui/ThemedToaster.tsx` on auth
+  success actions (login, logout, code sent, password updated)
 - Backend: Express on :5000 (`API_URL` env), client talks via `/backend` rewrite
 
 ## Structure
 - `app/page.tsx` landing (thin composition) · `app/test/page.tsx` typing app
+- `app/(app)/` guarded member area (Sidebar+Topbar shell, session gate in
+  layout): home (dashboard), battles, contests, leaderboard, progress,
+  achievements, friends, settings — URL-stable (/home etc.)
+- `components/app/` shell + dashboard widgets; `lib/dashboard.ts` demo data
 - `app/(auth)/` login, signup, forgot-password, verify-otp, reset-password
 - `app/auth/callback` Google OAuth landing
 - `components/landing/*` one file per section · `components/ui/*` primitives
@@ -44,6 +54,12 @@ Living notes for future work. Update when conventions change.
 ## Auth contract (server: typerush-server, PORT=5000)
 - POST /api/v1/auth/login {email,password} → httpOnly cookies + body tokens
 - POST /api/v1/users {name,fullName,email,country,password 8–100} (signup)
+- Signup flow: register → /verify-signup?email= (auto-sends OTP) →
+  verify → welcome overlay → /login (NO auto-login; welcome only here)
+- Login lands on **/home** (was /test). `/home` is server-guarded
+  (`lib/server/session.ts` + `server-only`): no session → /login?next=/home;
+  roles via `hasRole(user, [...])` — server has NO role column yet so every
+  account counts as "user"; adding one activates real enforcement.
 - POST /api/v1/auth/forgot-password {email} → OTP email
 - POST /api/v1/auth/verify {email,otp} → {resetToken} (sessionStorage)
 - POST /api/v1/auth/reset-password {resetToken,password 8–128}

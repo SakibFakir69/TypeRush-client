@@ -21,7 +21,7 @@ import {
 function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
-  const next = useSearchParams().get("next") || "/test";
+  const next = useSearchParams().get("next") || "/home";
   const {
     register,
     handleSubmit,
@@ -68,7 +68,7 @@ function LoginForm() {
             <InlineLink href="/forgot-password">Forgot password?</InlineLink>
           </p>
         </div>
-        <SubmitButton loading={isSubmitting}>Log in →</SubmitButton>
+        <SubmitButton loading={isSubmitting} kbd="⏎">Log in →</SubmitButton>
       </form>
     </>
   );

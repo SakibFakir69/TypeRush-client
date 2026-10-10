@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import {
-  getApiError,
-  useResetPasswordMutation,
-} from "@/lib/features/api/base-api";
+import { getApiError } from "@/helper/error-helper";
+import { useResetPasswordMutation } from "@/lib/features/auth/features.auth";
+import { toast } from "sonner";
 import { resetSchema, type ResetInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -41,16 +40,27 @@ function ResetForm({ token }: { token: string }) {
       } catch {
         // ignore
       }
+      toast.success("Password updated — log in with the new one.");
       setDone(true);
     } catch (e) {
       setError("root", { message: getApiError(e) });
     }
   };
 
+  // Success auto-continues to login; the button below is the manual path.
+  useEffect(() => {
+    if (!done) return;
+    const t = setTimeout(() => router.push("/login"), 3000);
+    return () => clearTimeout(t);
+  }, [done, router]);
+
   if (done) {
     return (
       <div className="space-y-4">
         <FormOK message="Password reset successful — log in with your new password." />
+        <p className="text-center text-xs text-faint">
+          Taking you to log in in 3 seconds…
+        </p>
         <button
           type="button"
           onClick={() => router.push("/login")}
@@ -76,7 +86,7 @@ function ResetForm({ token }: { token: string }) {
         label="Confirm new password"
         autoComplete="new-password"
       />
-      <SubmitButton loading={isLoading}>Set new password →</SubmitButton>
+      <SubmitButton loading={isLoading} kbd="⏎">Set new password →</SubmitButton>
     </form>
   );
 }

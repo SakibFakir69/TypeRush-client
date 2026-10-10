@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { getApiError } from "@/helper/error-helper";
+import { useCreateUserMutation } from "@/lib/features/user/features.user";
 import { signupSchema, type SignupInput } from "@/components/auth/schemas";
-import { WelcomeOverlay } from "@/components/auth/WelcomeOverlay";
+import { COUNTRIES } from "@/components/auth/countries";
 import {
   AuthShell,
   Field,
@@ -20,15 +20,13 @@ import {
 } from "@/components/auth/ui";
 
 export default function SignupPage() {
-  const { signup } = useAuth();
   const router = useRouter();
-  const [welcomed, setWelcomed] = useState(false);
-  const [welcomeName, setWelcomeName] = useState("");
+  const [createUser, { isLoading }] = useCreateUserMutation();
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
     mode: "onTouched",
@@ -44,18 +42,13 @@ export default function SignupPage() {
 
   const onSubmit = async (values: SignupInput) => {
     // Server zod strips the extra `confirm` key automatically.
-    const res = await signup({ ...values });
-    if (res.ok) {
-      setWelcomeName(values.name.trim().split(" ")[0]);
-      setWelcomed(true);
-    } else {
-      setError("root", { message: res.message });
+    // No auto-login here: the account must verify its email first.
+    try {
+      await createUser({ ...values }).unwrap();
+      router.push(`/verify-signup?email=${encodeURIComponent(values.email)}`);
+    } catch (e) {
+      setError("root", { message: getApiError(e) });
     }
-  };
-
-  const goApp = () => {
-    router.push("/test");
-    router.refresh();
   };
 
   return (
@@ -99,9 +92,15 @@ export default function SignupPage() {
           <input
             placeholder="Bangladesh"
             autoComplete="country-name"
+            list="country-list"
             {...register("country")}
             className={inputCls}
           />
+          <datalist id="country-list">
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <PasswordField
@@ -116,9 +115,8 @@ export default function SignupPage() {
             autoComplete="new-password"
           />
         </div>
-        <SubmitButton loading={isSubmitting}>Sign up free →</SubmitButton>
+        <SubmitButton loading={isLoading} kbd="⏎">Sign up free →</SubmitButton>
       </form>
-      {welcomed && <WelcomeOverlay name={welcomeName} onDone={goApp} />}
     </AuthShell>
   );
 }

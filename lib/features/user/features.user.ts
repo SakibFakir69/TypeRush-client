@@ -7,12 +7,20 @@ import type { SessionUser } from "../api/base-api";
 
 type CreateUserRequest = {
   name: string;
+  fullName: string;
   email: string;
+  country: string;
   password: string;
+  age?: number | null;
+  avatarUrl?: string | null;
+  bio?: string | null;
 };
 
 type UpdateUserRequest = {
   name?: string;
+  fullName?: string;
+  country?: string;
+  bio?: string;
   avatarUrl?: string | null;
 };
 

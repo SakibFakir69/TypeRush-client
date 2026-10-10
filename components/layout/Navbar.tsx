@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/lib/theme";
 import { motion } from "motion/react";
 import { useAuth } from "@/lib/auth";
 import { NAV_ITEMS } from "@/lib/landing";

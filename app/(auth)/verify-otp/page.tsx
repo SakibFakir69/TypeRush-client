@@ -4,10 +4,8 @@ import { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  getApiError,
-  useVerifyOtpMutation,
-} from "@/lib/features/api/base-api";
+import { getApiError } from "@/helper/error-helper";
+import { useVerifyOtpMutation } from "@/lib/features/auth/features.auth";
 import { otpSchema, type OtpInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -74,10 +72,10 @@ function VerifyForm() {
           placeholder="6-digit code"
           autoComplete="one-time-code"
           inputMode="numeric"
-          maxLength={12}
+          maxLength={6}
           {...register("otp", {
             onChange: (e) => {
-              e.target.value = e.target.value.replace(/\s+/g, "");
+              e.target.value = e.target.value.replace(/\D+/g, "").slice(0, 6);
             },
           })}
           className={`${inputCls} font-mono text-lg tracking-[0.3em]`}
@@ -87,7 +85,7 @@ function VerifyForm() {
         Wrong code 5+ times locks it — request a fresh one from{" "}
         <InlineLink href="/forgot-password">forgot password</InlineLink>.
       </p>
-      <SubmitButton loading={isLoading}>Verify code →</SubmitButton>
+      <SubmitButton loading={isLoading} kbd="⏎">Verify code →</SubmitButton>
     </form>
   );
 }

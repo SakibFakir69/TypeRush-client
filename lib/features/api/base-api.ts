@@ -9,11 +9,13 @@ export type SessionUser = {
   avatarUrl?: string | null;
 } & Record<string, unknown>;
 
+console.log(process.env.NEXT_PUBLIC_BACKEND_URL , "BACKEND URL")
+
 export const baseApi = createApi({
   reducerPath: "api",
 
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_BACKEND_URL,
+    baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
     credentials: "include",
   }),
 
