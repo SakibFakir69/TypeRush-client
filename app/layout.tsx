@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Ubuntu, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { AuthProvider } from "@/lib/auth";
+import StoreProvider from "./StoreProvider";
 import { AudioUnlock } from "@/components/ui/AudioUnlock";
 import { MotionProvider } from "@/components/ui/MotionProvider";
 import "./globals.css";
@@ -32,10 +32,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <AuthProvider>
+          <StoreProvider>
             <AudioUnlock />
             <MotionProvider>{children}</MotionProvider>
-          </AuthProvider>
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

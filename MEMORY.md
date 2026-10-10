@@ -7,6 +7,12 @@ Living notes for future work. Update when conventions change.
 - motion (scroll reveals), next-themes (dark/light), lucide-react (icons only —
   brand icons were REMOVED upstream; hand-roll brand SVGs), next/image
 - react-hook-form + zod + @hookform/resolvers for ALL forms
+- **Redux Toolkit**: per-request store (`lib/store.ts`, `app/StoreProvider.tsx`
+  mounted in root layout), typed hooks (`lib/hooks.ts`), slices
+  `lib/features/auth/authSlice.ts` (session thunks: fetch/login/signup/logout)
+  + `lib/features/user/userSlice.ts` (updateProfile/deleteAccount).
+  `lib/auth.tsx` is a thin facade with the same useAuth API — session truth
+  lives in the store, never duplicated. Empty `features/todos/*` stubs removed.
 - next/font: Ubuntu (sans) + Geist Mono (typing text)
 - Backend: Express on :5000 (`API_URL` env), client talks via `/backend` rewrite
 

@@ -2,8 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { apiFetch } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useLazyGetSessionQuery } from "@/lib/features/api/base-api";
 import { AuthShell, FormError, InlineLink } from "@/components/auth/ui";
 
 /**
@@ -15,7 +14,7 @@ import { AuthShell, FormError, InlineLink } from "@/components/auth/ui";
 function CallbackRunner() {
   const router = useRouter();
   const params = useSearchParams();
-  const { refresh } = useAuth();
+  const [trigger] = useLazyGetSessionQuery();
   const [error, setError] = useState("");
 
   const failed = params.get("error");
@@ -29,24 +28,21 @@ function CallbackRunner() {
   useEffect(() => {
     if (preError) return;
     let alive = true;
-    // The token alone isn't a session: confirm cookies/session via /users.
-    refresh().then(() => {
+    // The token alone isn't a session: force-confirm via /users.
+    trigger(undefined, false).then((res) => {
       if (!alive) return;
-      apiFetch("/api/v1/users").then((res) => {
-        if (!alive) return;
-        if (res.ok) {
-          router.replace("/test");
-        } else {
-          setError(
-            "Google redirected back but no session was created. Use email login for now."
-          );
-        }
-      });
+      if (res.data) {
+        router.replace("/test");
+      } else {
+        setError(
+          "Google redirected back but no session was created. Use email login for now."
+        );
+      }
     });
     return () => {
       alive = false;
     };
-  }, [preError, refresh, router]);
+  }, [preError, trigger, router]);
 
   const shown = error || preError;
   if (!shown) {

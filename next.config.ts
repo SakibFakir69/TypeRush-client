@@ -12,8 +12,11 @@ const nextConfig: NextConfig = {
   async rewrites() {
     // Same-origin API proxy: browser cookies stay first-party and
     // no CORS preflights are needed in dev or production.
-    // Point API_URL at the Express server (default local :5000).
-    const api = process.env.API_URL ?? "http://localhost:5000";
+    // Server URL resolution: NEXT_BACKEND_URL (.env) → API_URL → local.
+    const api =
+      process.env.NEXT_BACKEND_URL ??
+      process.env.API_URL ??
+      "http://localhost:5000";
     return [{ source: "/backend/:path*", destination: `${api}/:path*` }];
   },
 };

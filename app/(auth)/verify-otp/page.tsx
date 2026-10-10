@@ -4,7 +4,10 @@ import { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import {
+  getApiError,
+  useVerifyOtpMutation,
+} from "@/lib/features/api/base-api";
 import { otpSchema, type OtpInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -18,11 +21,12 @@ import {
 function VerifyForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const [verify, { isLoading }] = useVerifyOtpMutation();
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<OtpInput>({
     resolver: zodResolver(otpSchema),
     mode: "onTouched",
@@ -30,13 +34,17 @@ function VerifyForm() {
   });
 
   const onSubmit = async (values: OtpInput) => {
-    const res = await apiFetch<{ resetToken?: string }>(
-      "/api/v1/auth/verify",
-      { method: "POST", body: { email: values.email, otp: values.otp } }
-    );
-    if (res.ok && res.data?.resetToken) {
+    try {
+      const data = await verify({
+        email: values.email,
+        otp: values.otp,
+      }).unwrap();
+      if (!data.resetToken) {
+        setError("root", { message: "Verification failed — try again." });
+        return;
+      }
       try {
-        window.sessionStorage.setItem("typerush-reset-token", res.data.resetToken);
+        window.sessionStorage.setItem("typerush-reset-token", data.resetToken);
       } catch {
         setError("root", {
           message: "Browser storage is blocked — enable it to continue.",
@@ -44,10 +52,8 @@ function VerifyForm() {
         return;
       }
       router.push("/reset-password");
-    } else {
-      setError("root", {
-        message: res.ok ? "Verification failed — try again." : res.message,
-      });
+    } catch (e) {
+      setError("root", { message: getApiError(e) });
     }
   };
 
@@ -81,7 +87,7 @@ function VerifyForm() {
         Wrong code 5+ times locks it — request a fresh one from{" "}
         <InlineLink href="/forgot-password">forgot password</InlineLink>.
       </p>
-      <SubmitButton loading={isSubmitting}>Verify code →</SubmitButton>
+      <SubmitButton loading={isLoading}>Verify code →</SubmitButton>
     </form>
   );
 }

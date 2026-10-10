@@ -4,7 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { apiFetch } from "@/lib/api";
+import {
+  getApiError,
+  useForgotPasswordMutation,
+} from "@/lib/features/api/base-api";
 import { forgotSchema, type ForgotInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -18,11 +21,12 @@ import {
 
 export default function ForgotPasswordPage() {
   const [doneEmail, setDoneEmail] = useState("");
+  const [forgot, { isLoading }] = useForgotPasswordMutation();
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ForgotInput>({
     resolver: zodResolver(forgotSchema),
     mode: "onTouched",
@@ -30,14 +34,11 @@ export default function ForgotPasswordPage() {
   });
 
   const onSubmit = async (values: ForgotInput) => {
-    const res = await apiFetch("/api/v1/auth/forgot-password", {
-      method: "POST",
-      body: { email: values.email },
-    });
-    if (res.ok) {
+    try {
+      await forgot({ email: values.email }).unwrap();
       setDoneEmail(values.email);
-    } else {
-      setError("root", { message: res.message });
+    } catch (e) {
+      setError("root", { message: getApiError(e) });
     }
   };
 
@@ -69,7 +70,7 @@ export default function ForgotPasswordPage() {
               className={inputCls}
             />
           </Field>
-          <SubmitButton loading={isSubmitting}>Send code →</SubmitButton>
+          <SubmitButton loading={isLoading}>Send code →</SubmitButton>
         </form>
       )}
     </AuthShell>

@@ -1,112 +1,83 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import {
+  getApiError,
+  useGetSessionQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useSignupMutation,
+  type SessionUser,
+} from "@/lib/features/api/base-api";
 
-export type SessionUser = {
-  id?: string;
-  name?: string;
-  fullName?: string;
-  email?: string;
-  avatarUrl?: string | null;
-} & Record<string, unknown>;
+export type { SessionUser };
 
-type AuthContextValue = {
-  user: SessionUser | null;
-  loading: boolean;
-  refresh: () => Promise<void>;
-  login: (email: string, password: string) => Promise<{ ok: boolean; message: string }>;
-  signup: (input: Record<string, unknown>) => Promise<{ ok: boolean; message: string }>;
-  logout: () => Promise<void>;
-};
+type AuthResult = { ok: boolean; message: string };
 
-const AuthContext = createContext<AuthContextValue | null>(null);
-
-async function fetchMe(): Promise<SessionUser | null> {
-  const res = await apiFetch<unknown>("/api/v1/users");
-  if (!res.ok || !res.data || typeof res.data !== "object") return null;
-  const d = res.data as Record<string, unknown>;
-  if (d.user && typeof d.user === "object") return d.user as SessionUser;
-  return d as SessionUser;
-}
-
-/** Session provider: hydrates the user from the httpOnly cookie session. */
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [loading, setLoading] = useState(true);
+/**
+ * Session hook backed directly by RTK Query — no context provider,
+ * no manual thunks. Every mounted instance shares the cached session;
+ * login/signup/logout invalidate the "Session" tag so it refetches.
+ */
+export function useAuth() {
   const router = useRouter();
+  const { data, isLoading, refetch } = useGetSessionQuery();
+  const [loginMut] = useLoginMutation();
+  const [signupMut] = useSignupMutation();
+  const [logoutMut] = useLogoutMutation();
+
+  const user = data ?? null;
 
   const refresh = useCallback(async () => {
-    setUser(await fetchMe());
-  }, []);
+    await refetch();
+  }, [refetch]);
 
-  useEffect(() => {
-    let alive = true;
-    fetchMe()
-      .then((u) => {
-        if (alive) setUser(u);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await apiFetch("/api/v1/auth/login", {
-      method: "POST",
-      body: { email, password },
-    });
-    if (res.ok) {
-      setUser(await fetchMe());
-      router.refresh();
-    }
-    return { ok: res.ok, message: res.message };
-  }, [router]);
+  const login = useCallback(
+    async (email: string, password: string): Promise<AuthResult> => {
+      try {
+        await loginMut({ email, password }).unwrap();
+        router.refresh();
+        return { ok: true, message: "Logged in." };
+      } catch (e) {
+        return { ok: false, message: getApiError(e) };
+      }
+    },
+    [loginMut, router]
+  );
 
   const signup = useCallback(
-    async (input: Record<string, unknown>) => {
-      const created = await apiFetch("/api/v1/users", {
-        method: "POST",
-        body: input,
-      });
-      if (!created.ok) return { ok: false, message: created.message };
-      // Server doesn't auto-login on signup: sign in with the same creds.
-      const email = input.email;
-      const password = input.password;
-      if (typeof email === "string" && typeof password === "string") {
-        return await login(email, password);
+    async (input: Record<string, unknown>): Promise<AuthResult> => {
+      try {
+        await signupMut(input).unwrap();
+      } catch (e) {
+        return { ok: false, message: getApiError(e) };
       }
-      return { ok: true, message: created.message };
+      // Server doesn't auto-login on signup: sign in with the same creds.
+      const { email, password } = input;
+      if (typeof email !== "string" || typeof password !== "string") {
+        return { ok: true, message: "Account created — please log in." };
+      }
+      return await login(email, password);
     },
-    [login]
+    [signupMut, login]
   );
 
   const logout = useCallback(async () => {
-    await apiFetch("/api/v1/auth/logout", { method: "POST" });
-    setUser(null);
+    try {
+      await logoutMut().unwrap();
+    } catch {
+      // Session ends locally even if the server call fails.
+    }
     router.refresh();
-  }, [router]);
+  }, [logoutMut, router]);
 
-  return (
-    <AuthContext.Provider value={{ user, loading, refresh, login, signup, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-  return ctx;
+  return {
+    user,
+    loading: isLoading,
+    refresh,
+    login,
+    signup,
+    logout,
+  };
 }

@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import {
+  getApiError,
+  useResetPasswordMutation,
+} from "@/lib/features/api/base-api";
 import { resetSchema, type ResetInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -18,11 +21,12 @@ import {
 function ResetForm({ token }: { token: string }) {
   const router = useRouter();
   const [done, setDone] = useState(false);
+  const [reset, { isLoading }] = useResetPasswordMutation();
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ResetInput>({
     resolver: zodResolver(resetSchema),
     mode: "onTouched",
@@ -30,19 +34,16 @@ function ResetForm({ token }: { token: string }) {
   });
 
   const onSubmit = async (values: ResetInput) => {
-    const res = await apiFetch("/api/v1/auth/reset-password", {
-      method: "POST",
-      body: { resetToken: token, password: values.password },
-    });
-    if (res.ok) {
+    try {
+      await reset({ resetToken: token, password: values.password }).unwrap();
       try {
         window.sessionStorage.removeItem("typerush-reset-token");
       } catch {
         // ignore
       }
       setDone(true);
-    } else {
-      setError("root", { message: res.message });
+    } catch (e) {
+      setError("root", { message: getApiError(e) });
     }
   };
 
@@ -75,7 +76,7 @@ function ResetForm({ token }: { token: string }) {
         label="Confirm new password"
         autoComplete="new-password"
       />
-      <SubmitButton loading={isSubmitting}>Set new password →</SubmitButton>
+      <SubmitButton loading={isLoading}>Set new password →</SubmitButton>
     </form>
   );
 }
