@@ -242,9 +242,16 @@ export function TestExperience() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
+            title="Back to home (press H)"
             className="inline-flex items-center gap-1 text-[13px] text-muted transition hover:text-accent"
           >
             ← Back to home
+            <kbd
+              aria-hidden
+              className="rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
+            >
+              H
+            </kbd>
           </Link>
           {!showIntro && (
             <button

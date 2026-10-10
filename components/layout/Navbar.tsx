@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { motion } from "motion/react";
 import { useAuth } from "@/lib/auth";
 import { NAV_ITEMS } from "@/lib/landing";
 import { CONTEST_TAB_EVENT } from "@/components/landing/ContestsSection";
@@ -18,13 +19,14 @@ import { cn } from "@/lib/cn";
  * - Keyboard: 1–5 jump to sections, T toggles theme, L goes to
  *   Log in, F signs up free, S starts the test, B finds an
  *   opponent, C joins the contest, G starts a team contest,
- *   R jumps to the ranks, P jumps to progress, D/W/M/A switch
- *   leaderboard periods, E/O switch contests — each with its
- *   own sound. Ignored while typing.
+ *   H goes home, R jumps to the ranks, P jumps to progress,
+ *   D/W/M/A switch leaderboard periods, E/O switch contests —
+ *   each with its own sound. Ignored while typing.
  */
 export function Navbar() {
   const active = useActiveSection(NAV_ITEMS.map((n) => n.sectionId));
   const { resolvedTheme, setTheme } = useTheme();
+  const { user: sessionUser } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [pressedKey, setPressedKey] = useState<string | null>(null);
@@ -107,7 +109,11 @@ export function Navbar() {
           break;
         case "g":
           playNavKey(1);
-          router.push("/test");
+          router.push(sessionUser ? "/test" : "/login");
+          break;
+        case "h":
+          playNavKey(0);
+          router.push("/");
           break;
         case "d":
         case "w":
@@ -147,7 +153,6 @@ export function Navbar() {
           break;
         }
         case "s":
-        case "b":
           playStartKey();
           pulse("start", () => {
             if (window.location.pathname === "/test") {
@@ -159,6 +164,10 @@ export function Navbar() {
             }
           });
           break;
+        case "b":
+          playStartKey();
+          router.push(sessionUser ? "/test" : "/login");
+          break;
         case "f":
           playNavKey(4);
           router.push("/signup");
@@ -167,7 +176,7 @@ export function Navbar() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [resolvedTheme, setTheme, router]);
+  }, [resolvedTheme, setTheme, router, sessionUser]);
 
   const isDark = !mounted || resolvedTheme !== "light";
 
@@ -211,12 +220,14 @@ export function Navbar() {
                 >
                   {i + 1}
                 </kbd>
-                <span
-                  className={cn(
-                    "absolute -bottom-[1px] left-3 right-3 h-px bg-accent shadow-[0_0_10px_rgba(46,242,200,0.9)] transition-opacity",
-                    lit ? "opacity-100" : "opacity-0"
-                  )}
-                />
+                {lit && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    aria-hidden
+                    className="absolute -bottom-[1px] left-3 right-3 h-px bg-accent shadow-[0_0_10px_rgba(46,242,200,0.9)]"
+                    transition={{ type: "spring", stiffness: 500, damping: 38 }}
+                  />
+                )}
               </a>
             );
           })}

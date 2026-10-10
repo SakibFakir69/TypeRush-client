@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { Swords, Timer } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/primitives";
 import { cn } from "@/lib/cn";
 
@@ -99,6 +100,8 @@ function LaneRow({ lane }: { lane: Lane }) {
 export function BattleSection() {
   // Live round countdown: 24s → 0, then the next round starts.
   const [seconds, setSeconds] = useState(24);
+  const { user, loading } = useAuth();
+  const oppHref = !loading && user ? "/test" : "/login";
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -161,7 +164,7 @@ export function BattleSection() {
 
         <div className="mt-5 text-center">
           <Link
-            href="/test"
+            href={oppHref}
             title="Find an Opponent (press B)"
             className="inline-block rounded-lg bg-mint px-5 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
           >

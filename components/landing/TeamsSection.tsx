@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
+import { TeamCtaButton } from "@/components/landing/TeamCtaButton";
 import {
   BarChart3,
   Check,
@@ -127,20 +127,7 @@ export function TeamsSection() {
         </div>
 
         <div className="mt-6 text-center">
-          <Link
-            href="/test"
-            title="Start a Team Contest (press G)"
-            className="inline-block rounded-lg bg-mint px-5 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
-          >
-            Start a Team Contest
-            <kbd
-              aria-hidden
-              className="ml-1.5 rounded border border-black/20 bg-black/10 px-1 text-[10px] tabular-nums text-black/60"
-            >
-              G
-            </kbd>{" "}
-            →
-          </Link>
+          <TeamCtaButton />
         </div>
       </Card>
     </section>

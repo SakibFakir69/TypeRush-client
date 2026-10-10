@@ -12,6 +12,7 @@ import { TeamsSection } from "@/components/landing/TeamsSection";
 import { CtaBanner } from "@/components/landing/CtaBanner";
 import { KeyboardBackdrop } from "@/components/landing/KeyboardBackdrop";
 import { Reveal } from "@/components/ui/Reveal";
+import { ScrollJourney } from "@/components/ui/ScrollJourney";
 
 /**
  * Landing (Server Component by default — Next 16 App Router).
@@ -22,6 +23,7 @@ import { Reveal } from "@/components/ui/Reveal";
 export default function Home() {
   return (
     <div id="top" className="relative min-h-screen text-ink antialiased">
+      <ScrollJourney />
       <KeyboardBackdrop />
       <Navbar />
       <main className="mx-auto max-w-6xl space-y-10 px-4 py-8 md:space-y-14">

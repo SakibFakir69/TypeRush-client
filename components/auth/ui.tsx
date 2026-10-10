@@ -30,7 +30,7 @@ export function AuthShell({
     <div className="mx-auto w-full max-w-md">
       <div
         onKeyDownCapture={handleKeys}
-        className="relative overflow-hidden rounded-2xl border border-line/70 bg-card/60 p-6 shadow-[var(--card-shadow)] backdrop-blur-2xl sm:p-8"
+        className="relative overflow-hidden rounded-2xl border border-line/70 bg-card/85 p-6 shadow-[var(--card-shadow)] backdrop-blur-2xl sm:p-8"
       >
         <div
           aria-hidden
