@@ -33,7 +33,7 @@ export function useTypingTest(target: string) {
     return {
       errors: err,
       accuracy: acc,
-      wpm: started ? Math.round(correct / 5 / minutes) : 97,
+      wpm: started ? Math.round(correct / 5 / minutes) : 0,
     };
   }, [typed, started, timeLeft, duration, target]);
 

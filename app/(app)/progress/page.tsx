@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { ProgressSection } from "@/components/landing/ProgressSection";
+import { ComingSoon } from "@/components/app/ComingSoon";
 
 export const metadata: Metadata = {
   title: "Progress — TypeRush",
-  description: "Your typing stats, curves, and achievements.",
+  description: "Your typing stats and curves. Coming soon.",
 };
 
 export default function ProgressPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
-      <ProgressSection />
-    </div>
+    <ComingSoon
+      title="Progress"
+      desc="Personal curves and insights are being wired to your results."
+    />
   );
 }

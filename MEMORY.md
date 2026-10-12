@@ -25,8 +25,24 @@ Living notes for future work. Update when conventions change.
 ## Structure
 - `app/page.tsx` landing (thin composition) · `app/test/page.tsx` typing app
 - `app/(app)/` guarded member area (Sidebar+Topbar shell, session gate in
-  layout): home (dashboard), battles, contests, leaderboard, progress,
-  achievements, friends, settings — URL-stable (/home etc.)
+  layout): home (dashboard), practice (hub), profile, settings, leaderboard
+  (live) + Coming Soon screens (battles, contests, progress, achievements).
+  No friends route. URL-stable.
+- `/test` is the PUBLIC arena: logged-in visitors redirect to `/practice`.
+  Shortcuts are session-aware: S→session/test, B→battles/login,
+  C→contests/test, G→session/login. Stats show "–" until typing starts.
+- Results: TypingCard submits `{paragraphId,wpm,accuracy,errors,timeTaken}`
+  on finish (admin passages + logged in only) → in-app `/leaderboard`
+  renders the live board with your row highlighted.
+- ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
+  `req.user` is always empty → submit 401s until `verifyToken` is added.
+- Practice is server-driven: `getParagraphs` (admin bank, search/limit)
+  feeds `/practice` hub; `/practice/session?id=` types one passage in-app
+  (kinds fall back to the local bank). No Level labels anywhere.
+- Server envelope is ALWAYS `{success, message, errorCode?, data}` —
+  unwrap `data` in every transformResponse (single objects AND lists).
+  Leaderboard nests twice: `data.data[]`, rows carry `userName` (no ids),
+  zero-WPM rows are filtered.
 - `components/app/` shell + dashboard widgets; `lib/dashboard.ts` demo data
 - `app/(auth)/` login, signup, forgot-password, verify-otp, reset-password
 - `app/auth/callback` Google OAuth landing

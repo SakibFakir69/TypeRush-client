@@ -7,7 +7,6 @@ import { UpcomingContests } from "@/components/app/Contests";
 import {
   AchievementsRow,
   ActivityFeed,
-  FriendsCard,
   MiniLeaderboard,
   ProfileCard,
 } from "@/components/app/Rail";
@@ -44,7 +43,6 @@ export default async function DashboardPage() {
           <MiniLeaderboard />
           <ActivityFeed />
           <AchievementsRow />
-          <FriendsCard />
         </div>
       </div>
     </div>

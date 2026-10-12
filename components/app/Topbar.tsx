@@ -90,8 +90,7 @@ export function Topbar({
               className="h-7 w-7 rounded-full object-cover"
             />
             <span className="hidden text-left leading-tight sm:block">
-              <span className="block text-[13px] font-bold">{userName}</span>
-              <span className="block text-[10px] text-faint">Level 12</span>
+              <span className="block py-0.5 text-[13px] font-bold">{userName}</span>
             </span>
             <ChevronDown size={13} aria-hidden className="text-faint" />
           </button>

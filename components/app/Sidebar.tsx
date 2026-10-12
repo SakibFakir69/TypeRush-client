@@ -11,7 +11,7 @@ import {
   Swords,
   TrendingUp,
   Trophy,
-  Users,
+  User,
   Zap,
 } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -21,13 +21,13 @@ export type NavItem = { href: string; label: string; Icon: typeof Home; badge?: 
 
 export const APP_NAV: NavItem[] = [
   { href: "/home", label: "Home", Icon: Home },
-  { href: "/test", label: "Practice", Icon: Keyboard },
+  { href: "/practice", label: "Practice", Icon: Keyboard },
   { href: "/battles", label: "1v1 Battles", Icon: Swords, badge: "2" },
   { href: "/contests", label: "Contests", Icon: Trophy },
   { href: "/leaderboard", label: "Leaderboard", Icon: BarChart3 },
   { href: "/progress", label: "Progress", Icon: TrendingUp },
   { href: "/achievements", label: "Achievements", Icon: Star },
-  { href: "/friends", label: "Friends", Icon: Users },
+  { href: "/profile", label: "Profile", Icon: User },
   { href: "/settings", label: "Settings", Icon: Settings },
 ];
 
@@ -103,8 +103,7 @@ export function Sidebar({
         />
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-bold">{userName}</p>
-          <p className="text-[11px] text-faint">Level 12</p>
-          <div aria-hidden className="mt-1 h-1 overflow-hidden rounded-full bg-chip">
+          <div aria-hidden className="mt-1.5 h-1 overflow-hidden rounded-full bg-chip">
             <div className="h-full w-[82%] rounded-full bg-accent" />
           </div>
         </div>

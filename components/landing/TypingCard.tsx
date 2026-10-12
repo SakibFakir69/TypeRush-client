@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Maximize, Minimize } from "lucide-react";
+import Link from "next/link";
+import { Maximize, Minimize, Timer } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTypingTest } from "@/hooks/useTypingTest";
+import { useAuth } from "@/lib/auth";
+import { useSubmitPracticeResultMutation } from "@/lib/features/practice/features.practice";
 import { playDemoError, playDemoTick } from "@/lib/keySound";
 import { cn } from "@/lib/cn";
 
@@ -26,7 +29,14 @@ function CharView({ typed, target }: { typed: string; target: string }) {
   );
 }
 
-export function TypingCard({ target }: { target: string }) {
+export function TypingCard({
+  target,
+  paragraphId,
+}: {
+  target: string;
+  /** Server passage id — results submit only for admin passages. */
+  paragraphId?: string;
+}) {
   const {
     typed,
     timeLeft,
@@ -40,6 +50,9 @@ export function TypingCard({ target }: { target: string }) {
     reset,
     onChange,
   } = useTypingTest(target);
+  const { user } = useAuth();
+  const [submitResult] = useSubmitPracticeResultMutation();
+  const [saved, setSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const prevLen = useRef(0);
@@ -57,8 +70,28 @@ export function TypingCard({ target }: { target: string }) {
 
   const resetAll = (d?: number) => {
     prevLen.current = 0;
+    setSaved("idle");
     reset(d);
     focusInput();
+  };
+
+  // Explicit submit: only the button below calls the API.
+  const doSubmit = () => {
+    if (saved === "saving" || saved === "saved") return;
+    setSaved("saving");
+
+    submitResult({
+
+      paragraphId: paragraphId ?? "",
+      wpm,
+      accuracy,
+      errors,
+      timeTaken: duration - timeLeft,
+    })
+      .unwrap()
+      .then(() => setSaved("saved"))
+      .catch(() => setSaved("error"));
+      console.log("submited")
   };
 
   useEffect(() => {
@@ -69,9 +102,9 @@ export function TypingCard({ target }: { target: string }) {
 
   const toggleFullscreen = () => {
     if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     } else {
-      cardRef.current?.requestFullscreen().catch(() => {});
+      cardRef.current?.requestFullscreen().catch(() => { });
     }
   };
 
@@ -107,6 +140,19 @@ export function TypingCard({ target }: { target: string }) {
         <p className="ml-auto text-[11px] tabular-nums text-faint">
           {typed.length}/{target.length}
         </p>
+        <span
+          title="Time left"
+          aria-live="polite"
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 font-mono text-xs font-extrabold tabular-nums",
+            started && !finished && timeLeft <= 10
+              ? "animate-pulse border-rose-500/50 text-rose-500"
+              : "border-line text-ink"
+          )}
+        >
+          <Timer size={12} aria-hidden />
+          {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+        </span>
         <button
           type="button"
           onClick={(e) => {
@@ -155,15 +201,50 @@ export function TypingCard({ target }: { target: string }) {
                 <p className="mt-1 text-xs text-muted">
                   {accuracy}% accuracy · {errors} errors
                 </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    resetAll();
-                  }}
-                  className="mt-3 rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110"
-                >
-                  Try again ({duration}s)
-                </button>
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  {paragraphId && user && saved !== "saved" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        doSubmit();
+                      }}
+                      disabled={saved === "saving"}
+                      className="rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
+                    >
+                      {saved === "error"
+                        ? "Retry submit"
+                        : saved === "saving"
+                          ? "Saving…"
+                          : "Submit result"}
+                    </button>
+                  )}
+                  {paragraphId && user && saved === "saved" && (
+                    <p className="mt-1.5 text-xs font-bold text-accent">
+                      ✓ Result saved to the leaderboard
+                    </p>
+                  )}
+                  {paragraphId && !user && (
+                    <p className="mt-1.5 text-xs text-muted">
+                      <Link
+                        href="/login"
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-bold text-accent hover:underline"
+                      >
+                        Log in
+                      </Link>{" "}
+                      to save your result
+                    </p>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      resetAll();
+                    }}
+                    className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:bg-chip"
+                  >
+                    Try again ({duration}s)
+                  </button>
+                </div>
               </div>
             </motion.div>
           )}
@@ -172,9 +253,9 @@ export function TypingCard({ target }: { target: string }) {
 
       <div className="mt-3 grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-inset">
         {[
-          { label: "WPM", value: String(started || finished ? wpm : 97), hint: `${duration - timeLeft}s in`, icon: "bg-accent/10 text-accent", valueCls: "text-accent" },
-          { label: "ACCURACY", value: `${started || finished ? accuracy : 98}%`, hint: "live", icon: "bg-amber-500/15 text-amber-500", valueCls: "text-amber-500" },
-          { label: "ERRORS", value: String(started || finished ? errors : 2), hint: finished ? "done" : `${timeLeft}s left`, icon: "bg-rose-500/15 text-rose-500", valueCls: "text-rose-500" },
+          { label: "WPM", value: started || finished ? String(wpm) : "–", hint: started || finished ? `${duration - timeLeft}s in` : "ready", icon: "bg-accent/10 text-accent", valueCls: "text-accent" },
+          { label: "ACCURACY", value: started || finished ? `${accuracy}%` : "–", hint: started || finished ? "live" : "ready", icon: "bg-amber-500/15 text-amber-500", valueCls: "text-amber-500" },
+          { label: "ERRORS", value: started || finished ? String(errors) : "–", hint: finished ? "done" : started ? `${timeLeft}s left` : "ready", icon: "bg-rose-500/15 text-rose-500", valueCls: "text-rose-500" },
         ].map((s) => (
           <div key={s.label} className="flex items-center gap-3 p-4">
             <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm", s.icon)}>

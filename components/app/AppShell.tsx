@@ -40,15 +40,6 @@ export function AppShell({
             ))}
           </nav>
           <main className="px-4 py-5">{children}</main>
-          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-4 text-[11px] text-faint">
-            <p className="flex gap-3">
-              <Link href="/#about" className="hover:text-muted">About</Link>
-              <Link href="#" className="hover:text-muted">Privacy</Link>
-              <Link href="#" className="hover:text-muted">Terms</Link>
-              <Link href="#" className="hover:text-muted">Help</Link>
-            </p>
-            <p>© 2026 TypeRush</p>
-          </footer>
         </div>
       </div>
     </div>

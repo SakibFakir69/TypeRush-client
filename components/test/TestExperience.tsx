@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   AlignLeft,
   ChevronLeft,
@@ -87,8 +88,19 @@ function Pager({
  * English + Bangla + Hindi; paragraphs, words, quotes, custom.
  */
 export function TestExperience() {
-  const [lang, setLang] = useState<Lang>("en");
-  const [kind, setKind] = useState<(typeof KIND_META)[number]["id"]>("Paragraphs");
+  const params = useSearchParams();
+  const initialLang = ((): Lang => {
+    const l = params.get("lang");
+    return l === "bn" || l === "hi" || l === "en" ? l : "en";
+  })();
+  const initialKind = ((): (typeof KIND_META)[number]["id"] => {
+    const k = params.get("kind");
+    return KIND_META.some((m) => m.id === k)
+      ? (k as (typeof KIND_META)[number]["id"])
+      : "Paragraphs";
+  })();
+  const [lang, setLang] = useState<Lang>(initialLang);
+  const [kind, setKind] = useState<(typeof KIND_META)[number]["id"]>(initialKind);
   const [idx, setIdx] = useState(0);
   const [wordSeed, setWordSeed] = useState(1);
   const [draft, setDraft] = useState("");

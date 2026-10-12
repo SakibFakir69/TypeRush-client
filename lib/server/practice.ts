@@ -32,6 +32,7 @@ function firstArray(json: unknown): unknown[] | null {
 
 /** Top typists for the home dashboard. Null when unavailable. */
 export async function getLeaderboardPreview(): Promise<BoardRow[] | null> {
+  
   const rows = firstArray(await getJson("/api/v1/practices/results", 60));
   if (!rows) return null;
   const parsed = rows

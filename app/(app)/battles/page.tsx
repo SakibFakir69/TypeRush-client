@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { BattleSection } from "@/components/landing/BattleSection";
+import { ComingSoon } from "@/components/app/ComingSoon";
 
 export const metadata: Metadata = {
   title: "1v1 Battles — TypeRush",
-  description: "Real-time typing battles against live challengers.",
+  description: "Real-time typing battles. Coming soon.",
 };
 
 export default function BattlesPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
-      <BattleSection />
-    </div>
+    <ComingSoon
+      title="1v1 Battles"
+      desc="Live matchmaking is warming up. Practice meanwhile — your speed carries over."
+    />
   );
 }

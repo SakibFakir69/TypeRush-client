@@ -38,9 +38,6 @@ export default function SettingsPage() {
           <p className="truncate text-base font-extrabold">{name}</p>
           <p className="truncate text-xs text-muted">{email}</p>
         </div>
-        <span className="ml-auto rounded-full bg-accent/10 px-2.5 py-1 text-[11px] font-bold text-accent">
-          Level 12
-        </span>
       </Card>
 
       <Card className="p-5">

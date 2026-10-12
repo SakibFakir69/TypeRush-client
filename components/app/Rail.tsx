@@ -37,7 +37,6 @@ export function ProfileCard({ name }: { name: string }) {
         className="mx-auto h-16 w-16 rounded-full border-2 border-accent/40 object-cover"
       />
       <p className="mt-2 text-lg font-black">{name}</p>
-      <p className="text-xs text-muted">Level {DASH.level}</p>
       <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-chip">
         <div className="h-full w-[82%] rounded-full bg-accent" />
       </div>
@@ -174,38 +173,6 @@ export function AchievementsRow() {
           );
         })}
       </div>
-    </Card>
-  );
-}
-
-export function FriendsCard() {
-  return (
-    <Card className="p-5">
-      <PanelHead title="Friends" href="/friends" />
-      <div className="mt-3 flex items-center">
-        <div className="flex -space-x-2">
-          {DASH.friends.map((img) => (
-            <Avatar
-              key={img}
-              src={`https://i.pravatar.cc/48?img=${img}`}
-              alt="Friend"
-              width={28}
-              height={28}
-              className="h-7 w-7 rounded-full border-2 border-card object-cover"
-            />
-          ))}
-          <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-card bg-chip text-[10px] font-extrabold">
-            +8
-          </span>
-        </div>
-        <p className="ml-2 text-[11px] text-muted">You have 12 friends</p>
-      </div>
-      <Link
-        href="/friends"
-        className="mt-2 block rounded-lg border border-line px-4 py-2 text-center text-[13px] font-bold transition hover:bg-chip"
-      >
-        Find Friends →
-      </Link>
     </Card>
   );
 }

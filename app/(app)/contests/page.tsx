@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { ContestsSection } from "@/components/landing/ContestsSection";
+import { ComingSoon } from "@/components/app/ComingSoon";
 
 export const metadata: Metadata = {
   title: "Contests — TypeRush",
-  description: "Weekly and monthly typing contests. Climb on points.",
+  description: "Weekly and monthly typing contests. Coming soon.",
 };
 
 export default function ContestsPage() {
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
-      <ContestsSection />
-    </div>
+    <ComingSoon
+      title="Contests"
+      desc="Weekly and monthly point races are being set up. Keep training."
+    />
   );
 }

@@ -105,11 +105,11 @@ export function Navbar() {
           break;
         case "c":
           playNavKey(3);
-          router.push("/test");
+          router.push(sessionUser ? "/contests" : "/test");
           break;
         case "g":
           playNavKey(1);
-          router.push(sessionUser ? "/test" : "/login");
+          router.push(sessionUser ? "/practice/session" : "/login");
           break;
         case "h":
           playNavKey(0);
@@ -155,7 +155,9 @@ export function Navbar() {
         case "s":
           playStartKey();
           pulse("start", () => {
-            if (window.location.pathname === "/test") {
+            if (sessionUser) {
+              router.push("/practice/session");
+            } else if (window.location.pathname === "/test") {
               document
                 .querySelector<HTMLInputElement>('input[aria-label="Typing input"]')
                 ?.focus();
@@ -166,7 +168,7 @@ export function Navbar() {
           break;
         case "b":
           playStartKey();
-          router.push(sessionUser ? "/test" : "/login");
+          router.push(sessionUser ? "/battles" : "/login");
           break;
         case "f":
           playNavKey(4);
