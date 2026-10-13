@@ -106,30 +106,22 @@ export const authApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // Signup email verification. NOTE: requires server support —
-    // POST /api/v1/auth/send-signup-otp { email } and
-    // POST /api/v1/auth/verify-signup { email, otp } → 200 { verified: true }.
-    sendSignupOtp: builder.mutation<MessageResponse, { email: string }>({
+    // Email verification for fresh registrations. Server marks
+    // emailVerified on success; client sends the code right after signup.
+    resendVerifyOtp: builder.mutation<MessageResponse, { email: string }>({
       query: (body) => ({
-        url: "/api/v1/auth/send-signup-otp",
+        url: "/api/v1/auth/resend-verify-otp",
         method: "POST",
         body,
       }),
     }),
 
-    verifySignup: builder.mutation<{ verified?: boolean }, { email: string; otp: string }>({
+    verifyEmail: builder.mutation<MessageResponse, { email: string; otp: string }>({
       query: (body) => ({
-        url: "/api/v1/auth/verify-signup",
+        url: "/api/v1/auth/verify-email",
         method: "POST",
         body,
       }),
-      transformResponse: (res: unknown) => {
-        if (res && typeof res === "object" && "data" in res) {
-          const d = (res as { data: unknown }).data;
-          if (d && typeof d === "object") return d as { verified?: boolean };
-        }
-        return {};
-      },
     }),
 
     resetPassword: builder.mutation<MessageResponse, ResetPasswordRequest>({
@@ -151,7 +143,7 @@ export const {
   useRefreshTokenMutation,
   useVerifyOtpMutation,
   useForgotPasswordMutation,
-  useSendSignupOtpMutation,
-  useVerifySignupMutation,
+  useResendVerifyOtpMutation,
+  useVerifyEmailMutation,
   useResetPasswordMutation,
 } = authApi;

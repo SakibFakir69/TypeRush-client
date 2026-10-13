@@ -256,51 +256,39 @@ export function Navbar() {
               T
             </kbd>
           </button>
-          <Link
-            href="/login"
-            title="Log in (press L)"
-            className={cn(
-              "hidden rounded-md border border-line px-3 py-1.5 text-[13px] font-medium transition-all duration-200 hover:bg-chip sm:block",
-              pressedAction === "login" && "scale-105 border-accent text-accent"
-            )}
-          >
-            Log in
-            <kbd
-              aria-hidden
-              className="ml-1.5 rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
-            >
-              L
-            </kbd>
-          </Link>
-          <Link
-            href="/signup"
-            title="Sign up free (press F)"
-            className="hidden rounded-md px-3 py-1.5 text-[13px] font-medium text-muted transition-all duration-200 hover:text-ink md:block"
-          >
-            Sign up free
-            <kbd
-              aria-hidden
-              className="ml-1.5 rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
-            >
-              F
-            </kbd>
-          </Link>
-          <Link
-            href="/test"
-            title="Start test (press S)"
-            className={cn(
-              "rounded-md bg-mint px-3 py-1.5 text-[13px] font-bold text-black transition-all duration-200 hover:brightness-110",
-              pressedAction === "start" && "scale-105 brightness-125"
-            )}
-          >
-            Start test
-            <kbd
-              aria-hidden
-              className="ml-1.5 rounded border border-black/20 bg-black/10 px-1 text-[10px] tabular-nums text-black/60"
-            >
-              S
-            </kbd>
-          </Link>
+          {!sessionUser && (
+            <>
+              <Link
+                href="/login"
+                title="Log in (press L)"
+                className={cn(
+                  "hidden rounded-md border border-line px-3 py-1.5 text-[13px] font-medium transition-all duration-200 hover:bg-chip sm:block",
+                  pressedAction === "login" && "scale-105 border-accent text-accent"
+                )}
+              >
+                Log in
+                <kbd
+                  aria-hidden
+                  className="ml-1.5 rounded border border-line bg-chip px-1 text-[10px] tabular-nums text-faint"
+                >
+                  L
+                </kbd>
+              </Link>
+              <Link
+                href="/signup"
+                title="Sign up free (press F)"
+                className="hidden rounded-md bg-mint px-3 py-1.5 text-[13px] font-bold text-black transition-all duration-200 hover:brightness-110 md:block"
+              >
+                Sign up free
+                <kbd
+                  aria-hidden
+                  className="ml-1.5 rounded border border-black/20 bg-black/10 px-1 text-[10px] tabular-nums text-black/60"
+                >
+                  F
+                </kbd>
+              </Link>
+            </>
+          )}
           <SessionChip />
         </div>
       </div>

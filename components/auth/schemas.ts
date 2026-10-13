@@ -4,8 +4,8 @@ const email = z
   .string()
   .trim()
   .toLowerCase()
-  .email("Enter a valid email address.");
-
+  .email("Enter a valid email address.")
+  .endsWith("@gmail.com", "Only Gmail addresses are allowed.")
 const password8 = z
   .string()
   .min(8, "Password must be 8–100 characters.")
@@ -21,7 +21,7 @@ export const signupSchema = z
   .object({
     fullName: z.string().trim().min(1, "Enter your full name."),
     name: z.string().trim().min(1, "Pick a username."),
-    email,
+  email: z.string().email("Please provide correct email").endsWith("@gmail.com", "Please provide correct email"),
     country: z.string().trim().min(1, "Enter your country."),
     password: password8,
     confirm: z.string(),

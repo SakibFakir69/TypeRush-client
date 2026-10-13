@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { getApiError } from "@/helper/error-helper";
+import { EmailTypoHint } from "@/components/auth/EmailTypo";
 import { useCreateUserMutation } from "@/lib/features/user/features.user";
+import { useResendVerifyOtpMutation } from "@/lib/features/auth/features.auth";
 import { signupSchema, type SignupInput } from "@/components/auth/schemas";
-import { COUNTRIES } from "@/components/auth/countries";
+import { CountryPicker } from "@/components/auth/CountryPicker";
 import {
   AuthShell,
   Field,
@@ -21,11 +24,14 @@ import {
 
 export default function SignupPage() {
   const router = useRouter();
-  const [createUser, { isLoading }] = useCreateUserMutation();
+  const [emailHint, setEmailHint] = useState("");
+  const [createUser, { isLoading: creating }] = useCreateUserMutation();
+  const [sendOtp, { isLoading: sending }] = useResendVerifyOtpMutation();
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<SignupInput>({
     resolver: zodResolver(signupSchema),
@@ -42,13 +48,21 @@ export default function SignupPage() {
 
   const onSubmit = async (values: SignupInput) => {
     // Server zod strips the extra `confirm` key automatically.
-    // No auto-login here: the account must verify its email first.
     try {
       await createUser({ ...values }).unwrap();
-      router.push(`/verify-signup?email=${encodeURIComponent(values.email)}`);
     } catch (e) {
       setError("root", { message: getApiError(e) });
+      return;
     }
+    // Account created — fire the verification code (best effort; the
+    // verify page always offers Resend) and move to verification.
+    const email = values.email;
+    try {
+      await sendOtp({ email }).unwrap();
+    } catch {
+      // Resend from the next screen — never block registration on this.
+    }
+    router.push(`/verify-signup?email=${encodeURIComponent(email)}`);
   };
 
   return (
@@ -84,23 +98,28 @@ export default function SignupPage() {
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
-            {...register("email")}
+            {...register("email", {
+              onChange: (e) => setEmailHint(e.target.value),
+            })}
             className={inputCls}
           />
         </Field>
+        <EmailTypoHint
+          email={emailHint}
+          onFix={(fix) => {
+            setEmailHint(fix);
+            setValue("email", fix, { shouldValidate: true });
+          }}
+        />
         <Field label="Country" error={errors.country?.message}>
-          <input
-            placeholder="Bangladesh"
-            autoComplete="country-name"
-            list="country-list"
-            {...register("country")}
-            className={inputCls}
+          <CountryPicker
+            onChange={(name) =>
+              setValue("country", name, {
+                shouldValidate: true,
+                shouldTouch: true,
+              })
+            }
           />
-          <datalist id="country-list">
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
         </Field>
         <div className="grid gap-4 sm:grid-cols-2">
           <PasswordField
@@ -115,7 +134,7 @@ export default function SignupPage() {
             autoComplete="new-password"
           />
         </div>
-        <SubmitButton loading={isLoading} kbd="⏎">Sign up free →</SubmitButton>
+        <SubmitButton loading={creating || sending} kbd="⏎">Sign up free →</SubmitButton>
       </form>
     </AuthShell>
   );

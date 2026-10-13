@@ -7,6 +7,7 @@ export type SessionUser = {
   fullName?: string;
   email?: string;
   avatarUrl?: string | null;
+  emailVerified?: boolean;
 } & Record<string, unknown>;
 
 console.log(process.env.NEXT_PUBLIC_BACKEND_URL , "BACKEND URL")

@@ -1,8 +1,19 @@
 
 
-Add glow on background
+FIRST LAUNCH DONE AFTER CONTEST ARRANGE DONE    
 
-1. work on landing page 
-2. work on type test page
-3. work on auth page 
-4. work on main page
+1. test auth flow  [ 13-10-26 ] []
+2. test practices [13-10-26] []
+3. arrange contest ( admin can control)
+4. work on leaderboard
+5. generate meta data for [ status , progress, contest , etc ,achievement ]
+6. profile -  [ 13-10-26] []
+7.  setting 
+8. send notification
+9. complete admin web app 
+10. fix ui/ux [ client, admin ]
+11. fix code [ backend_server ]
+
+THEN LAUNCH DONE
+
+

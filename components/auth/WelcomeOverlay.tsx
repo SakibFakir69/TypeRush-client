@@ -61,20 +61,13 @@ export function WelcomeOverlay({
           </AnimatePresence>
         </div>
         <p className="text-xs text-faint">Starting in a moment…</p>
-        <div className="mt-5 flex gap-2">
+        <div className="mt-5">
           <button
             type="button"
             onClick={onDone}
-            className="flex-1 rounded-lg bg-mint px-4 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+            className="w-full rounded-lg bg-mint px-4 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
           >
-            Start typing →
-          </button>
-          <button
-            type="button"
-            onClick={onDone}
-            className="rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-muted transition hover:bg-chip hover:text-ink"
-          >
-            Close
+            Login →
           </button>
         </div>
       </div>

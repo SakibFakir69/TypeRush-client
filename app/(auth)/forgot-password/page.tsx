@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { getApiError } from "@/helper/error-helper";
 import { useForgotPasswordMutation } from "@/lib/features/auth/features.auth";
 import { toast } from "sonner";
+import { EmailTypoHint } from "@/components/auth/EmailTypo";
 import { forgotSchema, type ForgotInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -20,11 +21,13 @@ import {
 
 export default function ForgotPasswordPage() {
   const [doneEmail, setDoneEmail] = useState("");
+  const [emailHint, setEmailHint] = useState("");
   const [forgot, { isLoading }] = useForgotPasswordMutation();
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<ForgotInput>({
     resolver: zodResolver(forgotSchema),
@@ -66,10 +69,19 @@ export default function ForgotPasswordPage() {
               type="email"
               placeholder="you@example.com"
               autoComplete="email"
-              {...register("email")}
+              {...register("email", {
+                onChange: (e) => setEmailHint(e.target.value),
+              })}
               className={inputCls}
             />
           </Field>
+          <EmailTypoHint
+            email={emailHint}
+            onFix={(fix) => {
+              setEmailHint(fix);
+              setValue("email", fix, { shouldValidate: true });
+            }}
+          />
           <SubmitButton loading={isLoading} kbd="⏎">Send code →</SubmitButton>
         </form>
       )}

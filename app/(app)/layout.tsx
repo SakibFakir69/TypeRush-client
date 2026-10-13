@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/app/AppShell";
-import { getSessionUser, hasRole } from "@/lib/server/session";
+import { getSessionUser, isAppAllowed, sendVerifyCode } from "@/lib/server/session";
 
 /**
- * Guarded app area: every page in here requires a signed-in member.
- * Name is resolved once, server-side, and handed to the shell.
+ * Guarded app area: signed-in AND verified members only (Google
+ * accounts exempt — the IdP already verified them). Unverified local
+ * accounts get a fresh code and land on verification.
  */
 export default async function AppLayout({
   children,
@@ -13,7 +14,12 @@ export default async function AppLayout({
   children: ReactNode;
 }) {
   const user = await getSessionUser();
-  if (!hasRole(user, ["user", "admin"])) redirect("/login?next=/home");
+  if (!user) redirect("/login?next=/home");
+  const email = typeof user.email === "string" ? user.email : "";
+  if (!isAppAllowed(user)) {
+    if (email) await sendVerifyCode(email);
+    redirect(`/verify-signup?email=${encodeURIComponent(email)}`);
+  }
 
   const raw =
     (typeof user?.name === "string" && user.name) ||

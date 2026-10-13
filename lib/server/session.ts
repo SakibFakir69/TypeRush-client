@@ -47,6 +47,33 @@ export function hasRole(
   allowed: string[]
 ): user is ServerSessionUser {
   if (!user) return false;
-  const role = "user"
+  const role = typeof user.role === "string" ? user.role : "user";
   return allowed.includes(role);
+}
+
+/**
+ * Verified-only gate for main pages. Local accounts must have
+ * emailVerified === true. Google accounts are exempt — Google
+ * already verified that address at the identity provider, and those
+ * users have no password to log back in with.
+ */
+export function isAppAllowed(user: ServerSessionUser | null): user is ServerSessionUser {
+  if (!hasRole(user, ["user", "admin"])) return false;
+  if (typeof user?.authProvider === "string" && user.authProvider === "google") {
+    return true;
+  }
+  return user?.emailVerified === true;
+}
+
+/** Best-effort verification code (never blocks navigation on failure). */
+export async function sendVerifyCode(email: string): Promise<void> {
+  try {
+    await fetch(`${API}/api/v1/auth/resend-verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+  } catch {
+    // Verify screen always offers Resend — never strand the user here.
+  }
 }

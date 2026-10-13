@@ -70,12 +70,14 @@ Living notes for future work. Update when conventions change.
 ## Auth contract (server: typerush-server, PORT=5000)
 - POST /api/v1/auth/login {email,password} → httpOnly cookies + body tokens
 - POST /api/v1/users {name,fullName,email,country,password 8–100} (signup)
-- Signup flow: register → /verify-signup?email= (auto-sends OTP) →
-  verify → welcome overlay → /login (NO auto-login; welcome only here)
-- Login lands on **/home** (was /test). `/home` is server-guarded
-  (`lib/server/session.ts` + `server-only`): no session → /login?next=/home;
-  roles via `hasRole(user, [...])` — server has NO role column yet so every
-  account counts as "user"; adding one activates real enforcement.
+- Signup flow: register → auto-send code → /verify-signup?email= →
+  verify-email (marks emailVerified) → welcome overlay → /login.
+  Login checks the fresh session: unverified → resends code + diverts
+  to verification. Resend lives on the verify screen (cooldown-aware).
+- Login lands on **/home** (was /test). `(app)` is server-guarded:
+  no session → /login?next=/home; unverified local accounts get a fresh
+  code + divert to verification (`isAppAllowed` — Google exempt).
+  Roles via `hasRole`: no role column yet, every account counts as "user".
 - POST /api/v1/auth/forgot-password {email} → OTP email
 - POST /api/v1/auth/verify {email,otp} → {resetToken} (sessionStorage)
 - POST /api/v1/auth/reset-password {resetToken,password 8–128}

@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getApiError } from "@/helper/error-helper";
+import { EmailTypoHint } from "@/components/auth/EmailTypo";
 import { useVerifyOtpMutation } from "@/lib/features/auth/features.auth";
+import { ResendButton } from "@/components/auth/ResendButton";
 import { otpSchema, type OtpInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -20,10 +22,13 @@ function VerifyForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [verify, { isLoading }] = useVerifyOtpMutation();
+  const [emailHint, setEmailHint] = useState("");
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<OtpInput>({
     resolver: zodResolver(otpSchema),
@@ -63,10 +68,19 @@ function VerifyForm() {
           type="email"
           placeholder="you@example.com"
           autoComplete="email"
-          {...register("email")}
+          {...register("email", {
+            onChange: (e) => setEmailHint(e.target.value),
+          })}
           className={inputCls}
         />
       </Field>
+      <EmailTypoHint
+        email={emailHint}
+        onFix={(fix) => {
+          setEmailHint(fix);
+          setValue("email", fix, { shouldValidate: true });
+        }}
+      />
       <Field label="One-time code" error={errors.otp?.message}>
         <input
           placeholder="6-digit code"
@@ -86,6 +100,7 @@ function VerifyForm() {
         <InlineLink href="/forgot-password">forgot password</InlineLink>.
       </p>
       <SubmitButton loading={isLoading} kbd="⏎">Verify code →</SubmitButton>
+      <ResendButton getEmail={() => getValues("email")} kind="forgot" />
     </form>
   );
 }

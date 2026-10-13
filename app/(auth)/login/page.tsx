@@ -1,10 +1,19 @@
 "use client";
 
 import { Suspense } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { toast } from "sonner";
+import { EmailTypoHint } from "@/components/auth/EmailTypo";
+import {
+  useLazyGetSessionQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useResendVerifyOtpMutation,
+} from "@/lib/features/auth/features.auth";
+import { getApiError } from "@/helper/error-helper";
 import { loginSchema, type LoginInput } from "@/components/auth/schemas";
 import {
   AuthShell,
@@ -19,14 +28,19 @@ import {
 } from "@/components/auth/ui";
 
 function LoginForm() {
-  const { login } = useAuth();
   const router = useRouter();
   const next = useSearchParams().get("next") || "/home";
+  const [loginMut, { isLoading }] = useLoginMutation();
+  const [logoutMut] = useLogoutMutation();
+  const [triggerSession] = useLazyGetSessionQuery();
+  const [resendOtp] = useResendVerifyOtpMutation();
+  const [emailHint, setEmailHint] = useState("");
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    setValue,
+    formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     mode: "onTouched",
@@ -34,13 +48,37 @@ function LoginForm() {
   });
 
   const onSubmit = async (values: LoginInput) => {
-    const res = await login(values.email, values.password);
-    if (res.ok) {
-      router.push(next);
-      router.refresh();
-    } else {
-      setError("root", { message: res.message });
+    try {
+      await loginMut({ email: values.email, password: values.password }).unwrap();
+    } catch (e) {
+      setError("root", { message: getApiError(e) });
+      return;
     }
+    // Credentials passed — but unverified emails cannot stay logged in.
+    // Kill the session, send a fresh code, and divert to verification.
+    try {
+      const session = await triggerSession(undefined, false).unwrap();
+      if (session && session.emailVerified === false) {
+        try {
+          await logoutMut().unwrap();
+        } catch {
+          // Local session already unusable — continue to verification.
+        }
+        try {
+          await resendOtp({ email: values.email }).unwrap();
+        } catch {
+          // Verify screen always offers Resend — never block on this.
+        }
+        toast.success("Verify your email first — fresh code sent.");
+        router.push(`/verify-signup?email=${encodeURIComponent(values.email)}`);
+        return;
+      }
+    } catch {
+      // Session unreadable — fall through to the normal landing.
+    }
+    toast.success("Logged in — welcome back!");
+    router.push(next);
+    router.refresh();
   };
 
   return (
@@ -54,10 +92,19 @@ function LoginForm() {
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
-            {...register("email")}
+            {...register("email", {
+              onChange: (e) => setEmailHint(e.target.value),
+            })}
             className={inputCls}
           />
         </Field>
+        <EmailTypoHint
+          email={emailHint}
+          onFix={(fix) => {
+            setEmailHint(fix);
+            setValue("email", fix, { shouldValidate: true });
+          }}
+        />
         <div>
           <PasswordField
             field={register("password")}
@@ -68,7 +115,7 @@ function LoginForm() {
             <InlineLink href="/forgot-password">Forgot password?</InlineLink>
           </p>
         </div>
-        <SubmitButton loading={isSubmitting} kbd="⏎">Log in →</SubmitButton>
+        <SubmitButton loading={isLoading} kbd="⏎">Log in →</SubmitButton>
       </form>
     </>
   );
