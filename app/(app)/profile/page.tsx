@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  BadgeCheck,
   Cake,
   CalendarDays,
   Globe,
@@ -15,7 +14,6 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/primitives";
 import { ProfileStats } from "@/components/app/ProfileStats";
 import { getSessionUser } from "@/lib/server/session";
-import { cn } from "@/lib/cn";
 
 export const metadata: Metadata = {
   title: "Profile — TypeRush",
@@ -42,7 +40,6 @@ export default async function ProfilePage() {
   const country = str(user?.country);
   const age = typeof user?.age === "number" ? String(user.age) : "";
   const provider = str(user?.authProvider) || "local";
-  const verified = user?.emailVerified === true;
   const bio = str(user?.bio);
   const avatarUrl = str(user?.avatarUrl);
   const shortId = str(user?.id).slice(0, 8);
@@ -71,11 +68,32 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <Card className="overflow-hidden p-0">
-        {/* Cover */}
+        {/* Cover: deep gradient, twin glows, faint key grid */}
         <div
           aria-hidden
-          className="h-28 bg-gradient-to-r from-accent/25 via-accent/10 to-violet-500/20"
-        />
+          className="relative h-32 overflow-hidden bg-gradient-to-r from-accent/25 via-accent/10 to-violet-500/25"
+        >
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(90deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 34px), repeating-linear-gradient(0deg, rgba(255,255,255,0.09) 0 1px, transparent 1px 34px)",
+              maskImage:
+                "radial-gradient(80% 120% at 50% 0%, black 30%, transparent 75%)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="absolute -left-10 -top-16 h-48 w-48 rounded-full blur-3xl"
+            style={{ background: "rgba(46, 242, 200, 0.22)" }}
+          />
+          <div
+            aria-hidden
+            className="absolute -right-10 -top-16 h-48 w-48 rounded-full blur-3xl"
+            style={{ background: "rgba(168, 85, 247, 0.25)" }}
+          />
+        </div>
         <div className="px-5 pb-5 sm:px-7">
           <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end">
             {avatarUrl ? (
@@ -84,46 +102,38 @@ export default async function ProfilePage() {
                 alt={name}
                 width={80}
                 height={80}
-                className="h-20 w-20 rounded-2xl border-4 border-card object-cover"
+                className="h-20 w-20 rounded-2xl border-4 border-card object-cover shadow-lg"
               />
             ) : (
               <span
                 role="img"
                 aria-label={name}
-                className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-card bg-gradient-to-br from-teal-600 to-emerald-800 text-2xl font-black text-white"
+                className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-card bg-gradient-to-br from-teal-600 to-emerald-800 text-2xl font-black text-white shadow-lg"
               >
                 {initials(name)}
               </span>
             )}
             <div className="min-w-0 flex-1 sm:pb-1">
-              <p className="flex flex-wrap items-center gap-2 text-xl font-black tracking-tight">
-                <span className="truncate">{name}</span>
-                <span
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold",
-                    verified
-                      ? "bg-accent/10 text-accent"
-                      : "bg-amber-500/10 text-amber-500"
-                  )}
-                >
-                  <BadgeCheck size={12} aria-hidden />
-                  {verified ? "Verified" : "Unverified"}
-                </span>
+              <h1 className="truncate text-2xl font-black tracking-tight">
+                {name}
+              </h1>
+              <p className="mt-0.5 truncate text-sm font-medium text-accent">
+                @{str(user?.name) || "typist"}
+                {fullName && fullName !== name && (
+                  <span className="font-normal text-muted"> · {fullName}</span>
+                )}
               </p>
-              {fullName && fullName !== name && (
-                <p className="truncate text-sm text-muted">{fullName}</p>
-              )}
               {shortId && (
-                <p className="mt-0.5 font-mono text-[11px] tabular-nums text-faint">
+                <p className="mt-1 font-mono text-[11px] tabular-nums text-faint">
                   id_{shortId}
                 </p>
               )}
             </div>
             <Link
               href="/settings"
-              className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg border border-line px-4 py-2 text-sm font-bold transition hover:bg-chip sm:self-auto"
+              className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110 sm:self-auto"
             >
-              <Pencil size={14} aria-hidden /> Edit
+              <Pencil size={14} aria-hidden /> Edit profile
             </Link>
           </div>
 
@@ -167,6 +177,14 @@ export default async function ProfilePage() {
         </p>
         <div className="mt-3">
           <ProfileStats email={email} />
+        </div>
+        <div className="mt-4 border-t border-line pt-4 text-center">
+          <Link
+            href="/practice"
+            className="inline-block rounded-lg bg-mint px-5 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+          >
+            Keep practicing →
+          </Link>
         </div>
       </Card>
     </div>
