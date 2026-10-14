@@ -4,31 +4,23 @@ import {
   Cake,
   CalendarDays,
   Globe,
-  Hash,
   Mail,
-  Pencil,
   ShieldCheck,
   User as UserIcon,
 } from "lucide-react";
-import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/primitives";
-import { ProfileStats } from "@/components/app/ProfileStats";
+import { ProfileEditor } from "@/components/app/ProfileEditor";
+import { countryCodeFor } from "@/lib/countries";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
   title: "Profile — TypeRush",
   description: "Your TypeRush member profile.",
+  
 };
 
 function str(v: unknown): string {
   return typeof v === "string" ? v : "";
-}
-
-function initials(name: string) {
-  const parts = name.split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 /** Member profile — every visible field of the User model. */
@@ -42,7 +34,6 @@ export default async function ProfilePage() {
   const provider = str(user?.authProvider) || "local";
   const bio = str(user?.bio);
   const avatarUrl = str(user?.avatarUrl);
-  const shortId = str(user?.id).slice(0, 8);
   const since = (() => {
     const raw = str(user?.createdAt);
     if (!raw) return "";
@@ -95,51 +86,16 @@ export default async function ProfilePage() {
           />
         </div>
         <div className="px-5 pb-5 sm:px-7">
-          <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end">
-            {avatarUrl ? (
-              <Avatar
-                src={avatarUrl}
-                alt={name}
-                width={80}
-                height={80}
-                className="h-20 w-20 rounded-2xl border-4 border-card object-cover shadow-lg"
-              />
-            ) : (
-              <span
-                role="img"
-                aria-label={name}
-                className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-card bg-gradient-to-br from-teal-600 to-emerald-800 text-2xl font-black text-white shadow-lg"
-              >
-                {initials(name)}
-              </span>
-            )}
-            <div className="min-w-0 flex-1 sm:pb-1">
-              <h1 className="truncate text-2xl font-black tracking-tight">
-                {name}
-              </h1>
-              <p className="mt-0.5 truncate text-sm font-medium text-accent">
-                @{str(user?.name) || "typist"}
-                {fullName && fullName !== name && (
-                  <span className="font-normal text-muted"> · {fullName}</span>
-                )}
-              </p>
-              {shortId && (
-                <p className="mt-1 font-mono text-[11px] tabular-nums text-faint">
-                  id_{shortId}
-                </p>
-              )}
-            </div>
-            <Link
-              href="/settings"
-              className="inline-flex shrink-0 items-center gap-1.5 self-start rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110 sm:self-auto"
-            >
-              <Pencil size={14} aria-hidden /> Edit profile
-            </Link>
-          </div>
-
-          <p className="mt-3 text-sm leading-6 text-muted">
-            {bio || "No bio yet — tell the world who is behind the keyboard."}
-          </p>
+          <ProfileEditor
+            initial={{
+              name,
+              fullName,
+              bio,
+              country,
+              age: typeof user?.age === "number" ? String(user.age) : "",
+              avatarUrl,
+            }}
+          />
 
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {details.map(({ Icon, label, value }) => (
@@ -147,9 +103,22 @@ export default async function ProfilePage() {
                 key={label}
                 className="flex items-center gap-2.5 rounded-xl border border-line bg-inset px-3 py-2.5"
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
-                  <Icon size={15} aria-hidden />
-                </span>
+                {label === "Country" && countryCodeFor(country) ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- tiny CDN flag; next/image offers nothing here
+                  <img
+                    src={`https://flagcdn.com/w80/${countryCodeFor(country)}.png`}
+                    alt=""
+                    aria-hidden
+                    width={32}
+                    height={22}
+                    loading="lazy"
+                    className="h-[22px] w-8 shrink-0 rounded-md border border-line object-cover"
+                  />
+                ) : (
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
+                    <Icon size={15} aria-hidden />
+                  </span>
+                )}
                 <span className="min-w-0">
                   <span className="block text-[10px] uppercase tracking-wider text-faint">
                     {label}
@@ -159,34 +128,17 @@ export default async function ProfilePage() {
               </div>
             ))}
           </div>
-
-          <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-inset px-3 py-2.5 text-[13px]">
-            <Hash size={14} aria-hidden className="shrink-0 text-faint" />
-            <span className="text-muted">Full account id</span>
-            <span className="ml-auto truncate font-mono text-[11px] tabular-nums text-faint">
-              {str(user?.id) || "—"}
-            </span>
-          </div>
         </div>
       </Card>
 
-      <Card className="p-5 sm:p-6">
-        <p className="text-sm font-extrabold">Your stats</p>
-        <p className="mt-0.5 text-xs text-muted">
-          Computed live from your submitted tests.
-        </p>
-        <div className="mt-3">
-          <ProfileStats email={email} />
-        </div>
-        <div className="mt-4 border-t border-line pt-4 text-center">
+        <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
           <Link
             href="/practice"
-            className="inline-block rounded-lg bg-mint px-5 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+            className="inline-block rounded-lg bg-mint px-5 py-2.5 text-center text-sm font-bold text-black transition hover:brightness-110"
           >
-            Keep practicing →
+            Start Practice →
           </Link>
         </div>
-      </Card>
     </div>
   );
 }

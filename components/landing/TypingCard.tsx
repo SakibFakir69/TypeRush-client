@@ -219,12 +219,18 @@ export function TypingCard({
                     </button>
                   )}
                   {paragraphId && user && saved === "saved" && (
-                    <p className="mt-1.5 text-xs font-bold text-accent">
-                      ✓ Result saved to the leaderboard
-                    </p>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetAll();
+                      }}
+                      className="rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110"
+                    >
+                      Try again ({duration}s)
+                    </button>
                   )}
                   {paragraphId && !user && (
-                    <p className="mt-1.5 text-xs text-muted">
+                    <p className="text-xs text-muted">
                       <Link
                         href="/login"
                         onClick={(e) => e.stopPropagation()}
@@ -235,16 +241,23 @@ export function TypingCard({
                       to save your result
                     </p>
                   )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      resetAll();
-                    }}
-                    className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:bg-chip"
-                  >
-                    Try again ({duration}s)
-                  </button>
+                  {(!paragraphId || !user) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetAll();
+                      }}
+                      className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:bg-chip"
+                    >
+                      Try again ({duration}s)
+                    </button>
+                  )}
                 </div>
+                {paragraphId && user && saved === "saved" && (
+                  <p className="mt-1.5 text-xs font-bold text-accent">
+                    ✓ Result saved to the leaderboard
+                  </p>
+                )}
               </div>
             </motion.div>
           )}

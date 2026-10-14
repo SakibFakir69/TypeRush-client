@@ -8,7 +8,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import Script from "next/script";
 
 const KEY = "typerush-theme";
 
@@ -49,23 +48,6 @@ function resolveLive(t: Theme): Resolved {
   return window.matchMedia("(prefers-color-scheme: light)").matches
     ? "light"
     : "dark";
-}
-
-/**
- * Blocking pre-paint script (via next/script, not a rendered <script>
- * tag) so the saved theme applies before first paint — no flash.
- */
-export function ThemeScript() {
-  return (
-    // eslint-disable-next-line @next/next/no-before-interactive-script-outside-document -- rendered in app/layout.tsx (root layout), the sanctioned App Router spot
-    <Script
-      id="typerush-theme-init"
-      strategy="beforeInteractive"
-      dangerouslySetInnerHTML={{
-        __html: `(function(){try{var t=localStorage.getItem("typerush-theme")||"dark";var r=t==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):t;if(r==="light")document.documentElement.classList.add("light");document.documentElement.style.colorScheme=r;}catch(e){}})();`,
-      }}
-    />
-  );
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

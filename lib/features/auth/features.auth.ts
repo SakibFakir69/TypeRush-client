@@ -39,11 +39,17 @@ type MessageResponse = {
   message: string;
 };
 
-/** The server wraps payloads in `data` — sometimes. Accept both shapes. */
+/** The server wraps payloads in `data` — sometimes. Accept every shape. */
 function readSession(body: unknown): SessionUser | null {
   if (!body || typeof body !== "object") return null;
   const d = body as Record<string, unknown>;
-  const u = d.user && typeof d.user === "object" ? d.user : d;
+  const u =
+    d.data && typeof d.data === "object"
+      ? d.data
+      : d.user && typeof d.user === "object"
+        ? d.user
+        : null;
+  if (!u) return null;
   return u as SessionUser;
 }
 

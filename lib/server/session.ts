@@ -28,9 +28,14 @@ export async function getSessionUser(): Promise<ServerSessionUser | null> {
     const json: unknown = await res.json().catch(() => null);
     if (!json || typeof json !== "object") return null;
     const d = json as Record<string, unknown>;
-    const u = d.data && typeof d.data === "object" ? d.data : d;
-    console.log(u , " [ U ]")
-    
+    // Envelope is { success, message, data: <user> } — never the row itself.
+    const u =
+      d.data && typeof d.data === "object"
+        ? d.data
+        : d.user && typeof d.user === "object"
+          ? d.user
+          : null;
+    if (!u) return null;
     return u as ServerSessionUser;
   } catch {
     return null;

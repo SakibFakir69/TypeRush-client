@@ -15,9 +15,10 @@ Living notes for future work. Update when conventions change.
   (no provider) over the session query; `helper/error-helper.ts` formats
   rejections. No manual thunks, no duplicated session state.
 - next/font: Ubuntu (sans) + Geist Mono (typing text)
-- **Theme**: custom `lib/theme.tsx` (blocking pre-paint script via
-  next/script, system support, `typerush-theme` key) — next-themes was
-  removed (its rendered `<script>` tripped React 19 console errors)
+- **Theme**: custom `lib/theme.tsx` (class toggle + system support,
+  `typerush-theme` key) — next-themes was removed (its rendered `<script>`
+  tripped React 19 console errors), along with the blocking pre-paint
+  script (React 19 rejects sync scripts outside `<head>`)
 - **Toasts**: sonner via `components/ui/ThemedToaster.tsx` on auth
   success actions (login, logout, code sent, password updated)
 - Backend: Express on :5000 (`API_URL` env), client talks via `/backend` rewrite

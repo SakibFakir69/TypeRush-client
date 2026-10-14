@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Ubuntu, Geist_Mono } from "next/font/google";
-import { ThemeProvider, ThemeScript } from "@/lib/theme";
+import { ThemeProvider } from "@/lib/theme";
 import StoreProvider from "./StoreProvider";
 import { AudioUnlock } from "@/components/ui/AudioUnlock";
 import { ThemedToaster } from "@/components/ui/ThemedToaster";
@@ -31,7 +31,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${ubuntu.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <ThemeScript />
       <body className="min-h-full flex flex-col">
         <ThemeProvider>
           <StoreProvider>
