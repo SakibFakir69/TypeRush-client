@@ -8,6 +8,7 @@ const FRIENDLY: Array<[RegExp, string]> = [
   [/expired|invalid.*(token|otp|code)/i, "That code expired or is wrong — request a fresh one."],
   [/too many/i, "Too many tries — wait a minute, then try again."],
   [/unauthorized|session expired/i, "Your session expired — please log in again."],
+  [/delet|disabled|suspended|deactivated|no longer/i, "This account no longer exists."],
   [/cannot reach|network|fetch failed/i, "Cannot reach the server. Check your connection."],
 ];
 

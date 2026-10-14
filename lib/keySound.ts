@@ -12,10 +12,35 @@ let ctx: AudioContext | null = null;
 
 const NOTES = [523.25, 587.33, 659.25, 783.99, 880.0];
 
+const SOUND_KEY = "typerush-sound";
+let soundOn: boolean | null = null;
+
+/** Master switch for every synth in this file (typing + shortcuts). */
+export function isSoundEnabled(): boolean {
+  if (soundOn !== null) return soundOn;
+  if (typeof window === "undefined") return true;
+  try {
+    soundOn = window.localStorage.getItem(SOUND_KEY) !== "off";
+  } catch {
+    soundOn = true;
+  }
+  return soundOn;
+}
+
+export function setSoundEnabled(on: boolean): void {
+  soundOn = on;
+  try {
+    if (on) window.localStorage.removeItem(SOUND_KEY);
+    else window.localStorage.setItem(SOUND_KEY, "off");
+  } catch {
+    // storage unavailable — session-only toggle
+  }
+}
+
 function getContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
-  // No global gate here: every caller is an explicit user keypress,
-  // which itself satisfies browser autoplay policies.
+  // Master switch first; gesture callers then satisfy autoplay policies.
+  if (!isSoundEnabled()) return null;
   try {
     if (!ctx) {
       const AC =
