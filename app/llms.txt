@@ -1,0 +1,14 @@
+# TypeRush
+
+> TypeRush is a free online typing speed test and typing contest platform. Users measure WPM and accuracy, practice with real-time feedback, and compete in live global typing contests and leaderboards.
+
+## Core Features
+- Typing speed test (WPM, accuracy, graphs)
+- Practice mode with paragraph-based tests
+- Org-hosted typing contests
+- Global and org-level leaderboards
+
+## Key Pages
+- Practice: https://typerush.app/practice
+- Leaderboard: https://typerush.app/leaderboard
+- Contests: https://typerush.app/contests
