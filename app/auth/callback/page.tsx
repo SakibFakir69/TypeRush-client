@@ -11,6 +11,7 @@ import { AuthShell, FormError, InlineLink } from "@/components/auth/ui";
  * the session via /users — success goes to the app, otherwise
  * we say so honestly instead of stranding the user.
  */
+
 function CallbackRunner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -18,17 +19,13 @@ function CallbackRunner() {
   const [error, setError] = useState("");
 
   const failed = params.get("error");
-  const token = params.get("token");
   const preError = failed
     ? "Google sign-in was rejected. Try again or use email login."
-    : !token
-      ? "No sign-in token arrived. Try again or use email login."
-      : "";
+    : "";
 
   useEffect(() => {
     if (preError) return;
     let alive = true;
-    // The token alone isn't a session: force-confirm via /users.
     trigger(undefined, false).then((res) => {
       if (!alive) return;
       if (res.data) {
