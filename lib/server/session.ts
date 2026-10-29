@@ -15,19 +15,19 @@ export type ServerSessionUser = {
 export async function getSessionUser(): Promise<ServerSessionUser | null> {
   const jar = await cookies();
   const token = jar.get("accessToken")?.value;
+  console.log("TOKEN PRESENT:", !!token, "API:", API);
   if (!token) return null;
   try {
     const res = await fetch(`${API}/api/v1/users`, {
       headers: { Cookie: `accessToken=${token}` },
       cache: "no-store",
     });
-  
-    console.log("SESSION CHECK:", res.status, res.ok, "API:", API);
+    console.log("SESSION CHECK STATUS:", res.status);
     if (!res.ok) return null;
     const json: unknown = await res.json().catch(() => null);
+    console.log("SESSION CHECK BODY:", JSON.stringify(json));
     if (!json || typeof json !== "object") return null;
     const d = json as Record<string, unknown>;
-    // Envelope is { success, message, data: <user> } — never the row itself.
     const u =
       d.data && typeof d.data === "object"
         ? d.data
@@ -36,7 +36,8 @@ export async function getSessionUser(): Promise<ServerSessionUser | null> {
           : null;
     if (!u) return null;
     return u as ServerSessionUser;
-  } catch {
+  } catch (err) {
+    console.log("SESSION CHECK THREW:", err instanceof Error ? err.message : err);
     return null;
   }
 }
@@ -50,6 +51,7 @@ export function hasRole(
   user: ServerSessionUser | null,
   allowed: string[]
 ): user is ServerSessionUser {
+
   if (!user) return false;
   const role = typeof user.role === "string" ? user.role : "USER";
   return allowed.includes(role);
