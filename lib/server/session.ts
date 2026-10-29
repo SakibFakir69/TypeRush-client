@@ -21,7 +21,8 @@ export async function getSessionUser(): Promise<ServerSessionUser | null> {
       headers: { Cookie: `accessToken=${token}` },
       cache: "no-store",
     });
-    console.log(res, 'user data')
+  
+    console.log("SESSION CHECK:", res.status, res.ok, "API:", API);
     if (!res.ok) return null;
     const json: unknown = await res.json().catch(() => null);
     if (!json || typeof json !== "object") return null;
