@@ -14,6 +14,8 @@ export default async function AppLayout({
   children: ReactNode;
 }) {
   const user = await getSessionUser();
+  console.log(user , "user data");
+  
   if (!user) redirect("/login?next=/home");
   const email = typeof user.email === "string" ? user.email : "";
   if (!isAppAllowed(user)) {
