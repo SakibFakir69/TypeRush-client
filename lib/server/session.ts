@@ -2,10 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 
-const API =
-  process.env.NEXT_BACKEND_URL ??
-  process.env.API_URL ??
-  "http://localhost:5000";
+const API  = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export type ServerSessionUser = {
   name?: string;
