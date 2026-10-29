@@ -181,7 +181,7 @@ export function SubmitButton({
 }
 
 export function GoogleButton() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   return (
     <a
