@@ -49,7 +49,7 @@ export function hasRole(
   allowed: string[]
 ): user is ServerSessionUser {
   if (!user) return false;
-  const role = typeof user.role === "string" ? user.role : "user";
+  const role = typeof user.role === "string" ? user.role : "USER";
   return allowed.includes(role);
 }
 
@@ -60,7 +60,7 @@ export function hasRole(
  * users have no password to log back in with.
  */
 export function isAppAllowed(user: ServerSessionUser | null): user is ServerSessionUser {
-  if (!hasRole(user, ["user", "admin"])) return false;
+  if (!hasRole(user, ["USER", "admin"])) return false;
   if (typeof user?.authProvider === "string" && user.authProvider === "google") {
     return true;
   }
