@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED_PATHS = ["/home", "/app"]; // adjust to your actual protected routes
+const PROTECTED_PATHS = [
+  "/home",
+  "/battles",
+  "/practice",
+  "/contests",
+  "/leaderboard",
+  "/profile",
+  "/progress",
+  "/achievements",
+  "/settings",
+];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -14,16 +24,14 @@ export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
   const refreshToken = req.cookies.get("refreshToken")?.value;
 
-  // Access token present — let it through, page/layout will verify it
   if (accessToken) {
     return NextResponse.next();
   }
 
-  // No access token but refresh token exists — try silent refresh
   if (refreshToken) {
     try {
       const refreshRes = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/auth/refresh`,
+        new URL("/backend/api/v1/auth/refresh", req.url),
         {
           method: "POST",
           headers: { Cookie: `refreshToken=${refreshToken}` },
@@ -31,14 +39,11 @@ export async function middleware(req: NextRequest) {
       );
 
       if (refreshRes.ok) {
-        const setCookieHeader = refreshRes.headers.get("set-cookie");
         const response = NextResponse.next();
-
-        if (setCookieHeader) {
-          // Forward the new accessToken cookie to the browser
-          response.headers.append("set-cookie", setCookieHeader);
+        const setCookies = refreshRes.headers.getSetCookie?.() ?? [];
+        for (const c of setCookies) {
+          response.headers.append("set-cookie", c);
         }
-
         return response;
       }
     } catch (err) {
@@ -46,12 +51,21 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Both tokens missing/invalid — redirect to login
   const loginUrl = new URL("/login", req.url);
   loginUrl.searchParams.set("next", pathname);
   return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
-  matcher: ["/home/:path*", "/app/:path*"], 
+  matcher: [
+    "/home/:path*",
+    "/battles/:path*",
+    "/practice/:path*",
+    "/contests/:path*",
+    "/leaderboard/:path*",
+    "/profile/:path*",
+    "/progress/:path*",
+    "/achievements/:path*",
+    "/settings/:path*",
+  ],
 };

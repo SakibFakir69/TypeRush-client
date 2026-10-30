@@ -1,8 +1,6 @@
 import "server-only";
 
-import { cookies } from "next/headers";
-
-const API  = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { cookies, headers } from "next/headers";
 
 export type ServerSessionUser = {
   name?: string;
@@ -11,13 +9,18 @@ export type ServerSessionUser = {
   role?: string;
 } & Record<string, unknown>;
 
-/** Read the logged-in user on the server via the httpOnly cookie. */
+/** Read the logged-in user on the server via the httpOnly cookie, through the same-origin proxy. */
 export async function getSessionUser(): Promise<ServerSessionUser | null> {
   const jar = await cookies();
   const token = jar.get("accessToken")?.value;
   if (!token) return null;
+
+  const h = await headers();
+  const host = h.get("host");
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+
   try {
-    const res = await fetch(`${API}/api/v1/users`, {
+    const res = await fetch(`${protocol}://${host}/backend/api/v1/users`, {
       headers: { Cookie: `accessToken=${token}` },
       cache: "no-store",
     });
@@ -38,27 +41,15 @@ export async function getSessionUser(): Promise<ServerSessionUser | null> {
   }
 }
 
-/**
- * Role gate. The server User model has NO role column yet, so every
- * authenticated account counts as role "user". The day the backend
- * adds roles, this check enforces for real with zero caller changes.
- */
 export function hasRole(
   user: ServerSessionUser | null,
   allowed: string[]
 ): user is ServerSessionUser {
-
   if (!user) return false;
   const role = typeof user.role === "string" ? user.role : "USER";
   return allowed.includes(role);
 }
 
-/**
- * Verified-only gate for main pages. Local accounts must have
- * emailVerified === true. Google accounts are exempt — Google
- * already verified that address at the identity provider, and those
- * users have no password to log back in with.
- */
 export function isAppAllowed(user: ServerSessionUser | null): user is ServerSessionUser {
   if (!hasRole(user, ["USER", "admin"])) return false;
   if (typeof user?.authProvider === "string" && user.authProvider === "google") {
@@ -69,8 +60,11 @@ export function isAppAllowed(user: ServerSessionUser | null): user is ServerSess
 
 /** Best-effort verification code (never blocks navigation on failure). */
 export async function sendVerifyCode(email: string): Promise<void> {
+  const h = await headers();
+  const host = h.get("host");
+  const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   try {
-    await fetch(`${API}/api/v1/auth/resend-verify-otp`, {
+    await fetch(`${protocol}://${host}/backend/api/v1/auth/resend-verify-otp`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),

@@ -15,10 +15,8 @@ export type SessionUser = {
   emailVerified?: boolean;
 } & Record<string, unknown>;
 
-console.log(process.env.NEXT_PUBLIC_BACKEND_URL, "BACKEND URL");
-
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_BACKEND_URL,
+  baseUrl: "/backend", // goes through next.config.ts rewrite -> real backend
   credentials: "include",
 });
 
@@ -46,10 +44,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
 export const baseApi = createApi({
   reducerPath: "api",
-
   baseQuery: baseQueryWithReauth,
-
   tagTypes: ["Session", "Paragraph", "Result", "User"],
-
   endpoints: () => ({}),
 });
