@@ -85,6 +85,7 @@ function toParagraphItem(row: unknown): ParagraphItem | null {
 
 export const practiceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    
     getTopics: builder.query<Topic[], void>({
       query: () => ({
         url: "/api/v1/practices/topics",
