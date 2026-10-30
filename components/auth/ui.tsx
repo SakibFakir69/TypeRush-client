@@ -181,11 +181,9 @@ export function SubmitButton({
 }
 
 export function GoogleButton() {
-  const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
   return (
     <a
-      href={`${apiUrl}/api/v1/auth/google`}
+      href={`/backend/api/v1/auth/google`}
       className="inline-flex w-full items-center justify-center gap-2.5 rounded-lg border border-line px-4 py-2.5 text-sm font-bold transition hover:bg-chip"
     >
       <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden>
