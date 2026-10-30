@@ -15,17 +15,14 @@ export type ServerSessionUser = {
 export async function getSessionUser(): Promise<ServerSessionUser | null> {
   const jar = await cookies();
   const token = jar.get("accessToken")?.value;
-  console.log("TOKEN PRESENT:", !!token, "API:", API);
   if (!token) return null;
   try {
     const res = await fetch(`${API}/api/v1/users`, {
       headers: { Cookie: `accessToken=${token}` },
       cache: "no-store",
     });
-    console.log("SESSION CHECK STATUS:", res.status);
     if (!res.ok) return null;
     const json: unknown = await res.json().catch(() => null);
-    console.log("SESSION CHECK BODY:", JSON.stringify(json));
     if (!json || typeof json !== "object") return null;
     const d = json as Record<string, unknown>;
     const u =
@@ -36,8 +33,7 @@ export async function getSessionUser(): Promise<ServerSessionUser | null> {
           : null;
     if (!u) return null;
     return u as ServerSessionUser;
-  } catch (err) {
-    console.log("SESSION CHECK THREW:", err instanceof Error ? err.message : err);
+  } catch {
     return null;
   }
 }
