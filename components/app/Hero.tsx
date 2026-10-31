@@ -51,12 +51,7 @@ export function DashboardHero({ name }: { name: string }) {
         </div>
       </div>
       <figure className="relative hidden items-center justify-end lg:flex">
-        <blockquote className="max-w-[220px] border-l-2 border-accent/40 pl-4 font-serif text-sm italic leading-6 text-muted">
-          “A little progress each day adds up to big results.”
-          <figcaption className="mt-1 font-sans text-[11px] not-italic text-faint">
-            — TypeRush
-          </figcaption>
-        </blockquote>
+       
       </figure>
     </Card>
   );

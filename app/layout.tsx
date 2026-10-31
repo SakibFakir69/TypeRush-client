@@ -19,11 +19,52 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TypeRush — Type faster. Go further.",
-  description:
-    "Improve your speed, accuracy, and consistency with focused practice, 1v1 battles, contests, and leaderboards.",
-};
+  metadataBase: new URL("https://YOUR-DOMAIN.com"),
 
+  title: {
+    default: "TypeRush — Free Online Typing Test & Competition",
+    template: "%s | TypeRush",
+  },
+
+  description:
+    "Improve your typing speed with TypeRush. Take free typing tests, measure WPM and accuracy, practice daily, join typing competitions, and climb global leaderboards.",
+
+  applicationName: "TypeRush",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "TypeRush",
+    title: "TypeRush — Practice. Compete. Improve.",
+    description:
+      "Test your typing speed, improve your accuracy, and compete with typists worldwide.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TypeRush typing test and competition platform",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "TypeRush — Practice. Compete. Improve.",
+    description:
+      "Improve your typing speed, compete with others, and climb the leaderboard.",
+    images: ["/og-image.png"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+};
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
