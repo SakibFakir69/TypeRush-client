@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Globe } from "lucide-react";
-import { COUNTRIES } from "@/lib/countries";
+import { COUNTRIES, resolveCountry } from "@/lib/countries";
 import { cn } from "@/lib/cn";
 
 function Flag({ code }: { code: string }) {
@@ -23,16 +23,28 @@ function Flag({ code }: { code: string }) {
 /**
  * Country picker with flags + type-to-filter. Controlled via
  * value/onChange so react-hook-form stays in charge of validation.
+ *
+ * `value` also accepts legacy ISO codes (`"sa"`, `"KSA"`), which older
+ * profiles stored instead of the country name.
  */
 export function CountryPicker({
+  value,
   onChange,
+  className,
 }: {
+  value?: string;
   onChange: (name: string) => void;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
-  const [picked, setPicked] = useState("");
+  const [innerValue, setInnerValue] = useState("");
   const boxRef = useRef<HTMLDivElement>(null);
+
+  // Fully controlled when `value` is supplied (profile editor); otherwise it
+  // keeps its own copy so the signup form can stay react-hook-form driven.
+  const controlled = value !== undefined;
+  const picked = resolveCountry(controlled ? value : innerValue)?.name ?? "";
 
   useEffect(() => {
     if (!open) return;
@@ -56,14 +68,14 @@ export function CountryPicker({
     };
   }, [open ]);
 
-  const selected = COUNTRIES.find((c) => c.name === picked);
+  const selected = resolveCountry(picked);
   const q = filter.trim().toLowerCase();
   const list = COUNTRIES.filter(
     (c) => !q || c.name.toLowerCase().includes(q) || c.code.includes(q)
   );
 
   const pick = (name: string) => {
-    setPicked(name);
+    if (!controlled) setInnerValue(name);
     onChange(name);
     setOpen(false);
     setFilter("");
@@ -77,7 +89,10 @@ export function CountryPicker({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Choose country"
-        className="flex w-full items-center gap-2.5 rounded-lg border border-line bg-inset px-3.5 py-2.5 text-left text-sm transition focus:border-accent/60 focus:outline-none"
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-lg border border-line bg-inset px-3.5 py-2.5 text-left text-sm transition focus:border-accent/60 focus:outline-none",
+          className
+        )}
       >
         {selected ? (
           <Flag code={selected.code} />

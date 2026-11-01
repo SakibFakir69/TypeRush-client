@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, Pencil, X } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
+import { CountryPicker } from "@/components/auth/CountryPicker";
 import { inputCls } from "@/components/auth/ui";
 import { getApiError } from "@/helper/error-helper";
+import { resolveCountry } from "@/lib/countries";
 import { useAppDispatch } from "@/lib/hooks";
 import { authApi } from "@/lib/features/auth/features.auth";
 import { useUpdateUserMutation } from "@/lib/features/user/features.user";
@@ -37,7 +39,12 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState(initial);
+  // Profiles created before the picker existed may hold an ISO code
+  // ("sa"), so normalise once — saving then stores the readable name.
+  const [form, setForm] = useState<ProfileInitial>(() => ({
+    ...initial,
+    country: resolveCountry(initial.country)?.name ?? initial.country,
+  }));
   const [error, setError] = useState("");
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
@@ -46,7 +53,10 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
   ) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const cancel = () => {
-    setForm(initial);
+    setForm({
+      ...initial,
+      country: resolveCountry(initial.country)?.name ?? initial.country,
+    });
     setError("");
     setEditing(false);
   };
@@ -180,12 +190,10 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
       {editing ? (
         <div className="mt-3 space-y-2">
           <div className="grid gap-2 sm:grid-cols-[1fr_110px]">
-            <input
+            <CountryPicker
               value={form.country}
-              onChange={set("country")}
-              aria-label="Country"
-              placeholder="Country"
-              className={cn(inputCls, "py-2 text-sm")}
+              onChange={(name) => setForm((f) => ({ ...f, country: name }))}
+              className="py-2 text-sm"
             />
             <input
               value={form.age}

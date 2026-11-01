@@ -20,6 +20,7 @@ type UpdateUserRequest = {
   name?: string;
   fullName?: string;
   country?: string;
+  age?: number;
   bio?: string;
   avatarUrl?: string | null;
 };

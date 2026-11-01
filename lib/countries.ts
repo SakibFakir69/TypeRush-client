@@ -58,10 +58,71 @@ export const COUNTRIES: Country[] = [
   { code: "co", name: "Colombia" },
 ];
 
-/** ISO code lookup for flag rendering ("Bangladesh" → "bd"). */
+/** Names people actually type that are not the canonical label above. */
+const COUNTRY_ALIASES: Record<string, string> = {
+  usa: "us",
+  "u s a": "us",
+  "united states of america": "us",
+  america: "us",
+  uk: "gb",
+  "u k": "gb",
+  britain: "gb",
+  "great britain": "gb",
+  england: "gb",
+  scotland: "gb",
+  wales: "gb",
+  uae: "ae",
+  "u a e": "ae",
+  emirates: "ae",
+  ksa: "sa",
+  "kingdom of saudi arabia": "sa",
+  korea: "kr",
+  "republic of korea": "kr",
+  "russian federation": "ru",
+  "viet nam": "vn",
+  holland: "nl",
+  turkiye: "tr",
+  "czech republic": "cz",
+  "ivory coast": "ci",
+  "cote d ivoire": "ci",
+};
+
+/** Lower-case, dash/underscore free lookup key. */
+function countryKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[._-]/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+/**
+ * Resolve whatever is stored on a user (`"Bangladesh"`, `"BD"`, `"bd"`,
+ * `"KSA"`, `"UK"`) to one canonical country record.
+ *
+ * Older records and hand-typed values are stored as codes, so both spellings
+ * have to work or the flag and the label silently disappear.
+ */
+export function resolveCountry(value: string | null | undefined): Country | null {
+  const k = countryKey(value ?? "");
+  if (!k) return null;
+
+  const byCode = COUNTRIES.find((c) => c.code === k);
+  if (byCode) return byCode;
+
+  const byName = COUNTRIES.find((c) => countryKey(c.name) === k);
+  if (byName) return byName;
+
+  const aliasCode = COUNTRY_ALIASES[k];
+  return aliasCode ? COUNTRIES.find((c) => c.code === aliasCode) ?? null : null;
+}
+
+/** ISO code lookup for flag rendering ("Bangladesh" → "bd", "KSA" → "sa"). */
 export function countryCodeFor(name: string): string | null {
-  const hit = COUNTRIES.find(
-    (c) => c.name.toLowerCase() === name.trim().toLowerCase()
-  );
-  return hit ? hit.code : null;
+  return resolveCountry(name)?.code ?? null;
+}
+
+/** Canonical display name ("sa" → "Saudi Arabia"); null when unknown. */
+export function countryNameFor(value: string): string | null {
+  return resolveCountry(value)?.name ?? null;
 }

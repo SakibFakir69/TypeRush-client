@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
 import { ProfileEditor } from "@/components/app/ProfileEditor";
-import { countryCodeFor } from "@/lib/countries";
+import { resolveCountry } from "@/lib/countries";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
@@ -29,7 +29,9 @@ export default async function ProfilePage() {
   const name = str(user?.name) || str(user?.fullName) || "typist";
   const fullName = str(user?.fullName);
   const email = str(user?.email);
-  const country = str(user?.country);
+  const storedCountry = str(user?.country);
+  const country = resolveCountry(storedCountry);
+  const countryLabel = country?.name ?? storedCountry;
   const age = typeof user?.age === "number" ? String(user.age) : "";
   const provider = str(user?.authProvider) || "local";
   const bio = str(user?.bio);
@@ -47,7 +49,7 @@ export default async function ProfilePage() {
     { Icon: Mail, label: "Email", value: email || "—" },
     { Icon: UserIcon, label: "Username", value: str(user?.name) || "—" },
     { Icon: Cake, label: "Age", value: age || "—" },
-    { Icon: Globe, label: "Country", value: country || "—" },
+    { Icon: Globe, label: "Country", value: countryLabel || "—" },
     {
       Icon: ShieldCheck,
       label: "Sign-in method",
@@ -91,7 +93,7 @@ export default async function ProfilePage() {
               name,
               fullName,
               bio,
-              country,
+              country: countryLabel,
               age: typeof user?.age === "number" ? String(user.age) : "",
               avatarUrl,
             }}
@@ -103,10 +105,10 @@ export default async function ProfilePage() {
                 key={label}
                 className="flex items-center gap-2.5 rounded-xl border border-line bg-inset px-3 py-2.5"
               >
-                {label === "Country" && countryCodeFor(country) ? (
+                {label === "Country" && country ? (
                   // eslint-disable-next-line @next/next/no-img-element -- tiny CDN flag; next/image offers nothing here
                   <img
-                    src={`https://flagcdn.com/w80/${countryCodeFor(country)}.png`}
+                    src={`https://flagcdn.com/w80/${country.code}.png`}
                     alt=""
                     aria-hidden
                     width={32}
