@@ -27,9 +27,17 @@ import {
   inputCls,
 } from "@/components/auth/ui";
 
+/** `next` comes from the URL, so only allow in-app paths (no open redirect). */
+function safeNext(value: string | null): string {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return "/home";
+  }
+  return value.startsWith("/login") ? "/home" : value;
+}
+
 function LoginForm() {
   const router = useRouter();
-  const next = useSearchParams().get("next") || "/home";
+  const next = safeNext(useSearchParams().get("next"));
   const [loginMut, { isLoading }] = useLoginMutation();
   const [logoutMut] = useLogoutMutation();
   const [triggerSession] = useLazyGetSessionQuery();

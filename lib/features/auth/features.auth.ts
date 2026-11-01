@@ -81,6 +81,18 @@ export const authApi = baseApi.injectEndpoints({
       invalidatesTags: ["Session"],
     }),
 
+    // Google's OAuth callback runs on the API origin. It redirects back with a
+    // short-lived single-use code; redeeming it here (through the same-origin
+    // /backend proxy) is what sets the session cookies on the app origin.
+    exchangeGoogleCode: builder.mutation<MessageResponse, { code: string }>({
+      query: (body) => ({
+        url: "/api/v1/auth/google/exchange",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Session"],
+    }),
+
     refreshToken: builder.mutation<RefreshResponse, RefreshRequest>({
       query: (body) => ({
         url: "/api/v1/auth/refresh",
@@ -146,6 +158,7 @@ export const {
   useLazyGetSessionQuery,
   useLoginMutation,
   useLogoutMutation,
+  useExchangeGoogleCodeMutation,
   useRefreshTokenMutation,
   useVerifyOtpMutation,
   useForgotPasswordMutation,

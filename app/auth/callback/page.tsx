@@ -1,45 +1,67 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLazyGetSessionQuery } from "@/lib/features/auth/features.auth";
+import {
+  useExchangeGoogleCodeMutation,
+  useLazyGetSessionQuery,
+} from "@/lib/features/auth/features.auth";
 import { AuthShell, FormError, InlineLink } from "@/components/auth/ui";
 
 /**
- * Google OAuth landing: the server redirects here with ?token=.
- * That token can't open an API session by itself, so we confirm
- * the session via /users — success goes to the app, otherwise
- * we say so honestly instead of stranding the user.
+ * Google OAuth landing.
+ *
+ * The callback runs on the API origin, so it redirects here with a
+ * short-lived, single-use `?code=`. We redeem that code through the
+ * same-origin `/backend` proxy (which stores the session cookies on *this*
+ * origin), strip the code from the URL, then confirm the session via /users.
  */
-
 function CallbackRunner() {
   const router = useRouter();
   const params = useSearchParams();
   const [trigger] = useLazyGetSessionQuery();
+  const [exchange] = useExchangeGoogleCodeMutation();
   const [error, setError] = useState("");
+  // StrictMode runs effects twice in dev; the handoff code is single-use.
+  const started = useRef(false);
 
   const failed = params.get("error");
+  const code = params.get("code");
   const preError = failed
     ? "Google sign-in was rejected. Try again or use email login."
     : "";
 
   useEffect(() => {
-    if (preError) return;
-    let alive = true;
-    trigger(undefined, false).then((res) => {
-      if (!alive) return;
+    if (preError || started.current) return;
+    started.current = true;
+
+    (async () => {
+      if (code) {
+        try {
+          await exchange({ code }).unwrap();
+        } catch {
+          setError("This sign-in link expired. Please try Google again.");
+          return;
+        }
+        // Single-use code — keep it out of the address bar and history.
+        if (typeof window !== "undefined") {
+          window.history.replaceState(null, "", "/auth/callback");
+        }
+      }
+
+      const res = await trigger(undefined, false);
       if (res.data) {
         router.replace("/home");
-      } else {
-        setError(
-          "Google redirected back but no session was created. Use email login for now."
-        );
+        return;
       }
-    });
-    return () => {
-      alive = false;
-    };
-  }, [preError, trigger, router]);
+
+      setError(
+        code
+          ? "Google signed you in, but the session still could not be read. Reload and try once more."
+          : "Google redirected back but no session was created. Use email login for now."
+      );
+    })();
+  }, [preError, code, exchange, trigger, router]);
 
   const shown = error || preError;
   if (!shown) {

@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { BACKEND_BASE_URL } from "./lib/backend-url";
 
 const nextConfig: NextConfig = {
   images: {
@@ -12,12 +13,9 @@ const nextConfig: NextConfig = {
   async rewrites() {
     // Same-origin API proxy: browser cookies stay first-party and
     // no CORS preflights are needed in dev or production.
-    // Server URL resolution: NEXT_BACKEND_URL (.env) → API_URL → local.
-    const api =
-    process.env.NEXT_PUBLIC_BACKEND_URL ??
-      process.env.API_URL ??
-      "http://localhost:5000";
-    return [{ source: "/backend/:path*", destination: `${api}/:path*` }];
+    // Server URL resolution lives in lib/backend-url.ts so the rewrite,
+    // middleware and Server Components can never drift apart.
+    return [{ source: "/backend/:path*", destination: `${BACKEND_BASE_URL}/:path*` }];
   },
 };
 
