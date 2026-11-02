@@ -18,6 +18,7 @@ import {
   contestExcerpt,
   contestStatus,
   formatContestDate,
+  formatContestTime,
   statusLabel,
   statusStyle,
   useGetContestsQuery,
@@ -96,7 +97,7 @@ function ContestCard({ contest }: { contest: Contest }) {
             </span>
             <span className="inline-flex items-center gap-1.5 tabular-nums">
               <Timer size={12} aria-hidden />
-              {contest.time} min
+              {formatContestTime(contest.time)}
             </span>
             {contest.participants && (
               <span className="inline-flex items-center gap-1.5 tabular-nums">

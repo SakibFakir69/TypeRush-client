@@ -20,6 +20,7 @@ import {
   contestExcerpt,
   contestStatus,
   formatContestDate,
+  formatContestTime,
   statusLabel,
   statusStyle,
   useGetContestByIdQuery,
@@ -164,7 +165,7 @@ export function ContestDetail({ id }: { id: string }) {
               </span>
               <span className="inline-flex items-center gap-1.5 tabular-nums">
                 <Timer size={12} aria-hidden />
-                {data.time} min
+                {formatContestTime(data.time)}
               </span>
               <span className="inline-flex items-center gap-1.5 tabular-nums">
                 <Users size={12} aria-hidden />

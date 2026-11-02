@@ -28,7 +28,7 @@ export type Contest = {
   id: string;
   name: string;
   content: string;
-  /** Duration in minutes, as stored by the admin API. */
+  /** Duration in seconds, as stored by the admin API (60 = 1 minute). */
   time: number;
   contestDate: string;
   condition: string;
@@ -69,6 +69,12 @@ export function statusLabel(condition: string | undefined): string {
 
 export function statusStyle(condition: string | undefined): string {
   return STATUS_STYLE[contestStatus(condition)];
+}
+
+/** The backend stores `time` in **seconds** (60 = one minute). */
+export function formatContestTime(seconds: number | undefined): string {
+  const total = Math.max(0, Math.round(Number(seconds) || 0));
+  return `${total} s`;
 }
 
 /** "12 Nov 2026, 18:00" — locale-aware, never throws on bad input. */
