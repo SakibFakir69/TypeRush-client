@@ -2,10 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-export function useTypingTest(target: string) {
+export function useTypingTest(target: string, initialSeconds = 60) {
   const [typed, setTyped] = useState("");
-  const [duration, setDuration] = useState(60);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [duration, setDuration] = useState(initialSeconds);
+  const [timeLeft, setTimeLeft] = useState(initialSeconds);
   const [started, setStarted] = useState(false);
   const [finished, setFinished] = useState(false);
 

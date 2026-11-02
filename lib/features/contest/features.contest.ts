@@ -38,6 +38,28 @@ export type Contest = {
   participants?: ContestParticipant[];
 };
 
+/** One row of `GET /contests/:id/leaderboard` (best result per user). */
+export type ContestLeaderboardRow = {
+  rank: number;
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+  wpm: number;
+  accuracy: number;
+  errors: number;
+  timeTaken: number;
+  createdAt?: string;
+};
+
+/** Body accepted by `POST /contests/:id/submit`. */
+export type SubmitContestResultRequest = {
+  id: string;
+  wpm: number;
+  accuracy: number;
+  errors: number;
+  timeTaken: number;
+};
+
 /** The server wraps every payload as { success, message, data }. */
 function unwrap(res: unknown): unknown {
   if (res && typeof res === "object" && "data" in (res as Record<string, unknown>)) {
@@ -141,6 +163,54 @@ export const contestApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: (result, error, id) => [{ type: "Contest", id }, "Contest"],
     }),
+
+    /** Best run per participant, already ranked by the server. */
+    getContestLeaderboard: builder.query<ContestLeaderboardRow[], string>({
+      query: (id) => ({
+        url: `/api/v1/contests/${id}/leaderboard`,
+        method: "GET",
+      }),
+      transformResponse: (res: unknown) => {
+        const data = unwrap(res);
+        if (!Array.isArray(data)) return [];
+        return data
+          .filter((row): row is Record<string, unknown> =>
+            Boolean(row) && typeof row === "object"
+          )
+          .map((row, i) => {
+            const name =
+              typeof row.name === "string" && row.name.trim()
+                ? row.name
+                : "Typist";
+            return {
+              rank: Number(row.rank) || i + 1,
+              userId: String(row.userId ?? ""),
+              name,
+              avatarUrl:
+                typeof row.avatarUrl === "string" ? row.avatarUrl : null,
+              wpm: Math.round(Number(row.wpm) || 0),
+              accuracy: Math.round(Number(row.accuracy) || 0),
+              errors: Math.round(Number(row.errors) || 0),
+              timeTaken: Math.round(Number(row.timeTaken) || 0),
+              ...(typeof row.createdAt === "string"
+                ? { createdAt: row.createdAt }
+                : {}),
+            };
+          })
+          .sort((a, b) => a.rank - b.rank);
+      },
+      providesTags: (result, error, id) => [{ type: "Contest", id }],
+    }),
+
+    /** Post a run to a RUNNING contest you have joined. */
+    submitContestResult: builder.mutation<unknown, SubmitContestResultRequest>({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/contests/${id}/submit`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: "Contest", id }],
+    }),
   }),
   overrideExisting: false,
 });
@@ -151,4 +221,6 @@ export const {
   useGetMyContestsQuery,
   useJoinContestMutation,
   useLeaveContestMutation,
+  useGetContestLeaderboardQuery,
+  useSubmitContestResultMutation,
 } = contestApi;

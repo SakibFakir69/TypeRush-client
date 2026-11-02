@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTypingTest } from "@/hooks/useTypingTest";
 import { useAuth } from "@/lib/auth";
 import { useSubmitPracticeResultMutation } from "@/lib/features/practice/features.practice";
+import { useSubmitContestResultMutation } from "@/lib/features/contest/features.contest";
 import { playDemoError, playDemoTick } from "@/lib/keySound";
 import { cn } from "@/lib/cn";
 
@@ -38,11 +39,24 @@ const MIN_CUSTOM_SECONDS = 5;
 export function TypingCard({
   target,
   paragraphId,
+  contest,
 }: {
   target: string;
   /** Server passage id — results submit only for admin passages. */
   paragraphId?: string;
+  /**
+   * Contest run: the length is fixed by the contest and the result posts to
+   * `POST /contests/:id/submit` instead of the practice leaderboard.
+   */
+  contest?: {
+    id: string;
+    seconds: number;
+    onSubmitted?: () => void;
+  };
 }) {
+  const contestSeconds =
+    contest && contest.seconds > 0 ? Math.round(contest.seconds) : null;
+  const isContest = contestSeconds !== null;
   const {
     typed,
     timeLeft,
@@ -55,9 +69,10 @@ export function TypingCard({
     setDuration,
     reset,
     onChange,
-  } = useTypingTest(target);
+  } = useTypingTest(target, contestSeconds ?? 60);
   const { user } = useAuth();
   const [submitResult] = useSubmitPracticeResultMutation();
+  const [submitContest] = useSubmitContestResultMutation();
   const [saved, setSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -118,16 +133,25 @@ export function TypingCard({
     if (saved === "saving" || saved === "saved") return;
     setSaved("saving");
 
-    submitResult({
-
-      paragraphId: paragraphId ?? "",
+    const body = {
       wpm,
       accuracy,
       errors,
       timeTaken: duration - timeLeft,
-    })
+    };
+
+    const request =
+      contest && contestSeconds !== null
+        ? submitContest({ id: contest.id, ...body })
+        : submitResult({ paragraphId: paragraphId ?? "", ...body });
+
+    request
       .unwrap()
-      .then(() => setSaved("saved"))
+      .then(() => {
+        setSaved("saved");
+        // Let the contest page refresh its leaderboard.
+        if (contest) contest.onSubmitted?.();
+      })
       .catch(() => setSaved("error"));
       console.log("submited")
   };
@@ -148,6 +172,8 @@ export function TypingCard({
 
   // Ranked = logged in, on an admin passage, at a preset length.
   const ranked = Boolean(paragraphId && user) && !customMode;
+  // A contest run submits for any signed-in participant — no passage needed.
+  const canSubmit = isContest ? Boolean(user) : ranked;
 
   return (
     <div
@@ -156,6 +182,13 @@ export function TypingCard({
       onClick={focusInput}
     >
       <div className="flex flex-wrap items-center gap-2">
+        {isContest ? (
+          <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-500">
+            <Timer size={12} aria-hidden />
+            Contest run · {duration}s
+          </span>
+        ) : (
+          <>
         <div
           className="flex items-center rounded-lg border border-line bg-inset p-1 text-xs"
           role="tablist"
@@ -232,6 +265,8 @@ export function TypingCard({
             Unranked
           </span>
         )}
+          </>
+        )}
         <p className="ml-auto text-[11px] tabular-nums text-faint">
           {typed.length}/{target.length}
         </p>
@@ -297,7 +332,7 @@ export function TypingCard({
                   {accuracy}% accuracy · {errors} errors
                 </p>
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                  {ranked && saved !== "saved" && (
+                  {canSubmit && saved !== "saved" && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -313,7 +348,7 @@ export function TypingCard({
                           : "Submit result"}
                     </button>
                   )}
-                  {ranked && saved === "saved" && (
+                  {canSubmit && saved === "saved" && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -324,7 +359,7 @@ export function TypingCard({
                       Try again ({duration}s)
                     </button>
                   )}
-                  {paragraphId && !user && !customMode && (
+                  {(isContest || paragraphId) && !user && !customMode && (
                     <p className="text-xs text-muted">
                       <Link
                         href="/login"
@@ -336,7 +371,7 @@ export function TypingCard({
                       to save your result
                     </p>
                   )}
-                  {!ranked && (
+                  {!canSubmit && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -348,9 +383,10 @@ export function TypingCard({
                     </button>
                   )}
                 </div>
-                {ranked && saved === "saved" && (
+                {canSubmit && saved === "saved" && (
                   <p className="mt-1.5 text-xs font-bold text-accent">
-                    ✓ Result saved to the leaderboard
+                    ✓ Result saved to the{" "}
+                    {isContest ? "contest leaderboard" : "leaderboard"}
                   </p>
                 )}
                 {customMode && (

@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
+import { TypingCard } from "@/components/landing/TypingCard";
 import { getApiError } from "@/helper/error-helper";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
@@ -24,9 +25,28 @@ import {
   statusLabel,
   statusStyle,
   useGetContestByIdQuery,
+  useGetContestLeaderboardQuery,
   useJoinContestMutation,
   useLeaveContestMutation,
 } from "@/lib/features/contest/features.contest";
+
+/** "sakib.fakir@gmail.com" → "Sakib Fakir"; real names pass through. */
+function displayName(raw: string): string {
+  if (!raw.includes("@")) return raw;
+  const local = raw.split("@")[0].replace(/[._-]+/g, " ").trim();
+  if (!local) return "Typist";
+  return local
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+/** Podium colours for the top three ranks. */
+const RANK_STYLE = [
+  "border-amber-500/50 bg-amber-500/10 text-amber-500",
+  "border-slate-400/50 bg-slate-400/10 text-muted",
+  "border-orange-600/50 bg-orange-600/10 text-orange-400",
+];
 
 function initials(name: string) {
   const parts = name.split(/\s+/).filter(Boolean);
@@ -43,11 +63,19 @@ export function ContestDetail({ id }: { id: string }) {
   const [join, { isLoading: joining }] = useJoinContestMutation();
   const [leave, { isLoading: leaving }] = useLeaveContestMutation();
   const [showFull, setShowFull] = useState(false);
+  const [racing, setRacing] = useState(false);
+  const {
+    data: board,
+    isLoading: boardLoading,
+    isError: boardError,
+    refetch: refetchBoard,
+  } = useGetContestLeaderboardQuery(id);
 
   const myId = typeof user?.id === "string" ? user.id : "";
   const participants = data?.participants ?? [];
   const joined =
     myId !== "" && participants.some((p) => p.userId === myId);
+  const myRow = (board ?? []).find((r) => myId !== "" && r.userId === myId);
   const status = contestStatus(data?.condition);
   const status404 =
     !!error &&
@@ -221,6 +249,45 @@ export function ContestDetail({ id }: { id: string }) {
         </div>
       </Card>
 
+      {status === "RUNNING" && joined && content && (
+        <Card className="border-emerald-500/30 p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-sm font-extrabold">Contest run</h2>
+            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+              Live
+            </span>
+            <span className="text-[11px] text-faint">
+              {formatContestTime(data.time)} · your best run ranks you
+            </span>
+            <button
+              type="button"
+              onClick={() => setRacing((v) => !v)}
+              className="ml-auto rounded-lg bg-mint px-3 py-1.5 text-xs font-bold text-black transition hover:brightness-110"
+            >
+              {racing ? "Hide arena" : "Race now →"}
+            </button>
+          </div>
+          {racing ? (
+            <div className="mt-3">
+              <TypingCard
+                key={`contest-${data.id}`}
+                target={content}
+                contest={{
+                  id: data.id,
+                  seconds: data.time,
+                  onSubmitted: () => refetchBoard(),
+                }}
+              />
+            </div>
+          ) : (
+            <p className="mt-2 text-[13px] text-muted">
+              The contest is live — race the passage, then submit your WPM to
+              the contest leaderboard.
+            </p>
+          )}
+        </Card>
+      )}
+
       <Card className="p-5">
         <h2 className="text-sm font-extrabold">Contest passage</h2>
         <p
@@ -239,6 +306,102 @@ export function ContestDetail({ id }: { id: string }) {
           >
             {showFull ? "Show less" : "Show full passage"}
           </button>
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-sm font-extrabold">Contest leaderboard</h2>
+          {myRow && (
+            <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">
+              You · #{myRow.rank}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => refetchBoard()}
+            className="ml-auto text-[11px] font-semibold text-muted transition hover:text-accent"
+          >
+            Refresh
+          </button>
+        </div>
+
+        {boardLoading ? (
+          <div aria-hidden className="mt-3 space-y-1.5">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="h-11 animate-pulse rounded-lg bg-inset" />
+            ))}
+          </div>
+        ) : boardError ? (
+          <div className="mt-3 text-center">
+            <p className="text-[12px] text-muted">
+              Couldn&apos;t load the leaderboard.
+            </p>
+            <button
+              type="button"
+              onClick={() => refetchBoard()}
+              className="mt-2 rounded-lg border border-line px-3 py-1.5 text-[11px] font-bold transition hover:bg-chip"
+            >
+              Retry
+            </button>
+          </div>
+        ) : (board ?? []).length === 0 ? (
+          <p className="mt-2 text-[13px] text-muted">
+            {status === "RUNNING"
+              ? "No runs yet — the first submission takes #1."
+              : "Results show up here once the contest has run."}
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-1.5">
+            {(board ?? []).map((row) => {
+              const mine = myId !== "" && row.userId === myId;
+              const name = displayName(row.name);
+              return (
+                <li
+                  key={`${row.rank}-${row.userId}`}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg border px-3 py-2",
+                    mine
+                      ? "border-accent/50 bg-accent/[0.07]"
+                      : "border-line bg-inset"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[10px] font-black tabular-nums",
+                      RANK_STYLE[row.rank - 1] ?? "border-line text-muted"
+                    )}
+                  >
+                    {row.rank}
+                  </span>
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-teal-600 to-emerald-800 text-[11px] font-black text-white">
+                    {initials(mine ? "You" : name)}
+                  </span>
+                  <span className="min-w-0">
+                    <span
+                      className={cn(
+                        "block truncate text-[13px]",
+                        mine ? "font-extrabold text-accent" : "font-bold"
+                      )}
+                    >
+                      {mine ? "You" : name}
+                    </span>
+                    <span className="block text-[10px] tabular-nums text-faint">
+                      {row.accuracy}% accuracy · {row.errors} errors
+                    </span>
+                  </span>
+                  <span className="ml-auto shrink-0 text-right">
+                    <span className="block font-mono text-sm font-extrabold tabular-nums text-accent">
+                      {row.wpm}
+                    </span>
+                    <span className="block text-[9px] uppercase tracking-wide text-faint">
+                      wpm
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </Card>
 
