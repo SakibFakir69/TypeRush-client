@@ -29,6 +29,12 @@ function CharView({ typed, target }: { typed: string; target: string }) {
   );
 }
 
+/** Preset durations, in seconds. */
+const PRESETS = [60, 30, 15] as const;
+/** Custom runs are capped at 5 minutes. */
+const MAX_CUSTOM_SECONDS = 300;
+const MIN_CUSTOM_SECONDS = 5;
+
 export function TypingCard({
   target,
   paragraphId,
@@ -57,6 +63,10 @@ export function TypingCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const prevLen = useRef(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  // Custom duration: any 5 s – 5 min length. Runs at a custom length are
+  // unranked, so they are never submitted to the leaderboard.
+  const [customMode, setCustomMode] = useState(false);
+  const [customDraft, setCustomDraft] = useState("120");
   const reduceMotion = useReducedMotion();
   const focusInput = () => inputRef.current?.focus();
 
@@ -75,8 +85,36 @@ export function TypingCard({
     focusInput();
   };
 
+  /**
+   * Custom length: clamped to 5 s – 5 min. Custom runs are practice-only,
+   * so they never reach the leaderboard.
+   */
+  const applyCustom = (raw: string) => {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0) {
+      // Bad input: fall back to the length that is actually running.
+      setCustomDraft(String(duration));
+      return;
+    }
+    const seconds = Math.min(
+      MAX_CUSTOM_SECONDS,
+      Math.max(MIN_CUSTOM_SECONDS, Math.round(n))
+    );
+    setCustomDraft(String(seconds));
+    setCustomMode(true);
+    resetAll(seconds);
+  };
+
+  const pickPreset = (d: number) => {
+    setCustomMode(false);
+    setDuration(d);
+    resetAll(d);
+  };
+
   // Explicit submit: only the button below calls the API.
   const doSubmit = () => {
+    // Ranked only: a custom-length run is not a comparable result.
+    if (customMode) return;
     if (saved === "saving" || saved === "saved") return;
     setSaved("saving");
 
@@ -108,6 +146,9 @@ export function TypingCard({
     }
   };
 
+  // Ranked = logged in, on an admin passage, at a preset length.
+  const ranked = Boolean(paragraphId && user) && !customMode;
+
   return (
     <div
       ref={cardRef}
@@ -116,27 +157,81 @@ export function TypingCard({
     >
       <div className="flex flex-wrap items-center gap-2">
         <div
-          className="flex rounded-lg border border-line bg-inset p-1 text-xs"
+          className="flex items-center rounded-lg border border-line bg-inset p-1 text-xs"
           role="tablist"
           aria-label="Duration"
         >
-          {[60, 30, 15].map((d) => (
+          {PRESETS.map((d) => (
             <button
               key={d}
               onClick={(e) => {
                 e.stopPropagation();
-                setDuration(d);
-                resetAll(d);
+                pickPreset(d);
               }}
+              aria-pressed={!customMode && duration === d}
               className={cn(
                 "rounded-md px-3 py-1.5 font-semibold transition",
-                duration === d ? "bg-mint text-black" : "text-muted hover:text-ink"
+                !customMode && duration === d
+                  ? "bg-mint text-black"
+                  : "text-muted hover:text-ink"
               )}
             >
               {d}s
             </button>
           ))}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              applyCustom(customDraft);
+            }}
+            aria-pressed={customMode}
+            aria-label="Custom duration"
+            title="Custom length — up to 5 minutes (unranked)"
+            className={cn(
+              "rounded-md px-3 py-1.5 font-semibold transition",
+              customMode ? "bg-mint text-black" : "text-muted hover:text-ink"
+            )}
+          >
+            {customMode ? `${duration}s` : "Custom"}
+          </button>
         </div>
+        {customMode && (
+          <label
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-inset px-2 py-1 text-[11px] text-muted"
+          >
+            <input
+              type="number"
+              inputMode="numeric"
+              min={MIN_CUSTOM_SECONDS}
+              max={MAX_CUSTOM_SECONDS}
+              step={5}
+              value={customDraft}
+              onChange={(e) => setCustomDraft(e.target.value)}
+              onBlur={(e) => applyCustom(e.currentTarget.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  applyCustom(e.currentTarget.value);
+                }
+              }}
+              aria-label="Custom duration in seconds (max 300)"
+              className="w-14 bg-transparent text-center font-mono text-xs font-bold text-ink focus:outline-none"
+            />
+            s
+            <span className="text-faint">· max 5 min</span>
+          </label>
+        )}
+        {customMode && (
+          <span
+            title="Custom-length runs are practice only — they are not saved to the leaderboard."
+            className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-500"
+          >
+            Unranked
+          </span>
+        )}
         <p className="ml-auto text-[11px] tabular-nums text-faint">
           {typed.length}/{target.length}
         </p>
@@ -202,7 +297,7 @@ export function TypingCard({
                   {accuracy}% accuracy · {errors} errors
                 </p>
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-                  {paragraphId && user && saved !== "saved" && (
+                  {ranked && saved !== "saved" && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -218,7 +313,7 @@ export function TypingCard({
                           : "Submit result"}
                     </button>
                   )}
-                  {paragraphId && user && saved === "saved" && (
+                  {ranked && saved === "saved" && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -229,7 +324,7 @@ export function TypingCard({
                       Try again ({duration}s)
                     </button>
                   )}
-                  {paragraphId && !user && (
+                  {paragraphId && !user && !customMode && (
                     <p className="text-xs text-muted">
                       <Link
                         href="/login"
@@ -241,7 +336,7 @@ export function TypingCard({
                       to save your result
                     </p>
                   )}
-                  {(!paragraphId || !user) && (
+                  {!ranked && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -253,9 +348,15 @@ export function TypingCard({
                     </button>
                   )}
                 </div>
-                {paragraphId && user && saved === "saved" && (
+                {ranked && saved === "saved" && (
                   <p className="mt-1.5 text-xs font-bold text-accent">
                     ✓ Result saved to the leaderboard
+                  </p>
+                )}
+                {customMode && (
+                  <p className="mt-1.5 max-w-xs text-xs text-muted">
+                    Custom length — practice only. Pick 15s, 30s or 60s to post
+                    a ranked score.
                   </p>
                 )}
               </div>
