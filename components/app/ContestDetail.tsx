@@ -1,0 +1,295 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  ArrowLeft,
+  CalendarDays,
+  LogOut,
+  Timer,
+  Trophy,
+  Users,
+} from "lucide-react";
+import { Card } from "@/components/ui/primitives";
+import { getApiError } from "@/helper/error-helper";
+import { useAuth } from "@/lib/auth";
+import { cn } from "@/lib/cn";
+import {
+  contestExcerpt,
+  contestStatus,
+  formatContestDate,
+  statusLabel,
+  statusStyle,
+  useGetContestByIdQuery,
+  useJoinContestMutation,
+  useLeaveContestMutation,
+} from "@/lib/features/contest/features.contest";
+
+function initials(name: string) {
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+export function ContestDetail({ id }: { id: string }) {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { data, isLoading, isError, error, refetch } =
+    useGetContestByIdQuery(id);
+  const [join, { isLoading: joining }] = useJoinContestMutation();
+  const [leave, { isLoading: leaving }] = useLeaveContestMutation();
+  const [showFull, setShowFull] = useState(false);
+
+  const myId = typeof user?.id === "string" ? user.id : "";
+  const participants = data?.participants ?? [];
+  const joined =
+    myId !== "" && participants.some((p) => p.userId === myId);
+  const status = contestStatus(data?.condition);
+  const status404 =
+    !!error &&
+    typeof error === "object" &&
+    "status" in error &&
+    (error as { status?: unknown }).status === 404;
+
+  const onJoin = async () => {
+    try {
+      await join(id).unwrap();
+      toast.success("You're in. Be ready when the clock starts.");
+    } catch (e) {
+      const conflict =
+        !!e &&
+        typeof e === "object" &&
+        "status" in e &&
+        (e as { status?: unknown }).status === 409;
+      if (conflict) {
+        toast.message("You're already in this contest.");
+        refetch();
+        return;
+      }
+      toast.error(getApiError(e));
+    }
+  };
+
+  const onLeave = async () => {
+    try {
+      await leave(id).unwrap();
+      toast.success("Left the contest.");
+    } catch (e) {
+      toast.error(getApiError(e));
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div aria-hidden className="space-y-2">
+        <div className="h-28 animate-pulse rounded-2xl border border-line bg-card" />
+        <div className="h-48 animate-pulse rounded-2xl border border-line bg-card" />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return (
+      <Card className="p-8 text-center">
+        <p className="text-base font-extrabold">
+          {status404 ? "Contest not found" : "Couldn't load this contest"}
+        </p>
+        <p className="mx-auto mt-1 max-w-sm text-[13px] text-muted">
+          {status404
+            ? "This race may have been removed by its organiser."
+            : "The contest details didn't come back. Try again."}
+        </p>
+        <div className="mt-4 flex justify-center gap-2">
+          {!status404 && (
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="rounded-lg border border-line px-4 py-2 text-sm font-bold transition hover:bg-chip"
+            >
+              Retry
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => router.push("/contests")}
+            className="rounded-lg border border-line px-4 py-2 text-sm font-bold transition hover:bg-chip"
+          >
+            All contests
+          </button>
+        </div>
+      </Card>
+    );
+  }
+
+  const content = data.content ?? "";
+
+  return (
+    <div className="space-y-3">
+      <Link
+        href="/contests"
+        className="inline-flex items-center gap-1.5 text-[13px] font-bold text-muted transition hover:text-ink"
+      >
+        <ArrowLeft size={14} aria-hidden /> All contests
+      </Link>
+
+      <Card className="p-5">
+        <div className="flex items-start gap-3">
+          <span
+            className={cn(
+              "grid h-11 w-11 shrink-0 place-items-center rounded-xl border",
+              statusStyle(data.condition)
+            )}
+          >
+            <Trophy size={18} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl font-black tracking-tight">{data.name}</h1>
+              <span
+                className={cn(
+                  "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                  statusStyle(data.condition)
+                )}
+              >
+                {statusLabel(data.condition)}
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-faint">
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays size={12} aria-hidden />
+                {formatContestDate(data.contestDate)}
+              </span>
+              <span className="inline-flex items-center gap-1.5 tabular-nums">
+                <Timer size={12} aria-hidden />
+                {data.time} min
+              </span>
+              <span className="inline-flex items-center gap-1.5 tabular-nums">
+                <Users size={12} aria-hidden />
+                {participants.length} joined
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-3 text-[13px] leading-6 text-muted">
+          {contestExcerpt(content, 220)}
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {status === "FINISHED" ? (
+            <span className="rounded-lg border border-line bg-inset px-4 py-2 text-sm font-bold text-muted">
+              This contest has finished
+            </span>
+          ) : joined ? (
+            <>
+              <span className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-bold text-emerald-500">
+                You&apos;re competing
+              </span>
+              <button
+                type="button"
+                onClick={onLeave}
+                disabled={leaving}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-line px-4 py-2 text-sm font-bold text-muted transition hover:bg-chip hover:text-ink disabled:opacity-60"
+              >
+                <LogOut size={14} aria-hidden />
+                {leaving ? "Leaving…" : "Leave"}
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              onClick={onJoin}
+              disabled={joining}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-60"
+            >
+              <Trophy size={14} aria-hidden />
+              {joining ? "Joining…" : "Join contest"}
+            </button>
+          )}
+          {user && (
+            <Link
+              href="/practice"
+              className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-muted transition hover:bg-chip hover:text-ink"
+            >
+              Warm up first
+            </Link>
+          )}
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <h2 className="text-sm font-extrabold">Contest passage</h2>
+        <p
+          className={cn(
+            "mt-2 whitespace-pre-wrap text-[13px] leading-6 text-muted",
+            !showFull && "line-clamp-6"
+          )}
+        >
+          {content || "The passage will be published before the start."}
+        </p>
+        {content.length > 320 && (
+          <button
+            type="button"
+            onClick={() => setShowFull((v) => !v)}
+            className="mt-2 text-[12px] font-bold text-accent hover:underline"
+          >
+            {showFull ? "Show less" : "Show full passage"}
+          </button>
+        )}
+      </Card>
+
+      <Card className="p-5">
+        <h2 className="text-sm font-extrabold">
+          Participants{" "}
+          <span className="font-semibold text-faint">({participants.length})</span>
+        </h2>
+        {participants.length === 0 ? (
+          <p className="mt-2 text-[13px] text-muted">
+            Nobody has joined yet — be the first on the board.
+          </p>
+        ) : (
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+            {participants.map((p) => {
+              const name =
+                p.user?.name || p.user?.fullName || p.user?.email || "Typist";
+              const mine = myId !== "" && p.userId === myId;
+              return (
+                <li
+                  key={p.userId}
+                  className={cn(
+                    "flex items-center gap-2.5 rounded-lg border px-3 py-2",
+                    mine
+                      ? "border-accent/50 bg-accent/[0.07]"
+                      : "border-line bg-inset"
+                  )}
+                >
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-teal-600 to-emerald-800 text-[11px] font-black text-white">
+                    {initials(name)}
+                  </span>
+                  <span className="min-w-0">
+                    <span
+                      className={cn(
+                        "block truncate text-[13px]",
+                        mine ? "font-extrabold text-accent" : "font-bold"
+                      )}
+                    >
+                      {mine ? "You" : name}
+                    </span>
+                    {p.joinedAt && (
+                      <span className="block text-[10px] text-faint">
+                        joined {formatContestDate(p.joinedAt)}
+                      </span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </Card>
+    </div>
+  );
+}
