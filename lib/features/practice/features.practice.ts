@@ -24,6 +24,70 @@ export type SubmitResultRequest = {
   timeTaken: number;
 };
 
+/** One day of the signed-in user's practice curve. */
+export type PracticeStatsPoint = {
+  /** UTC day key, e.g. "2026-11-01". */
+  date: string;
+  wpm: number;
+  accuracy: number;
+  tests: number;
+};
+
+/** `GET /api/v1/practices/stats/me` — computed from the user's own results. */
+export type PracticeStats = {
+  currentWpm: number;
+  wpmChangePercent: number;
+  bestWpm: number;
+  currentAccuracy: number;
+  accuracyChangePercent: number;
+  /** How many earlier tests the deltas are compared against. */
+  sampleSize: number;
+  totalTests: number;
+  history: PracticeStatsPoint[];
+};
+
+/** `{ success, message, data }` → `data`; anything else passes through. */
+function unwrapData(res: unknown): unknown {
+  if (res && typeof res === "object" && "data" in (res as Record<string, unknown>)) {
+    return (res as Record<string, unknown>).data;
+  }
+  return res;
+}
+
+/** Coerce a stats payload; returns null when there is nothing usable. */
+function toPracticeStats(res: unknown): PracticeStats | null {
+  const data = unwrapData(res);
+  if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+  const o = data as Record<string, unknown>;
+  const num = (v: unknown) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+  const history = Array.isArray(o.history)
+    ? o.history
+        .filter(
+          (row): row is Record<string, unknown> =>
+            Boolean(row) && typeof row === "object"
+        )
+        .map((row) => ({
+          date: typeof row.date === "string" ? row.date : "",
+          wpm: Math.round(num(row.wpm)),
+          accuracy: Math.round(num(row.accuracy)),
+          tests: Math.round(num(row.tests)),
+        }))
+        .filter((row) => row.date !== "")
+        .sort((a, b) => a.date.localeCompare(b.date))
+    : [];
+
+  return {
+    currentWpm: Math.round(num(o.currentWpm)),
+    wpmChangePercent: Math.round(num(o.wpmChangePercent)),
+    bestWpm: Math.round(num(o.bestWpm)),
+    currentAccuracy: Math.round(num(o.currentAccuracy)),
+    accuracyChangePercent: Math.round(num(o.accuracyChangePercent)),
+    sampleSize: Math.round(num(o.sampleSize)),
+    totalTests: Math.round(num(o.totalTests)),
+    history,
+  };
+}
+
 export type Result = {
   id: string;
   userId: string;
@@ -166,6 +230,13 @@ export const practiceApi = baseApi.injectEndpoints({
       providesTags: ["Result"],
     }),
 
+    /** The signed-in user's own stats + 90-day progress curve. */
+    getMyStats: builder.query<PracticeStats | null, void>({
+      query: () => ({ url: "/api/v1/practices/stats/me", method: "GET" }),
+      transformResponse: (res: unknown) => toPracticeStats(res),
+      providesTags: ["Result"],
+    }),
+
     /** Admin-uploaded practice bank (paginated paragraph rows). */
     getParagraphs: builder.query<
       { items: ParagraphItem[]; total: number },
@@ -214,4 +285,5 @@ export const {
 
   useSubmitPracticeResultMutation,
   useGetLeaderboardQuery,
+  useGetMyStatsQuery,
 } = practiceApi;

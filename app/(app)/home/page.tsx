@@ -25,16 +25,18 @@ export default async function DashboardPage() {
     (typeof user?.fullName === "string" && user.fullName) ||
     "typist";
   const name = raw.trim().split(/\s+/)[0] || "typist";
+  // Server-computed day key: keeps the client chart render pure (no Date.now()).
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="space-y-4">
       <DashboardHero name={name} />
-      <StatCards />
+      <StatCards today={today} />
       <div className="grid gap-4 xl:grid-cols-[1fr_340px]">
         <div className="min-w-0 space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
             <QuickPractice />
-            <ProgressChart />
+            <ProgressChart today={today} />
           </div>
           <UpcomingContests />
         </div>
