@@ -6,6 +6,7 @@ import { AudioUnlock } from "@/components/ui/AudioUnlock";
 import { ThemedToaster } from "@/components/ui/ThemedToaster";
 import { MotionProvider } from "@/components/ui/MotionProvider";
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </StoreProvider>
         </ThemeProvider>
         <Analytics/>
+        <SpeedInsights/>
       </body>
     </html>
   );
