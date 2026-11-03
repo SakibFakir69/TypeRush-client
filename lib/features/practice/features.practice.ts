@@ -17,7 +17,8 @@ export type Paragraph = {
 };
 
 export type SubmitResultRequest = {
-  paragraphId: string;
+  /** Omitted for arena runs (words / quotes / custom text). */
+  paragraphId?: string;
   wpm: number;
   accuracy: number;
   errors: number;

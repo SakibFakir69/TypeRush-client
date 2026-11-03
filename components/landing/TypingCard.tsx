@@ -42,7 +42,7 @@ export function TypingCard({
   contest,
 }: {
   target: string;
-  /** Server passage id — results submit only for admin passages. */
+  /** Server passage id. Optional: arena runs also record a result. */
   paragraphId?: string;
   /**
    * Contest run: the length is fixed by the contest and the result posts to
@@ -143,7 +143,7 @@ export function TypingCard({
     const request =
       contest && contestSeconds !== null
         ? submitContest({ id: contest.id, ...body })
-        : submitResult({ paragraphId: paragraphId ?? "", ...body });
+        : submitResult({ ...(paragraphId ? { paragraphId } : {}), ...body });
 
     request
       .unwrap()
@@ -170,8 +170,10 @@ export function TypingCard({
     }
   };
 
-  // Ranked = logged in, on an admin passage, at a preset length.
-  const ranked = Boolean(paragraphId && user) && !customMode;
+  // Ranked = logged in at a preset length. A passage is not required:
+  // arena runs (words / quotes / custom text) are recorded too, so the
+  // dashboard has real data even before the practice bank is filled.
+  const ranked = Boolean(user) && !customMode;
   // A contest run submits for any signed-in participant — no passage needed.
   const canSubmit = isContest ? Boolean(user) : ranked;
 
@@ -359,7 +361,7 @@ export function TypingCard({
                       Try again ({duration}s)
                     </button>
                   )}
-                  {(isContest || paragraphId) && !user && !customMode && (
+                  {!user && !customMode && (
                     <p className="text-xs text-muted">
                       <Link
                         href="/login"
