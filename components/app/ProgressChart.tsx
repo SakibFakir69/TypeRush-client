@@ -59,8 +59,12 @@ export function ProgressChart({ today }: { today: string }) {
     });
   }, [data, range, today]);
 
-  const wpm = points.map((p) => p.wpm);
-  const acc = points.map((p) => p.accuracy);
+  // One logged day still gets a full chart: plot it as a flat line across the
+  // window so the level is visible instead of an empty placeholder.
+  const single = points.length === 1;
+  const plotted = single ? [points[0], points[0]] : points;
+  const wpm = plotted.map((p) => p.wpm);
+  const acc = plotted.map((p) => p.accuracy);
   const peak = Math.max(60, ...wpm);
   const max = Math.max(120, Math.ceil(peak / 60) * 60);
   const ticks = [0, Math.round(max / 3), Math.round((max * 2) / 3), max];
@@ -115,12 +119,11 @@ export function ProgressChart({ today }: { today: string }) {
             Finish a practice test and your curve starts here.
           </p>
         </div>
-      ) : points.length < 2 ? (
+      ) : points.length === 0 ? (
         <div className="mt-2 grid h-[150px] place-items-center rounded-lg border border-dashed border-line">
           <p className="max-w-[260px] text-center text-[12px] leading-5 text-muted">
-            {points.length === 0
-              ? `No tests in the last ${DAYS[range]} days.`
-              : "One more test in this range draws your line."}
+            No tests in the last {DAYS[range]} days — finish a test or widen the
+            range to see this window.
           </p>
         </div>
       ) : (
@@ -128,7 +131,7 @@ export function ProgressChart({ today }: { today: string }) {
           viewBox={`0 0 ${W} ${H}`}
           className="mt-1 w-full"
           role="img"
-          aria-label={`Typing progress, ${range}: ${points.length} days, ${tests} tests`}
+          aria-label={`Typing progress, ${range}: ${points.length} ${points.length === 1 ? "day" : "days"}, ${tests} ${tests === 1 ? "test" : "tests"}`}
         >
           {ticks.map((g) => {
             const y = H - PAD - (g / max) * (H - PAD * 2);
@@ -171,18 +174,24 @@ export function ProgressChart({ today }: { today: string }) {
           />
 
           {wpm.map((v, i) => {
-            const x = PAD + (i * (W - PAD * 2)) / (wpm.length - 1 || 1);
+            // A single day has no trend yet: one dot in the middle of the line.
+            if (single && i > 0) return null;
+            const x = single
+              ? W / 2
+              : PAD + (i * (W - PAD * 2)) / (wpm.length - 1 || 1);
             const y = H - PAD - (Math.min(v, max) / max) * (H - PAD * 2);
             return (
-              <circle key={`w${i}`} cx={x} cy={y} r="2.6" fill="var(--accent)">
-                <title>{`${shortDay(points[i].date)} · ${v} WPM · ${acc[i]}% · ${points[i].tests} tests`}</title>
+              <circle key={`w${i}`} cx={x} cy={y} r={single ? 4 : 2.6} fill="var(--accent)">
+                <title>{`${shortDay(plotted[i].date)} · ${v} WPM · ${acc[i]}% · ${plotted[i].tests} ${plotted[i].tests === 1 ? "test" : "tests"}`}</title>
               </circle>
             );
           })}
 
           {points.map((p, i) => {
-            if (i % labelStep !== 0 && i !== points.length - 1) return null;
-            const x = PAD + (i * (W - PAD * 2)) / (points.length - 1);
+            if (!single && i % labelStep !== 0 && i !== points.length - 1) return null;
+            const x = single
+              ? W / 2
+              : PAD + (i * (W - PAD * 2)) / (points.length - 1);
             return (
               <text
                 key={p.date}
