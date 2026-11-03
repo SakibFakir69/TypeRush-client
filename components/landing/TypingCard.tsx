@@ -143,7 +143,12 @@ export function TypingCard({
     const request =
       contest && contestSeconds !== null
         ? submitContest({ id: contest.id, ...body })
-        : submitResult({ ...(paragraphId ? { paragraphId } : {}), ...body });
+        : submitResult({
+            ...(paragraphId ? { paragraphId } : {}),
+            ...body,
+            // Run length — the leaderboard groups boards by this category.
+            duration,
+          });
 
     request
       .unwrap()

@@ -23,6 +23,8 @@ export type SubmitResultRequest = {
   accuracy: number;
   errors: number;
   timeTaken: number;
+  /** Run length in seconds — the leaderboard category. */
+  duration?: number;
 };
 
 /** One day of the signed-in user's practice curve. */
@@ -107,7 +109,24 @@ export type LeaderboardEntry = {
   accuracy: number;
   rank: number;
   timeTaken?: number;
+  /** Time category of the run (seconds), e.g. 60. */
+  duration?: number;
   createdAt?: string;
+};
+
+/** One page of the leaderboard plus the server's paging metadata. */
+export type LeaderboardPage = {
+  rows: LeaderboardEntry[];
+  total: number;
+  hasMore: boolean;
+  nextOffset: number | null;
+};
+
+export type LeaderboardQuery = {
+  /** Time category: only runs of this length (seconds). Omit for all. */
+  duration?: number;
+  offset?: number;
+  limit?: number;
 };
 
 export type CreateParagraphRequest = {
@@ -185,14 +204,20 @@ export const practiceApi = baseApi.injectEndpoints({
       invalidatesTags: ["Result"],
     }),
 
-    getLeaderboard: builder.query<LeaderboardEntry[], void>({
-      query: () => ({
-        url: "/api/v1/practices/results",
-        method: "GET",
-      }),
-      // Server nests twice: { data: { data: [...], nextCursor } }.
+    getLeaderboard: builder.query<LeaderboardPage, LeaderboardQuery | void>({
+      query: (arg) => {
+        const params = new URLSearchParams();
+        params.set("limit", String(arg?.limit ?? 50));
+        if (arg?.offset) params.set("offset", String(arg.offset));
+        if (arg?.duration) params.set("duration", String(arg.duration));
+        return {
+          url: `/api/v1/practices/results?${params.toString()}`,
+          method: "GET",
+        };
+      },
+      // Server nests twice: { data: { data: [...], nextCursor, pagination } }.
       // Rows carry userName (email) and no userId; 0-WPM rows are skipped.
-      transformResponse: (res: unknown) => {
+      transformResponse: (res: unknown, _meta, arg) => {
         const root =
           res && typeof res === "object" ? (res as Record<string, unknown>) : {};
         const inner = root.data;
@@ -205,7 +230,14 @@ export const practiceApi = baseApi.injectEndpoints({
               : Array.isArray(res)
                 ? (res as unknown[])
                 : [];
-        return rows
+        const paging =
+          inner && typeof inner === "object"
+            ? ((inner as Record<string, unknown>).pagination as
+                | { total?: unknown; hasMore?: unknown; nextOffset?: unknown }
+                | undefined)
+            : undefined;
+        const start = Number(arg?.offset) || 0;
+        const mapped = rows
           .map((r, i): LeaderboardEntry | null => {
             if (!r || typeof r !== "object") return null;
             const o = r as Record<string, unknown>;
@@ -217,16 +249,25 @@ export const practiceApi = baseApi.injectEndpoints({
               typeof o.userName === "string" && o.userName ? o.userName : undefined;
             return {
               userId:
-                (typeof o.userId === "string" && o.userId) || userName || `row-${i}`,
+                (typeof o.userId === "string" && o.userId) || userName || `row-${start + i}`,
               ...(userName ? { userName } : {}),
               wpm: Math.round(wpm),
               accuracy: Math.round(accuracy),
-              rank: i + 1,
+              rank: start + i + 1,
               ...(typeof o.timeTaken === "number" ? { timeTaken: o.timeTaken } : {}),
+              ...(typeof o.duration === "number" ? { duration: o.duration } : {}),
               ...(typeof o.createdAt === "string" ? { createdAt: o.createdAt } : {}),
             };
           })
           .filter((r): r is LeaderboardEntry => r !== null);
+
+        return {
+          rows: mapped,
+          total: typeof paging?.total === "number" ? paging.total : mapped.length,
+          hasMore: paging?.hasMore === true,
+          nextOffset:
+            typeof paging?.nextOffset === "number" ? paging.nextOffset : null,
+        };
       },
       providesTags: ["Result"],
     }),
@@ -286,5 +327,6 @@ export const {
 
   useSubmitPracticeResultMutation,
   useGetLeaderboardQuery,
+  useLazyGetLeaderboardQuery,
   useGetMyStatsQuery,
 } = practiceApi;

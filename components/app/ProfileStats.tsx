@@ -7,7 +7,7 @@ import { useGetLeaderboardQuery } from "@/lib/features/practice/features.practic
 /** Personal stats derived from your own leaderboard rows. */
 export function ProfileStats({ email }: { email: string }) {
   const { data, isLoading } = useGetLeaderboardQuery();
-  const mine = (data ?? []).filter((r) => r.userName === email);
+  const mine = (data?.rows ?? []).filter((r) => r.userName === email);
 
   if (isLoading) {
     return (
@@ -24,7 +24,7 @@ export function ProfileStats({ email }: { email: string }) {
       <div className="rounded-xl border border-dashed border-line p-5 text-center">
         <p className="text-sm font-extrabold">No tests yet</p>
         <p className="mt-1 text-xs text-muted">
-          Finish an admin passage and your stats land here.
+          Finish a test and your stats land here.
         </p>
         <Link
           href="/practice"

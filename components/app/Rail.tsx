@@ -102,7 +102,7 @@ export function MiniLeaderboard() {
 
   // Real submitted results, highest WPM first — no placeholder names.
   const rows = useMemo(() => {
-    const all = [...(data ?? [])].sort((a, b) => b.wpm - a.wpm);
+    const all = [...(data?.rows ?? [])].sort((a, b) => b.wpm - a.wpm);
     if (tab !== "Weekly") return all;
     // "This week" is measured against the newest result in the feed, so the
     // render stays pure (no Date.now()).
