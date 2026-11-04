@@ -75,9 +75,10 @@ export function LiveBoard() {
         offset: nextOffset,
       }).unwrap();
       setExtra({
-        key: category ?? -1,
+        key: category ?? null,
         rows: [...(mineLoaded ? extra.rows : []), ...res.rows],
         nextOffset: res.nextOffset,
+        touched: true,
       });
     } catch {
       // Keep the current page; the button stays for a retry.
@@ -119,7 +120,7 @@ export function LiveBoard() {
         </span>
       </div>
 
-      {first.isLoading ? (
+      {first.isLoading || first.isFetching ? (
         <div className="space-y-2" aria-hidden>
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="h-14 animate-pulse rounded-xl border border-line bg-card" />
