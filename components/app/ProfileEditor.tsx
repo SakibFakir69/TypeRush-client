@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useState, useRef, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Check, Pencil, X } from "lucide-react";
@@ -12,6 +12,7 @@ import { resolveCountry } from "@/lib/countries";
 import { useAppDispatch } from "@/lib/hooks";
 import { authApi } from "@/lib/features/auth/features.auth";
 import { useUpdateUserMutation } from "@/lib/features/user/features.user";
+import { useUploadImageMutation } from "@/lib/features/upload/features.upload"; // ADDED
 import { cn } from "@/lib/cn";
 
 export type ProfileInitial = {
@@ -47,6 +48,11 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
   }));
   const [error, setError] = useState("");
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
+
+  // ADDED: avatar upload state
+  const [uploadImage, { isLoading: isUploadingAvatar }] = useUploadImageMutation();
+  const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const set = (k: keyof ProfileInitial) => (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -104,26 +110,87 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
     }
   };
 
+  // ADDED: avatar upload handlers
+  const handleAvatarClick = () => {
+    if (!isUploadingAvatar) fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB.");
+      e.target.value = "";
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const { url } = await uploadImage(formData).unwrap();
+      await updateProfile({ avatarUrl: url }).unwrap();
+      setAvatarUrl(url);
+      dispatch(
+        authApi.util.updateQueryData("getSession", undefined, (draft) => {
+          if (!draft) return draft;
+          draft.avatarUrl = url;
+        })
+      );
+      toast.success("Avatar updated.");
+      router.refresh();
+    } catch (err) {
+      toast.error(getApiError(err));
+    }
+    e.target.value = "";
+  };
+
   return (
     <>
       <div className="-mt-10 flex flex-col gap-4 sm:flex-row sm:items-end">
-        {initial.avatarUrl ? (
-          <Avatar
-            src={initial.avatarUrl}
-            alt={form.name || "Member"}
-            width={80}
-            height={80}
-            className="h-20 w-20 rounded-2xl border-4 border-card object-cover shadow-lg"
-          />
-        ) : (
-          <span
-            role="img"
-            aria-label={form.name || "Member"}
-            className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-card bg-gradient-to-br from-teal-600 to-emerald-800 text-2xl font-black text-white shadow-lg"
+        {/* CHANGED: avatarUrl state used instead of initial.avatarUrl, wrapped for click-to-upload */}
+        <div className="relative h-20 w-20 shrink-0">
+          <button
+            type="button"
+            onClick={handleAvatarClick}
+            disabled={isUploadingAvatar}
+            className="group relative block h-20 w-20 overflow-hidden rounded-2xl border-4 border-card shadow-lg disabled:opacity-60"
           >
-            {initials(form.name || "Member")}
-          </span>
-        )}
+            {avatarUrl ? (
+              <Avatar
+                src={avatarUrl}
+                alt={form.name || "Member"}
+                width={80}
+                height={80}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span
+                role="img"
+                aria-label={form.name || "Member"}
+                className="grid h-full w-full place-items-center bg-gradient-to-br from-teal-600 to-emerald-800 text-2xl font-black text-white"
+              >
+                {initials(form.name || "Member")}
+              </span>
+            )}
+            <span className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition group-hover:bg-black/40 group-hover:opacity-100">
+              <Pencil size={18} aria-hidden />
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleAvatarChange}
+            className="hidden"
+          />
+        </div>
         <div className="min-w-0 flex-1 sm:pb-1">
           {editing ? (
             <div className="grid gap-2 sm:grid-cols-2">
