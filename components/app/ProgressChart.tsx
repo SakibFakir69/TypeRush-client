@@ -11,8 +11,14 @@ import { cn } from "@/lib/cn";
 
 const W = 400;
 const H = 150;
-const PAD = 28;
+const PAD = 28; // left gutter: WPM axis
+const PAD_R = 30; // right gutter: accuracy axis (%)
+const PLOT_W = W - PAD - PAD_R;
 const DAY_MS = 24 * 60 * 60 * 1000;
+/** Accuracy is always drawn on its own fixed 0–100 % scale. */
+const ACC_MAX = 100;
+/** Round the WPM axis up to a multiple of 15 so the thirds stay whole numbers. */
+const WPM_STEP = 15;
 
 const RANGES = ["7D", "30D", "90D"] as const;
 type Range = (typeof RANGES)[number];
@@ -33,13 +39,19 @@ function shortDay(date: string): string {
   });
 }
 
-function polyline(values: number[], max: number): string {
-  const last = values.length - 1;
+function xAt(i: number, count: number): number {
+  return PAD + (i * PLOT_W) / (count - 1 || 1);
+}
+
+function yAt(value: number, max: number): number {
+  return H - PAD - (Math.min(Math.max(value, 0), max) / max) * (H - PAD * 2);
+}
+
+function polyline(values: number[], max: number, xs?: number[]): string {
   return values
     .map((v, i) => {
-      const x = PAD + (i * (W - PAD * 2)) / (last || 1);
-      const y = H - PAD - (Math.min(v, max) / max) * (H - PAD * 2);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+      const x = xs ? xs[i] : xAt(i, values.length);
+      return `${x.toFixed(1)},${yAt(v, max).toFixed(1)}`;
     })
     .join(" ");
 }
@@ -65,11 +77,21 @@ export function ProgressChart({ today }: { today: string }) {
   const plotted = single ? [points[0], points[0]] : points;
   const wpm = plotted.map((p) => p.wpm);
   const acc = plotted.map((p) => p.accuracy);
-  const peak = Math.max(60, ...wpm);
-  const max = Math.max(120, Math.ceil(peak / 60) * 60);
+  const xs = plotted.map((_, i) => xAt(i, plotted.length));
+  const peak = Math.max(45, ...wpm);
+  // The WPM axis follows the data, so a 34→45 curve does not sit on the floor of
+  // a 0–120 axis. Rounded up to a multiple of 15 with ~10% headroom.
+  const max = Math.min(405, Math.max(60, Math.ceil((peak * 1.1) / WPM_STEP) * WPM_STEP));
   const ticks = [0, Math.round(max / 3), Math.round((max * 2) / 3), max];
-  const labelStep = Math.max(1, Math.ceil(points.length / 7));
+  const accTicks = [0, 50, ACC_MAX];
   const tests = points.reduce((sum, p) => sum + p.tests, 0);
+  // Evenly spaced date labels, always including the first and last day, so two
+  // neighbouring labels can never overlap at the edges.
+  const labelCount = Math.min(7, points.length);
+  const labelIdx = new Set<number>();
+  for (let k = 0; k < labelCount; k += 1) {
+    labelIdx.add(Math.round((k * (points.length - 1)) / Math.max(labelCount - 1, 1)));
+  }
 
   return (
     <Card className="p-5">
@@ -134,12 +156,12 @@ export function ProgressChart({ today }: { today: string }) {
           aria-label={`Typing progress, ${range}: ${points.length} ${points.length === 1 ? "day" : "days"}, ${tests} ${tests === 1 ? "test" : "tests"}`}
         >
           {ticks.map((g) => {
-            const y = H - PAD - (g / max) * (H - PAD * 2);
+            const y = yAt(g, max);
             return (
               <g key={g}>
                 <line
                   x1={PAD}
-                  x2={W - 8}
+                  x2={W - PAD_R}
                   y1={y}
                   y2={y}
                   stroke="var(--line)"
@@ -157,41 +179,66 @@ export function ProgressChart({ today }: { today: string }) {
               </g>
             );
           })}
+          {accTicks.map((g) => (
+            <text
+              key={`a${g}`}
+              x={W - 2}
+              y={yAt(g, ACC_MAX) + 3}
+              fontSize="8"
+              fill="var(--faint)"
+              textAnchor="end"
+              className="tabular-nums"
+            >
+              {g}%
+            </text>
+          ))}
 
           <polyline
-            points={polyline(wpm, max)}
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <polyline
-            points={polyline(acc, max)}
+            points={polyline(acc, ACC_MAX, xs)}
             fill="none"
             stroke="#a855f7"
             strokeWidth="2"
             strokeLinejoin="round"
           />
+          <polyline
+            points={polyline(wpm, max, xs)}
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+
+          {acc.map((v, i) => {
+            if (single && i > 0) return null;
+            const x = single ? W / 2 : xAt(i, points.length);
+            return (
+              <circle
+                key={`p${i}`}
+                cx={x}
+                cy={yAt(v, ACC_MAX)}
+                r={single ? 3 : 1.8}
+                fill="#a855f7"
+              >
+                <title>{`${shortDay(plotted[i].date)} · ${v}% accuracy · ${plotted[i].tests} ${plotted[i].tests === 1 ? "test" : "tests"}`}</title>
+              </circle>
+            );
+          })}
 
           {wpm.map((v, i) => {
             // A single day has no trend yet: one dot in the middle of the line.
             if (single && i > 0) return null;
-            const x = single
-              ? W / 2
-              : PAD + (i * (W - PAD * 2)) / (wpm.length - 1 || 1);
-            const y = H - PAD - (Math.min(v, max) / max) * (H - PAD * 2);
+            const x = single ? W / 2 : xAt(i, points.length);
             return (
-              <circle key={`w${i}`} cx={x} cy={y} r={single ? 4 : 2.6} fill="var(--accent)">
+              <circle key={`w${i}`} cx={x} cy={yAt(v, max)} r={single ? 4 : 2.6} fill="var(--accent)">
                 <title>{`${shortDay(plotted[i].date)} · ${v} WPM · ${acc[i]}% · ${plotted[i].tests} ${plotted[i].tests === 1 ? "test" : "tests"}`}</title>
               </circle>
             );
           })}
 
           {points.map((p, i) => {
-            if (!single && i % labelStep !== 0 && i !== points.length - 1) return null;
-            const x = single
-              ? W / 2
-              : PAD + (i * (W - PAD * 2)) / (points.length - 1);
+            if (!single && !labelIdx.has(i)) return null;
+            const last = i === points.length - 1;
+            const x = single ? W / 2 : xAt(i, points.length);
             return (
               <text
                 key={p.date}
@@ -199,7 +246,7 @@ export function ProgressChart({ today }: { today: string }) {
                 y={H - 8}
                 fontSize="8"
                 fill="var(--faint)"
-                textAnchor="middle"
+                textAnchor={single ? "middle" : i === 0 ? "start" : last ? "end" : "middle"}
               >
                 {shortDay(p.date)}
               </text>
