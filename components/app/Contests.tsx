@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Timer, Trophy } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
-import { DASH } from "@/lib/dashboard";
+import { useGetMyStatsQuery } from "@/lib/features/practice/features.practice";
+import {
+  formatRunWhen,
+  runLengthLabel,
+  runLengthOf,
+} from "@/lib/stats-helpers";
 import {
   contestExcerpt,
   contestStatus,
@@ -22,6 +27,7 @@ import {
  */
 export function UpcomingContests() {
   const { data, isLoading } = useGetContestsQuery();
+  const { data: stats } = useGetMyStatsQuery();
   const contests = data ?? [];
 
   const live = contests.find((c) => contestStatus(c.condition) === "RUNNING");
@@ -35,11 +41,21 @@ export function UpcomingContests() {
   const featured = live ?? upcoming[0] ?? null;
   const rest = upcoming.filter((c) => c.id !== featured?.id).slice(0, 3);
 
-  // Keep the activity chips, but never claim a contest that isn't there.
+  // Real recent runs plus the next race — no mock goals or rival challenges.
   const chips = [
-    ...DASH.recentChips
-      .filter((c) => c.title !== "Joined Contest")
-      .slice(0, 3),
+    ...(stats?.recent ?? [])
+      .filter((r) => r.wpm > 0)
+      .slice(0, 3)
+      .map((r) => {
+        const length = runLengthLabel(runLengthOf(r));
+        return {
+          icon: "runs",
+          title: `${length} run`,
+          desc: `${r.wpm} WPM · ${r.accuracy}% accuracy${
+            r.contestId ? " · contest" : ""
+          } · ${formatRunWhen(r.createdAt)}`,
+        };
+      }),
     ...(featured
       ? [{ icon: "trophy", title: "Next Contest", desc: featured.name }]
       : []),
@@ -171,14 +187,20 @@ export function UpcomingContests() {
           View all →
         </Link>
       </div>
-      <ul className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {chips.map((c) => (
-          <li key={c.title} className="rounded-xl border border-line bg-inset p-3">
-            <p className="text-[13px] font-bold">{c.title}</p>
-            <p className="mt-0.5 text-[11px] leading-4 text-muted">{c.desc}</p>
-          </li>
-        ))}
-      </ul>
+      {chips.length === 0 ? (
+        <p className="mt-2 rounded-xl border border-line bg-inset p-3 text-center text-[12px] text-muted">
+          No runs yet — finish a practice test and it shows up here.
+        </p>
+      ) : (
+        <ul className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {chips.map((c) => (
+            <li key={c.title + c.desc} className="rounded-xl border border-line bg-inset p-3">
+              <p className="text-[13px] font-bold">{c.title}</p>
+              <p className="mt-0.5 text-[11px] leading-4 text-muted">{c.desc}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </Card>
   );
 }

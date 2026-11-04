@@ -36,6 +36,19 @@ export type PracticeStatsPoint = {
   tests: number;
 };
 
+/** One logged run, newest first — powers the dashboard activity feed. */
+export type PracticeStatsRecentRun = {
+  id: string;
+  wpm: number;
+  accuracy: number;
+  timeTaken: number;
+  /** Chosen run length (15 / 30 / 60 …); null for legacy rows. */
+  duration: number | null;
+  /** Set when the run was posted to a contest. */
+  contestId: string | null;
+  createdAt: string;
+};
+
 /** `GET /api/v1/practices/stats/me` — computed from the user's own results. */
 export type PracticeStats = {
   currentWpm: number;
@@ -46,6 +59,12 @@ export type PracticeStats = {
   /** How many earlier tests the deltas are compared against. */
   sampleSize: number;
   totalTests: number;
+  /** Contests joined by the user. */
+  contestsJoined: number;
+  /** Runs posted to a contest. */
+  contestRuns: number;
+  /** Newest runs, newest first. */
+  recent: PracticeStatsRecentRun[];
   history: PracticeStatsPoint[];
 };
 
@@ -79,6 +98,30 @@ function toPracticeStats(res: unknown): PracticeStats | null {
         .sort((a, b) => a.date.localeCompare(b.date))
     : [];
 
+  const recent = Array.isArray(o.recent)
+    ? o.recent
+        .filter(
+          (row): row is Record<string, unknown> =>
+            Boolean(row) && typeof row === "object"
+        )
+        .map((row) => ({
+          id: typeof row.id === "string" ? row.id : "",
+          wpm: Math.round(num(row.wpm)),
+          accuracy: Math.round(num(row.accuracy)),
+          timeTaken: Math.round(num(row.timeTaken)),
+          duration:
+            row.duration === null || row.duration === undefined
+              ? null
+              : Math.round(num(row.duration)),
+          contestId:
+            typeof row.contestId === "string" && row.contestId
+              ? row.contestId
+              : null,
+          createdAt: typeof row.createdAt === "string" ? row.createdAt : "",
+        }))
+        .filter((row) => row.id !== "")
+    : [];
+
   return {
     currentWpm: Math.round(num(o.currentWpm)),
     wpmChangePercent: Math.round(num(o.wpmChangePercent)),
@@ -87,6 +130,9 @@ function toPracticeStats(res: unknown): PracticeStats | null {
     accuracyChangePercent: Math.round(num(o.accuracyChangePercent)),
     sampleSize: Math.round(num(o.sampleSize)),
     totalTests: Math.round(num(o.totalTests)),
+    contestsJoined: Math.round(num(o.contestsJoined)),
+    contestRuns: Math.round(num(o.contestRuns)),
+    recent,
     history,
   };
 }

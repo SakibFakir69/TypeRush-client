@@ -41,10 +41,10 @@ export default async function DashboardPage() {
           <UpcomingContests />
         </div>
         <div className="min-w-0 space-y-4">
-          <ProfileCard name={name} />
+          <ProfileCard name={name} today={today} />
           <MiniLeaderboard />
           <ActivityFeed />
-          <AchievementsRow />
+          <AchievementsRow today={today} />
         </div>
       </div>
     </div>

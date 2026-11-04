@@ -51,6 +51,12 @@ export type ContestLeaderboardRow = {
   createdAt?: string;
 };
 
+/** One contest plus the board that belongs to it (`GET /contests/leaderboards`). */
+export type ContestLeaderboardGroup = {
+  contest: Contest;
+  leaderboard: ContestLeaderboardRow[];
+};
+
 /** Body accepted by `POST /contests/:id/submit`. */
 export type SubmitContestResultRequest = {
   id: string;
@@ -118,6 +124,34 @@ export function contestExcerpt(content: string, max = 120): string {
   return clean.length > max ? `${clean.slice(0, max).trimEnd()}…` : clean;
 }
 
+/** Coerce the server's leaderboard rows into the shape the UI renders. */
+function mapLeaderboardRows(res: unknown): ContestLeaderboardRow[] {
+  const data = unwrap(res);
+  if (!Array.isArray(data)) return [];
+  return data
+    .filter((row): row is Record<string, unknown> =>
+      Boolean(row) && typeof row === "object"
+    )
+    .map((row, i) => {
+      const name =
+        typeof row.name === "string" && row.name.trim() ? row.name : "Typist";
+      return {
+        rank: Number(row.rank) || i + 1,
+        userId: String(row.userId ?? ""),
+        name,
+        avatarUrl: typeof row.avatarUrl === "string" ? row.avatarUrl : null,
+        wpm: Math.round(Number(row.wpm) || 0),
+        accuracy: Math.round(Number(row.accuracy) || 0),
+        errors: Math.round(Number(row.errors) || 0),
+        timeTaken: Math.round(Number(row.timeTaken) || 0),
+        ...(typeof row.createdAt === "string"
+          ? { createdAt: row.createdAt }
+          : {}),
+      };
+    })
+    .sort((a, b) => a.rank - b.rank);
+}
+
 export const contestApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getContests: builder.query<Contest[], void>({
@@ -170,36 +204,46 @@ export const contestApi = baseApi.injectEndpoints({
         url: `/api/v1/contests/${id}/leaderboard`,
         method: "GET",
       }),
+      transformResponse: (res: unknown) => mapLeaderboardRows(res),
+      providesTags: (result, error, id) => [{ type: "Contest", id }],
+    }),
+
+    /**
+     * Every contest with its own board — one contest can never leak into
+     * another's ranking.
+     */
+    getAllContestLeaderboards: builder.query<ContestLeaderboardGroup[], void>({
+      query: () => ({ url: "/api/v1/contests/leaderboards", method: "GET" }),
       transformResponse: (res: unknown) => {
         const data = unwrap(res);
         if (!Array.isArray(data)) return [];
         return data
-          .filter((row): row is Record<string, unknown> =>
-            Boolean(row) && typeof row === "object"
-          )
-          .map((row, i) => {
-            const name =
-              typeof row.name === "string" && row.name.trim()
-                ? row.name
-                : "Typist";
+          .map((group): ContestLeaderboardGroup | null => {
+            if (!group || typeof group !== "object") return null;
+            const g = group as Record<string, unknown>;
+            const contest = g.contest;
+            if (!contest || typeof contest !== "object") return null;
+            const c = contest as Record<string, unknown>;
+            if (typeof c.id !== "string" || !c.id) return null;
             return {
-              rank: Number(row.rank) || i + 1,
-              userId: String(row.userId ?? ""),
-              name,
-              avatarUrl:
-                typeof row.avatarUrl === "string" ? row.avatarUrl : null,
-              wpm: Math.round(Number(row.wpm) || 0),
-              accuracy: Math.round(Number(row.accuracy) || 0),
-              errors: Math.round(Number(row.errors) || 0),
-              timeTaken: Math.round(Number(row.timeTaken) || 0),
-              ...(typeof row.createdAt === "string"
-                ? { createdAt: row.createdAt }
-                : {}),
+              contest: {
+                id: c.id,
+                name:
+                  typeof c.name === "string" && c.name.trim()
+                    ? c.name
+                    : "Contest",
+                content: typeof c.content === "string" ? c.content : "",
+                time: Number(c.time) || 0,
+                contestDate:
+                  typeof c.contestDate === "string" ? c.contestDate : "",
+                condition: typeof c.condition === "string" ? c.condition : "",
+              },
+              leaderboard: mapLeaderboardRows(g.leaderboard),
             };
           })
-          .sort((a, b) => a.rank - b.rank);
+          .filter((g): g is ContestLeaderboardGroup => g !== null);
       },
-      providesTags: (result, error, id) => [{ type: "Contest", id }],
+      providesTags: ["Contest"],
     }),
 
     /** Post a run to a RUNNING contest you have joined. */
@@ -222,5 +266,6 @@ export const {
   useJoinContestMutation,
   useLeaveContestMutation,
   useGetContestLeaderboardQuery,
+  useGetAllContestLeaderboardsQuery,
   useSubmitContestResultMutation,
 } = contestApi;

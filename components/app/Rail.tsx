@@ -7,16 +7,29 @@ import {
   BarChart3,
   Crosshair,
   Flame,
+  Layers,
   Star,
   Swords,
   Trophy,
   Zap,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/primitives";
-import { DASH } from "@/lib/dashboard";
 import { useAuth } from "@/lib/auth";
-import { useGetLeaderboardQuery } from "@/lib/features/practice/features.practice";
+import {
+  useGetLeaderboardQuery,
+  useGetMyStatsQuery,
+  type LeaderboardEntry,
+} from "@/lib/features/practice/features.practice";
+import {
+  formatRunWhen,
+  levelFromXp,
+  milestonesFrom,
+  runLengthLabel,
+  runLengthOf,
+  streakFrom,
+} from "@/lib/stats-helpers";
 import { cn } from "@/lib/cn";
 
 function PanelHead({ title, href }: { title: string; href: string }) {
@@ -30,29 +43,68 @@ function PanelHead({ title, href }: { title: string; href: string }) {
   );
 }
 
-export function ProfileCard({ name }: { name: string }) {
-  const s = DASH.stats;
+export function ProfileCard({ name, today }: { name: string; today: string }) {
+  const { user } = useAuth();
+  const { data: stats } = useGetMyStatsQuery();
+
+  const fullName =
+    (typeof user?.fullName === "string" && user.fullName) ||
+    (typeof user?.name === "string" && user.name) ||
+    name;
+  const avatarUrl = typeof user?.avatarUrl === "string" ? user.avatarUrl : "";
+
+  // XP and level come straight from the session row; the curve mirrors the
+  // server's level helper (level 1 = 100 XP, level 2 = 200 XP, …).
+  const xp = Math.max(0, Math.round(Number(user?.xp) || 0));
+  const { level, xpIntoLevel, xpForNextLevel } = levelFromXp(xp);
+  const pct =
+    xpForNextLevel > 0
+      ? Math.min(100, Math.round((xpIntoLevel / xpForNextLevel) * 100))
+      : 0;
+
+  const streak = stats ? streakFrom(stats.history, today) : 0;
+  const badges = stats
+    ? milestonesFrom(stats, streak).filter((m) => m.earned).length
+    : 0;
+
   return (
     <Card className="p-5 text-center">
-      <Avatar
-        src="https://i.pravatar.cc/128?img=11"
-        alt={name}
-        width={64}
-        height={64}
-        className="mx-auto h-16 w-16 rounded-full border-2 border-accent/40 object-cover"
-      />
-      <p className="mt-2 text-lg font-black">{name}</p>
-      <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-chip">
-        <div className="h-full w-[82%] rounded-full bg-accent" />
+      {avatarUrl ? (
+        <Avatar
+          src={avatarUrl}
+          alt={fullName}
+          width={64}
+          height={64}
+          className="mx-auto h-16 w-16 rounded-full border-2 border-accent/40 object-cover"
+        />
+      ) : (
+        <span
+          role="img"
+          aria-label={fullName}
+          className="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-accent/40 bg-gradient-to-br from-teal-600 to-emerald-800 text-lg font-black text-white"
+        >
+          {initialsOf(fullName)}
+        </span>
+      )}
+      <p className="mt-2 text-lg font-black">{fullName}</p>
+      <p className="text-[11px] font-bold text-accent">Level {level}</p>
+      <div
+        aria-hidden
+        className="mt-2 h-1.5 overflow-hidden rounded-full bg-chip"
+      >
+        <div
+          className="h-full rounded-full bg-accent transition-[width]"
+          style={{ width: `${pct}%` }}
+        />
       </div>
       <p className="mt-1 text-[11px] tabular-nums text-muted">
-        {DASH.xp.toLocaleString()} / {DASH.xpMax.toLocaleString()} XP
+        {xpIntoLevel.toLocaleString()} / {xpForNextLevel.toLocaleString()} XP
       </p>
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">
         {[
-          [String(s.races), "Total Races"],
-          [String(s.contests), "Contests"],
-          [String(s.badges), "Badges"],
+          [String(stats?.totalTests ?? 0), "Total Races"],
+          [String(stats?.contestsJoined ?? 0), "Contests"],
+          [String(badges), "Milestones"],
         ].map(([v, k]) => (
           <div key={k} className="rounded-lg bg-inset p-2">
             <p className="text-base font-black tabular-nums">{v}</p>
@@ -70,8 +122,14 @@ export function ProfileCard({ name }: { name: string }) {
   );
 }
 
-const TABS = ["Global", "Weekly", "Friends"] as const;
-type BoardTab = (typeof TABS)[number];
+/** Time-category boards, matching /leaderboard: Global = every run length. */
+const BOARDS = [
+  { id: "global", label: "Global", duration: undefined },
+  { id: "15", label: "15s", duration: 15 },
+  { id: "30", label: "30s", duration: 30 },
+  { id: "60", label: "60s", duration: 60 },
+] as const;
+type BoardTab = (typeof BOARDS)[number]["id"];
 
 /** "sakib.fakir@gmail.com" â†’ "Sakib Fakir"; names pass through. */
 function displayName(raw: string | undefined, fallback: string): string {
@@ -94,28 +152,33 @@ function initialsOf(name: string): string {
 
 export function MiniLeaderboard() {
   const { user } = useAuth();
-  const { data, isLoading, isError, refetch } = useGetLeaderboardQuery();
-  const [tab, setTab] = useState<BoardTab>("Global");
+  const [tab, setTab] = useState<BoardTab>("global");
+  const board = BOARDS.find((b) => b.id === tab) ?? BOARDS[0];
+  const { data, isLoading, isFetching, isError, refetch } =
+    useGetLeaderboardQuery({ duration: board.duration, limit: 50 });
 
   const myEmail = typeof user?.email === "string" ? user.email : "";
   const myId = typeof user?.id === "string" ? user.id : "";
 
-  // Real submitted results, highest WPM first — no placeholder names.
+  // One row per typist: their best run in this category. Without this the same
+  // person filled four ranks with four different runs.
   const rows = useMemo(() => {
-    const all = [...(data?.rows ?? [])].sort((a, b) => b.wpm - a.wpm);
-    if (tab !== "Weekly") return all;
-    // "This week" is measured against the newest result in the feed, so the
-    // render stays pure (no Date.now()).
-    const times = all
-      .map((r) => (r.createdAt ? new Date(r.createdAt).getTime() : NaN))
-      .filter((t) => Number.isFinite(t)) as number[];
-    if (times.length === 0) return all;
-    const weekAgo = Math.max(...times) - 7 * 24 * 60 * 60 * 1000;
-    return all.filter(
-      (r) =>
-        !r.createdAt || new Date(r.createdAt).getTime() >= weekAgo
+    const best = new Map<string, LeaderboardEntry>();
+    for (const row of data?.rows ?? []) {
+      const key = row.userId || row.userName || "anon";
+      const prev = best.get(key);
+      if (
+        !prev ||
+        row.wpm > prev.wpm ||
+        (row.wpm === prev.wpm && row.accuracy > prev.accuracy)
+      ) {
+        best.set(key, row);
+      }
+    }
+    return [...best.values()].sort(
+      (a, b) => b.wpm - a.wpm || b.accuracy - a.accuracy
     );
-  }, [data, tab]);
+  }, [data]);
 
   const mine = rows.findIndex(
     (r) =>
@@ -130,23 +193,23 @@ export function MiniLeaderboard() {
     <Card className="p-5">
       <PanelHead title="Leaderboard" href="/leaderboard" />
       <div className="mt-2.5 flex gap-1 rounded-lg bg-inset p-1 text-[11px] font-bold">
-        {TABS.map((t) => (
+        {BOARDS.map((b) => (
           <button
-            key={t}
+            key={b.id}
             type="button"
-            onClick={() => setTab(t)}
-            aria-pressed={tab === t}
+            onClick={() => setTab(b.id)}
+            aria-pressed={tab === b.id}
             className={cn(
-              "flex-1 rounded-md px-2 py-1 text-center transition",
-              tab === t ? "bg-mint text-black" : "text-muted hover:text-ink"
+              "flex-1 rounded-md px-1.5 py-1 text-center transition",
+              tab === b.id ? "bg-mint text-black" : "text-muted hover:text-ink"
             )}
           >
-            {t}
+            {b.label}
           </button>
         ))}
       </div>
 
-      {isLoading ? (
+      {isLoading || isFetching ? (
         <div className="mt-2 space-y-1" aria-hidden>
           {[0, 1, 2, 3, 4].map((i) => (
             <div key={i} className="h-8 animate-pulse rounded-lg bg-inset" />
@@ -163,14 +226,10 @@ export function MiniLeaderboard() {
             Retry
           </button>
         </div>
-      ) : tab === "Friends" ? (
-        <p className="mt-3 rounded-lg border border-line bg-inset p-3 text-center text-[12px] text-muted">
-          Friends ranks arrive with 1v1 battles.
-        </p>
       ) : rows.length === 0 ? (
         <p className="mt-3 rounded-lg border border-line bg-inset p-3 text-center text-[12px] text-muted">
-          {tab === "Weekly"
-            ? "No results in the last 7 days."
+          {board.duration
+            ? `No ${board.label} runs yet — finish one to take #1.`
             : "No ranks yet — finish a test to appear here."}
         </p>
       ) : (
@@ -181,6 +240,9 @@ export function MiniLeaderboard() {
             return (
               <li
                 key={`${rank}-${r.userId}`}
+                title={`${you ? "You" : name} · ${runLengthLabel(
+                  r.duration ?? r.timeTaken
+                )} run · ${r.wpm} WPM · ${r.accuracy}% accuracy`}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px]",
                   you && "border border-accent/30 bg-accent/[0.07]"
@@ -200,6 +262,11 @@ export function MiniLeaderboard() {
                 >
                   {you ? "You" : name}
                 </span>
+                {!board.duration && (
+                  <span className="shrink-0 rounded bg-inset px-1 py-0.5 text-[9px] font-bold tabular-nums text-faint">
+                    {runLengthLabel(r.duration ?? r.timeTaken)}
+                  </span>
+                )}
                 <span className="ml-auto shrink-0 font-mono text-[11px] font-bold tabular-nums text-accent">
                   {r.wpm} WPM
                 </span>
@@ -212,61 +279,109 @@ export function MiniLeaderboard() {
   );
 }
 
-const FEED_ICONS: Record<string, typeof Zap> = {
+const FEED_ICONS: Record<string, LucideIcon> = {
   zap: Zap,
   chart: BarChart3,
   swords: Swords,
   trophy: Trophy,
   xp: Star,
+  target: Crosshair,
+  layers: Layers,
+  flame: Flame,
 };
 
 export function ActivityFeed() {
+  const { data: stats, isLoading } = useGetMyStatsQuery();
+
+  // Newest runs only; the 0-WPM placeholder row is not an achievement.
+  const runs = (stats?.recent ?? []).filter((r) => r.wpm > 0).slice(0, 5);
+  const best = Math.round(stats?.bestWpm ?? 0);
+
   return (
     <Card className="p-5">
-      <PanelHead title="Recent Activity" href="/progress" />
-      <ul className="mt-2.5 space-y-2.5">
-        {DASH.activity
-          .filter((a) => !a.text.includes("Weekly Typing Showdown"))
-          .map((a) => {
-            const Icon = FEED_ICONS[a.icon] ?? Zap;
+      <PanelHead title="Recent Activity" href="/practice" />
+      {isLoading ? (
+        <ul className="mt-2.5 space-y-2.5" aria-hidden>
+          {[0, 1, 2].map((i) => (
+            <li key={i} className="h-8 animate-pulse rounded-lg bg-inset" />
+          ))}
+        </ul>
+      ) : runs.length === 0 ? (
+        <p className="mt-3 rounded-lg border border-line bg-inset p-3 text-center text-[12px] text-muted">
+          No runs yet — finish a practice test and it shows up here.
+        </p>
+      ) : (
+        <ul className="mt-2.5 space-y-2.5">
+          {runs.map((run) => {
+            const length = runLengthOf(run);
+            const isBest = run.wpm === best;
+            const isContest = Boolean(run.contestId);
+            const Icon = isContest ? Trophy : isBest ? BarChart3 : Zap;
+            const text = isContest
+              ? `Contest run · ${run.wpm} WPM · ${run.accuracy}%`
+              : isBest
+                ? `New personal best · ${run.wpm} WPM`
+                : `${runLengthLabel(length)} run · ${run.wpm} WPM · ${run.accuracy}%`;
             return (
-              <li key={a.text} className="flex items-start gap-2.5 text-[13px]">
+              <li
+                key={run.id}
+                className="flex items-start gap-2.5 text-[13px]"
+              >
                 <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-accent/10 text-accent">
                   <Icon size={13} aria-hidden />
                 </span>
                 <span className="min-w-0">
-                  <span className="block leading-5">{a.text}</span>
-                  <span className="block text-[11px] text-faint">{a.when}</span>
+                  <span className="block leading-5">{text}</span>
+                  <span className="block text-[11px] text-faint">
+                    {formatRunWhen(run.createdAt)}
+                  </span>
                 </span>
               </li>
             );
           })}
-      </ul>
+        </ul>
+      )}
     </Card>
   );
 }
 
-const BADGE_ICONS: Record<string, typeof Zap> = {
-  zap: Zap,
-  target: Crosshair,
-  flame: Flame,
-  swords: Swords,
-};
+export function AchievementsRow({ today }: { today: string }) {
+  const { data: stats } = useGetMyStatsQuery();
+  const streak = stats ? streakFrom(stats.history, today) : 0;
+  const milestones = milestonesFrom(stats ?? null, streak);
 
-export function AchievementsRow() {
   return (
     <Card className="p-5">
-      <PanelHead title="Recent Achievements" href="/achievements" />
+      <PanelHead title="Milestones" href="/achievements" />
       <div className="mt-3 grid grid-cols-4 gap-2 text-center">
-        {DASH.achievements.map((a) => {
-          const Icon = BADGE_ICONS[a.icon] ?? Award;
+        {milestones.map((m) => {
+          const Icon = FEED_ICONS[m.Icon] ?? Award;
           return (
-            <div key={a.name}>
-              <span className="mx-auto grid h-11 w-11 place-items-center rounded-full border border-violet-500/40 bg-violet-500/10 text-violet-400">
+            <div
+              key={m.id}
+              title={`${m.name} — ${m.earned ? "earned" : "in progress"} (${m.detail})`}
+            >
+              <span
+                className={cn(
+                  "mx-auto grid h-11 w-11 place-items-center rounded-full border",
+                  m.earned
+                    ? "border-violet-500/40 bg-violet-500/10 text-violet-400"
+                    : "border-line bg-inset text-muted"
+                )}
+              >
                 <Icon size={18} aria-hidden />
               </span>
-              <p className="mt-1.5 text-[10px] font-bold leading-tight">{a.name}</p>
-              <p className="text-[10px] tabular-nums text-accent">{a.xp}</p>
+              <p className="mt-1.5 text-[10px] font-bold leading-tight">
+                {m.name}
+              </p>
+              <p
+                className={cn(
+                  "text-[10px] tabular-nums",
+                  m.earned ? "text-accent" : "text-faint"
+                )}
+              >
+                {m.detail}
+              </p>
             </div>
           );
         })}
