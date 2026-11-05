@@ -10,6 +10,10 @@ const FRIENDLY: Array<[RegExp, string]> = [
   [/unauthorized|session expired/i, "Your session expired — please log in again."],
   [/delet|disabled|suspended|deactivated|no longer/i, "This account no longer exists."],
   [/cannot reach|network|fetch failed/i, "Cannot reach the server. Check your connection."],
+  [
+    /unexpected status code - 403|missing permissions|api key needs upload/i,
+    "The image host refused the upload — its Cloudinary API key needs upload permission.",
+  ],
 ];
 
 export function getApiError(e: unknown): string {
