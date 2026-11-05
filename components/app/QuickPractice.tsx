@@ -1,32 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Quote, Timer, WholeWord, PenLine, Zap } from "lucide-react";
+import { Quote, Timer, WholeWord, PenLine, Zap } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
 
 const TILES = [
-  {
-    Icon: Timer,
-    title: "Timed Test",
-    desc: "Race against the clock and improve your speed.",
-    href: "/test",
-  },
-  {
-    Icon: Quote,
-    title: "Quotes",
-    desc: "Real quotes, real challenges.",
-    href: "/test",
-  },
-  {
-    Icon: PenLine,
-    title: "Custom Text",
-    desc: "Type your own text or paste anything.",
-    href: "/test",
-  },
-  {
-    Icon: WholeWord,
-    title: "Difficulties",
-    desc: "Easy · Medium · Hard",
-    href: "/test",
-  },
+  { Icon: Timer, title: "Timed", href: "/practice/session?kind=Words" },
+  { Icon: Quote, title: "Quotes", href: "/practice/session?kind=Quotes" },
+  { Icon: PenLine, title: "Custom", href: "/practice/session?kind=Custom" },
+  { Icon: WholeWord, title: "Levels", href: "/practice" },
 ];
 
 export function QuickPractice() {
@@ -38,26 +18,17 @@ export function QuickPractice() {
         </span>
         Quick Practice
       </p>
-      <p className="mt-0.5 text-xs text-muted">Choose a mode and start typing</p>
-      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        {TILES.map(({ Icon, title, desc, href }) => (
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {TILES.map(({ Icon, title, href }) => (
           <Link
             key={title}
             href={href}
-            className="group flex items-start gap-2.5 rounded-xl border border-line bg-inset p-3 transition hover:border-accent/40"
+            className="group flex flex-col items-center gap-2 rounded-xl border border-line bg-inset px-2 py-4 transition hover:border-accent/50 hover:bg-chip"
           >
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-chip text-accent">
-              <Icon size={15} aria-hidden />
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-accent/10 text-accent transition group-hover:bg-accent/20">
+              <Icon size={16} aria-hidden />
             </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-[13px] font-bold">{title}</span>
-              <span className="block text-[11px] leading-4 text-muted">{desc}</span>
-            </span>
-            <ArrowRight
-              size={14}
-              aria-hidden
-              className="mt-1 shrink-0 text-faint transition group-hover:translate-x-0.5 group-hover:text-accent"
-            />
+            <span className="text-[13px] font-bold">{title}</span>
           </Link>
         ))}
       </div>

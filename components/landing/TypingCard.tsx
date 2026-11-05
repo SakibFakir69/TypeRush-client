@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Maximize, Minimize, Timer } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { toast } from "sonner";
 import { useTypingTest } from "@/hooks/useTypingTest";
 import { useAuth } from "@/lib/auth";
 import { useSubmitPracticeResultMutation } from "@/lib/features/practice/features.practice";
 import { useSubmitContestResultMutation } from "@/lib/features/contest/features.contest";
+import { getApiError } from "@/helper/error-helper";
 import { playDemoError, playDemoTick } from "@/lib/keySound";
 import { cn } from "@/lib/cn";
 
@@ -40,6 +42,7 @@ export function TypingCard({
   target,
   paragraphId,
   contest,
+  unranked = false,
 }: {
   target: string;
   /** Server passage id. Optional: arena runs also record a result. */
@@ -53,6 +56,8 @@ export function TypingCard({
     seconds: number;
     onSubmitted?: () => void;
   };
+  /** Practice-only text (your own / pasted): never submitted anywhere. */
+  unranked?: boolean;
 }) {
   const contestSeconds =
     contest && contest.seconds > 0 ? Math.round(contest.seconds) : null;
@@ -128,8 +133,9 @@ export function TypingCard({
 
   // Explicit submit: only the button below calls the API.
   const doSubmit = () => {
-    // Ranked only: a custom-length run is not a comparable result.
-    if (customMode) return;
+    // Practice-only runs (own text, custom length) are never comparable, so
+    // they never reach the leaderboard.
+    if (customMode || unranked) return;
     if (saved === "saving" || saved === "saved") return;
     setSaved("saving");
 
@@ -154,11 +160,18 @@ export function TypingCard({
       .unwrap()
       .then(() => {
         setSaved("saved");
+        toast.success(
+          isContest
+            ? "Sent to the contest leaderboard."
+            : "Saved — it counts towards your progress."
+        );
         // Let the contest page refresh its leaderboard.
         if (contest) contest.onSubmitted?.();
       })
-      .catch(() => setSaved("error"));
-      console.log("submited")
+      .catch((e: unknown) => {
+        setSaved("error");
+        toast.error(getApiError(e));
+      });
   };
 
   useEffect(() => {
@@ -178,7 +191,7 @@ export function TypingCard({
   // Ranked = logged in at a preset length. A passage is not required:
   // arena runs (words / quotes / custom text) are recorded too, so the
   // dashboard has real data even before the practice bank is filled.
-  const ranked = Boolean(user) && !customMode;
+  const ranked = Boolean(user) && !customMode && !unranked;
   // A contest run submits for any signed-in participant — no passage needed.
   const canSubmit = isContest ? Boolean(user) : ranked;
 
@@ -366,7 +379,7 @@ export function TypingCard({
                       Try again ({duration}s)
                     </button>
                   )}
-                  {!user && !customMode && (
+                  {!user && !customMode && !unranked && (
                     <p className="text-xs text-muted">
                       <Link
                         href="/login"
@@ -396,7 +409,12 @@ export function TypingCard({
                     {isContest ? "contest leaderboard" : "leaderboard"}
                   </p>
                 )}
-                {customMode && (
+                {unranked && (
+                  <p className="mt-1.5 max-w-xs text-xs text-muted">
+                    Practice only — your own text isn&apos;t saved or ranked.
+                  </p>
+                )}
+                {customMode && !unranked && (
                   <p className="mt-1.5 max-w-xs text-xs text-muted">
                     Custom length — practice only. Pick 15s, 30s or 60s to post
                     a ranked score.

@@ -1,24 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Bell, ChevronDown, Moon, Search, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Bell, ChevronDown, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { UserAvatar } from "@/components/ui/Avatar";
 
 export function Topbar({
   userName,
   avatarUrl = "",
-  query,
-  onQuery,
 }: {
   userName: string;
   avatarUrl?: string;
-  query: string;
-  onQuery: (v: string) => void;
 }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
   const isDark = !mounted || resolvedTheme !== "light";
 
   useEffect(() => {
@@ -26,40 +21,9 @@ export function Topbar({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        inputRef.current?.focus();
-      } else if (e.key === "Escape") {
-        inputRef.current?.blur();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-app/90 backdrop-blur-md">
-      <div className="flex h-14 items-center gap-3 px-4">
-        <label className="flex max-w-md flex-1 items-center gap-2 rounded-lg border border-line bg-inset px-3 py-1.5">
-          <Search size={14} aria-hidden className="shrink-0 text-faint" />
-          <input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => onQuery(e.target.value)}
-            placeholder="Search users, contests, or topics…"
-            aria-label="Search"
-            className="w-full bg-transparent text-[13px] text-ink placeholder:text-faint focus:outline-none"
-          />
-          <kbd
-            aria-hidden
-            className="hidden shrink-0 rounded border border-line bg-chip px-1.5 text-[10px] tabular-nums text-faint sm:block"
-          >
-            ⌘K
-          </kbd>
-        </label>
-
+      <div className="flex h-14 items-center gap-2 px-4">
         <div className="ml-auto flex items-center gap-2">
           <button
             type="button"

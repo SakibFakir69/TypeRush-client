@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import Link from "next/link";
 import { APP_NAV, Sidebar } from "@/components/app/Sidebar";
 import { Topbar } from "@/components/app/Topbar";
@@ -17,7 +17,6 @@ export function AppShell({
   avatarUrl?: string;
   children: ReactNode;
 }) {
-  const [query, setQuery] = useState("");
   // The gate already fetched the session; subscribing here keeps the navbar
   // name/photo in sync when the profile (or avatar) is edited.
   const { user } = useAuth();
@@ -33,14 +32,9 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-app text-ink antialiased">
       <div className="mx-auto flex max-w-[1400px]">
-        <Sidebar userName={displayName} avatarUrl={displayAvatar} filter={query} />
+        <Sidebar userName={displayName} avatarUrl={displayAvatar} filter="" />
         <div className="min-w-0 flex-1">
-          <Topbar
-            userName={displayName}
-            avatarUrl={displayAvatar}
-            query={query}
-            onQuery={setQuery}
-          />
+          <Topbar userName={displayName} avatarUrl={displayAvatar} />
           {/* Mobile nav */}
           <nav
             aria-label="App"

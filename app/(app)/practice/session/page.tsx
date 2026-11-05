@@ -6,23 +6,13 @@ import { useSearchParams } from "next/navigation";
 import { TypingCard } from "@/components/landing/TypingCard";
 import { TestExperience } from "@/components/test/TestExperience";
 import { useGetParagraphQuery } from "@/lib/features/practice/features.practice";
+import { getApiError } from "@/helper/error-helper";
 
 function ParagraphSession({ id }: { id: string }) {
   const { data, isLoading, isError, error, refetch } = useGetParagraphQuery(id);
 
-  // Surface the real failure reason (status code / network) so a
-  // "Passage unavailable" is diagnosable instead of a dead end.
-  const errorDetail = (() => {
-    if (!error || typeof error !== "object") return "";
-    const e = error as { status?: unknown; message?: unknown };
-    if (typeof e.status === "number") {
-      if (e.status === 404) return "Server says: passage not found (404).";
-      return `Server answered with status ${e.status}.`;
-    }
-    if (typeof e.status === "string") return `Request failed (${e.status}).`;
-    if (typeof e.message === "string") return e.message;
-    return "Network or server unreachable.";
-  })();
+  // One plain sentence a typist can act on — no status codes.
+  const errorDetail = error ? getApiError(error) : "";
 
   const content =
     data && typeof (data as Record<string, unknown>).content === "string"
@@ -46,9 +36,9 @@ function ParagraphSession({ id }: { id: string }) {
     return (
       <div className="grid place-items-center rounded-2xl border border-dashed border-line p-10 text-center">
         <div>
-          <p className="text-base font-extrabold">Passage unavailable</p>
+          <p className="text-base font-extrabold">We couldn&apos;t load this text</p>
           <p className="mt-1 text-sm text-muted">
-            {errorDetail || "It may have been removed. Pick another one."}
+            {errorDetail || "It may have been removed — pick another one."}
           </p>
           <div className="mt-4 flex justify-center gap-2">
             <button

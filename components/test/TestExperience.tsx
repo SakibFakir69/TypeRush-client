@@ -10,9 +10,11 @@ import {
   PenLine,
   Shuffle,
   TextQuote,
+  Trash2,
   WholeWord,
   type LucideIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   LANGS,
   PARAGRAPHS,
@@ -20,6 +22,15 @@ import {
   WORDS,
   type Lang,
 } from "@/lib/practice";
+import {
+  CUSTOM_TEXT_MAX_CHARS,
+  CUSTOM_TEXT_MAX_ITEMS,
+  customTextPreview,
+  loadCustomTexts,
+  removeCustomText,
+  saveCustomText,
+  type CustomText,
+} from "@/lib/custom-texts";
 import { TypingCard } from "@/components/landing/TypingCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/cn";
@@ -106,8 +117,15 @@ export function TestExperience() {
   const [draft, setDraft] = useState("");
   const [applied, setApplied] = useState("");
   const [applyCount, setApplyCount] = useState(0);
+  // Your own texts live in this browser only — never uploaded, never ranked.
+  const [savedTexts, setSavedTexts] = useState<CustomText[]>([]);
   // First-visit onboarding: the guide shows once, then stays hidden.
   const [showIntro, setShowIntro] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSavedTexts(loadCustomTexts()));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
@@ -208,30 +226,117 @@ export function TestExperience() {
   } else {
     target = applied;
     targetKey = `c-${applyCount}`;
+
+    const applyText = (text: string) => {
+      const clean = text.trim();
+      if (!clean) return;
+      setDraft(clean);
+      setApplied(clean);
+      setApplyCount((c) => c + 1);
+    };
+
+    const saveDraft = () => {
+      const result = saveCustomText(draft);
+      if (result.ok) {
+        setSavedTexts(result.items);
+        toast.success("Saved on this device — practice it anytime.");
+        return;
+      }
+      const message =
+        result.reason === "empty"
+          ? "Type or paste some text first."
+          : result.reason === "too-long"
+            ? `Keep it under ${CUSTOM_TEXT_MAX_CHARS} characters.`
+            : result.reason === "duplicate"
+              ? "You already saved this text."
+              : result.reason === "full"
+                ? `You can keep ${CUSTOM_TEXT_MAX_ITEMS} texts — delete one first.`
+                : "Your browser blocked local storage, so nothing was saved.";
+      toast.error(message);
+    };
+
+    const deleteSaved = (item: CustomText) => {
+      setSavedTexts(removeCustomText(item.id));
+      toast.success("Removed from your saved texts.");
+    };
+
     context = (
       <div className="flex flex-col gap-2">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           rows={3}
-          maxLength={2000}
+          maxLength={CUSTOM_TEXT_MAX_CHARS}
           placeholder="Paste your own text here…"
           aria-label="Custom practice text"
           className="w-full resize-y rounded-xl border border-line bg-inset p-3 text-sm leading-6 text-ink placeholder:text-faint focus:border-accent/50 focus:outline-none"
         />
-        <div>
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             disabled={!draft.trim()}
-            onClick={() => {
-              setApplied(draft.trim());
-              setApplyCount((c) => c + 1);
-            }}
+            onClick={() => applyText(draft)}
             className="rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Use this text
+            Practice this text
           </button>
+          <button
+            type="button"
+            disabled={!draft.trim()}
+            onClick={saveDraft}
+            className="rounded-lg border border-line px-3 py-2 text-sm font-bold text-ink transition hover:bg-chip disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Save for later
+          </button>
+          <span className="text-[11px] tabular-nums text-faint">
+            {draft.length}/{CUSTOM_TEXT_MAX_CHARS} · saved in this browser only
+          </span>
         </div>
+
+        {savedTexts.length > 0 && (
+          <div className="rounded-xl border border-line bg-inset p-2">
+            <p className="px-1 text-[11px] font-bold uppercase tracking-wider text-faint">
+              Your saved texts
+            </p>
+            <ul className="mt-1 divide-y divide-line">
+              {savedTexts.map((item) => {
+                const active = applied === item.text;
+                return (
+                  <li key={item.id} className="flex items-center gap-2 py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => applyText(item.text)}
+                      className="min-w-0 flex-1 rounded-md px-1 py-0.5 text-left transition hover:bg-chip"
+                      title={item.text}
+                    >
+                      <span
+                        className={cn(
+                          "block truncate text-xs font-semibold",
+                          active ? "text-accent" : "text-ink"
+                        )}
+                      >
+                        {customTextPreview(item.text)}
+                      </span>
+                      <span className="block text-[10px] text-faint">
+                        {item.text.length} characters
+                        {active ? " · practicing" : ""}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteSaved(item)}
+                      aria-label={`Delete ${customTextPreview(item.text, 30)}`}
+                      title="Delete saved text"
+                      className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted transition hover:bg-rose-500/10 hover:text-rose-500"
+                    >
+                      <Trash2 size={13} aria-hidden />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </div>
     );
   }
@@ -245,8 +350,8 @@ export function TestExperience() {
         : kind === "Quotes"
           ? `${langLabel} · Quote ${(idx % quotes.length) + 1} of ${quotes.length}`
           : applied
-            ? `Custom text · ${applied.length} chars`
-            : "Custom text · nothing applied yet";
+            ? `Your text · ${applied.length} chars · practice only`
+            : "Your text · nothing applied yet";
 
   return (
     <div className="mx-auto w-full max-w-4xl">
@@ -381,14 +486,18 @@ export function TestExperience() {
       <Reveal delay={0.1} className="mt-4">
         {kind === "Custom" && !applied ? (
           <div className="grid place-items-center rounded-2xl border border-dashed border-line p-10 text-center">
-            <p className="max-w-xs text-sm leading-6 text-muted">
-              Paste any text above and press{" "}
-              <span className="font-bold text-ink">Use this text</span> — up
-              to 2000 characters, any language.
+            <p className="max-w-sm text-sm leading-6 text-muted">
+              Paste or write any text above, then press{" "}
+              <span className="font-bold text-ink">Practice this text</span>. It
+              stays in this browser — nothing is uploaded or ranked.
             </p>
           </div>
         ) : (
-          <TypingCard key={targetKey} target={target} />
+          <TypingCard
+            key={targetKey}
+            target={target}
+            unranked={kind === "Custom"}
+          />
         )}
       </Reveal>
 
