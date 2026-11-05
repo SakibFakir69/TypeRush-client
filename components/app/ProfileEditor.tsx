@@ -12,7 +12,7 @@ import { resolveCountry } from "@/lib/countries";
 import { useAppDispatch } from "@/lib/hooks";
 import { authApi } from "@/lib/features/auth/features.auth";
 import { useUpdateUserMutation } from "@/lib/features/user/features.user";
-import { useUploadImageMutation } from "@/lib/features/upload/features.upload"; // ADDED
+import { useUploadAvatarMutation } from "@/lib/features/upload/features.upload";
 import { cn } from "@/lib/cn";
 
 export type ProfileInitial = {
@@ -29,6 +29,45 @@ function initials(name: string) {
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+const AVATAR_MAX_SIDE = 512;
+
+/**
+ * Avatars never need to be bigger than a few hundred pixels, and a 10 MB photo
+ * would also hit the proxy body limit. Downscale in the browser and send WebP;
+ * fall back to the untouched file when the canvas cannot decode the image.
+ */
+async function shrinkAvatar(file: File): Promise<File> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(
+      1,
+      AVATAR_MAX_SIDE / Math.max(bitmap.width, bitmap.height)
+    );
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(bitmap, 0, 0, width, height);
+    bitmap.close();
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/webp", 0.9)
+    );
+    if (!blob) return file;
+
+    const name = file.name.replace(/\.[^.]+$/, "") || "avatar";
+    return new File([blob], `${name}.webp`, { type: "image/webp" });
+  } catch {
+    return file;
+  }
 }
 
 /**
@@ -49,8 +88,8 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
   const [error, setError] = useState("");
   const [updateProfile, { isLoading }] = useUpdateUserMutation();
 
-  // ADDED: avatar upload state
-  const [uploadImage, { isLoading: isUploadingAvatar }] = useUploadImageMutation();
+  // Avatar upload: one request stores the image and the new avatarUrl.
+  const [uploadAvatar, { isLoading: isUploadingAvatar }] = useUploadAvatarMutation();
   const [avatarUrl, setAvatarUrl] = useState(initial.avatarUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -124,23 +163,26 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
       e.target.value = "";
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image must be under 10MB.");
       e.target.value = "";
       return;
     }
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("image", await shrinkAvatar(file));
 
     try {
-      const { url } = await uploadImage(formData).unwrap();
-      await updateProfile({ avatarUrl: url }).unwrap();
+      const { url, user } = await uploadAvatar(formData).unwrap();
+      if (!url) throw new Error("Upload returned no image URL.");
       setAvatarUrl(url);
+      // The endpoint already saved avatarUrl; keep the cached session in sync
+      // so the navbar, rail ProfileCard and comments all switch immediately.
       dispatch(
         authApi.util.updateQueryData("getSession", undefined, (draft) => {
           if (!draft) return draft;
           draft.avatarUrl = url;
+          if (user?.xp !== undefined) draft.xp = user.xp;
         })
       );
       toast.success("Avatar updated.");

@@ -14,7 +14,7 @@ import {
   User,
   Zap,
 } from "lucide-react";
-import { Avatar } from "@/components/ui/Avatar";
+import { UserAvatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 
 export type NavItem = { href: string; label: string; Icon: typeof Home; badge?: string };
@@ -33,9 +33,11 @@ export const APP_NAV: NavItem[] = [
 
 export function Sidebar({
   userName,
+  avatarUrl = "",
   filter,
 }: {
   userName: string;
+  avatarUrl?: string;
   filter: string;
 }) {
   const pathname = usePathname();
@@ -94,9 +96,9 @@ export function Sidebar({
       </div>
 
       <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-line bg-inset p-3">
-        <Avatar
-          src="https://i.pravatar.cc/64?img=11"
-          alt={userName}
+        <UserAvatar
+          src={avatarUrl}
+          name={userName}
           width={32}
           height={32}
           className="h-8 w-8 rounded-full border border-line object-cover"

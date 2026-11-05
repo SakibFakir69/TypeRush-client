@@ -3,14 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Bell, ChevronDown, Moon, Search, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme";
-import { Avatar } from "@/components/ui/Avatar";
+import { UserAvatar } from "@/components/ui/Avatar";
 
 export function Topbar({
   userName,
+  avatarUrl = "",
   query,
   onQuery,
 }: {
   userName: string;
+  avatarUrl?: string;
   query: string;
   onQuery: (v: string) => void;
 }) {
@@ -82,9 +84,9 @@ export function Topbar({
             className="flex items-center gap-2 rounded-lg border border-line py-1 pl-1 pr-2 transition hover:bg-chip"
             aria-label="Account menu"
           >
-            <Avatar
-              src="https://i.pravatar.cc/64?img=11"
-              alt={userName}
+            <UserAvatar
+              src={avatarUrl}
+              name={userName}
               width={28}
               height={28}
               className="h-7 w-7 rounded-full object-cover"

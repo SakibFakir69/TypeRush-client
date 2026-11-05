@@ -4,6 +4,31 @@ import { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/cn";
 
+/** Hosts listed in `next.config.ts` `images.remotePatterns`. */
+const OPTIMIZED_HOSTS = [
+  "i.pravatar.cc",
+  "res.cloudinary.com",
+  "googleusercontent.com",
+];
+
+/**
+ * `next/image` throws for a host that is not in `remotePatterns`, and avatars
+ * arrive from anywhere (Google, Cloudinary, or a URL someone pasted). Only
+ * hand the optimizer a host it knows; everything else gets a plain <img>.
+ */
+function canOptimize(src: string): boolean {
+  if (src.startsWith("/")) return true;
+  try {
+    const url = new URL(src);
+    if (url.protocol !== "https:") return false;
+    return OPTIMIZED_HOSTS.some(
+      (host) => url.hostname === host || url.hostname.endsWith(`.${host}`)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function initials(name: string) {
   const parts = name.split(" ").filter(Boolean);
   if (parts.length === 0) return "?";
@@ -46,6 +71,23 @@ export function Avatar({
     );
   }
 
+  if (!canOptimize(src)) {
+    return (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        className={className}
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
   return (
     <Image
       src={src}
@@ -55,5 +97,52 @@ export function Avatar({
       className={className}
       onError={() => setFailed(true)}
     />
+  );
+}
+
+/**
+ * Signed-in user avatar: renders the uploaded photo when there is one and
+ * falls back to initials when the profile has no picture.
+ */
+export function UserAvatar({
+  src,
+  name,
+  width,
+  height,
+  className,
+  fallbackClassName,
+}: {
+  src?: string | null;
+  name: string;
+  width: number;
+  height: number;
+  className?: string;
+  fallbackClassName?: string;
+}) {
+  if (src) {
+    return (
+      <Avatar
+        src={src}
+        alt={name}
+        width={width}
+        height={height}
+        className={className}
+      />
+    );
+  }
+
+  return (
+    <span
+      role="img"
+      aria-label={name}
+      style={{ fontSize: Math.max(10, Math.round(width * 0.38)) }}
+      className={cn(
+        "grid shrink-0 place-items-center rounded-full border border-line bg-gradient-to-br from-teal-600 to-emerald-800 font-extrabold text-white",
+        className,
+        fallbackClassName
+      )}
+    >
+      {initials(name)}
+    </span>
   );
 }

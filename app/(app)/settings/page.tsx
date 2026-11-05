@@ -19,7 +19,7 @@ import { isSoundEnabled, setSoundEnabled } from "@/lib/keySound";
 import { getApiError } from "@/helper/error-helper";
 import { useDeleteUserMutation } from "@/lib/features/user/features.user";
 import { Card } from "@/components/ui/primitives";
-import { Avatar } from "@/components/ui/Avatar";
+import { UserAvatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import Link from "next/link";
 
@@ -150,9 +150,9 @@ export default function SettingsPage() {
       </div>
 
       <Card className="flex items-center gap-3 p-5">
-        <Avatar
-          src="https://i.pravatar.cc/96?img=11"
-          alt={name}
+        <UserAvatar
+          src={typeof user?.avatarUrl === "string" ? user.avatarUrl : ""}
+          name={name}
           width={48}
           height={48}
           className="h-12 w-12 rounded-full border border-line object-cover"

@@ -12,6 +12,7 @@ type SessionUser = {
   role?: string;
   authProvider?: string;
   emailVerified?: boolean;
+  avatarUrl?: string | null;
 };
 
 export function ClientAuthGate({ children }: { children: React.ReactNode }) {
@@ -63,6 +64,12 @@ export function ClientAuthGate({ children }: { children: React.ReactNode }) {
     (typeof user?.fullName === "string" && user.fullName) ||
     "typist";
   const name = raw.trim().split(/\s+/)[0] || "typist";
+  const avatarUrl =
+    typeof user?.avatarUrl === "string" ? user.avatarUrl : "";
 
-  return <AppShell userName={name}>{children}</AppShell>;
+  return (
+    <AppShell userName={name} avatarUrl={avatarUrl}>
+      {children}
+    </AppShell>
+  );
 }
