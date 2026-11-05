@@ -21,12 +21,12 @@ const uploadApi = baseApi.injectEndpoints({
     }),
 
     /**
-     * Uploads the avatar and saves it on the profile in one request, so the
-     * rail/navbar pick it up as soon as the "Session" tag is invalidated.
+     * Uploads the avatar through `POST /uploads`, which also saves it on the
+     * profile, so the rail/navbar pick it up as soon as "Session" is refreshed.
      */
     uploadAvatar: builder.mutation<AvatarUploadResponse, FormData>({
       query: (formData) => ({
-        url: "/api/v1/uploads/avatar",
+        url: "/api/v1/uploads",
         method: "POST",
         body: formData,
       }),

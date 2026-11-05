@@ -175,9 +175,16 @@ export function ProfileEditor({ initial }: { initial: ProfileInitial }) {
     try {
       const { url, user } = await uploadAvatar(formData).unwrap();
       if (!url) throw new Error("Upload returned no image URL.");
+
+      // Older server builds only return the URL; save it explicitly then. The
+      // current build persists it during the upload.
+      if (!user?.id) {
+        await updateProfile({ avatarUrl: url }).unwrap();
+      }
+
       setAvatarUrl(url);
-      // The endpoint already saved avatarUrl; keep the cached session in sync
-      // so the navbar, rail ProfileCard and comments all switch immediately.
+      // Keep the cached session in sync so the navbar, rail ProfileCard and
+      // comments all switch immediately.
       dispatch(
         authApi.util.updateQueryData("getSession", undefined, (draft) => {
           if (!draft) return draft;
