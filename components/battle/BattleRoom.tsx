@@ -179,11 +179,12 @@ export function BattleRoom({ matchId }: { matchId: string }) {
   }, [ready, finished]);
 
   // Neither the server nor realtime supplied a start: open the gate locally so
-  // a dropped `match_started` can never freeze the race.
+  // a dropped `match_started` can never freeze the race. The server's own ack
+  // window is 8s, so this stays behind it and never pre-empts a verdict.
   useEffect(() => {
     if (match?.status !== "ACTIVE") return;
     if (pushedStart !== null || serverStart !== null) return;
-    const id = window.setTimeout(() => setFallbackStart(Date.now()), 6000);
+    const id = window.setTimeout(() => setFallbackStart(Date.now()), 12000);
     return () => window.clearTimeout(id);
   }, [match?.status, pushedStart, serverStart]);
 
