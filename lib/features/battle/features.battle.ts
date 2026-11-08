@@ -1,0 +1,115 @@
+import { baseApi } from "../api/base-api";
+
+/**
+ * Global 1v1 matchmaking (`/api/v1/matchmaking`, `/api/v1/matches`).
+ *
+ * A player joins the queue, waits for `match_found` on their Ably channel, then
+ * both players race the same paragraph. Results are submitted once per player;
+ * the server settles ratings as soon as both are in.
+ */
+
+export type QueueState = "idle" | "waiting" | "matched";
+
+export type QueueStatus = {
+  status: QueueState;
+  matchId?: string;
+};
+
+export type BattleResult = "WIN" | "LOSS" | "DRAW" | "ABANDONED";
+
+export type BattleParticipant = {
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
+  ratingBefore: number;
+  ratingAfter: number | null;
+  wpm: number | null;
+  accuracy: number | null;
+  errors: number | null;
+  result: BattleResult | null;
+  finished: boolean;
+};
+
+export type BattleMatch = {
+  id: string;
+  status: "WAITING" | "ACTIVE" | "COMPLETED" | "ABANDONED";
+  paragraph: string;
+  startedAt: string | null;
+  endedAt: string | null;
+  winnerId: string | null;
+  createdAt: string;
+  participants: BattleParticipant[];
+};
+
+export type MatchFoundPayload = {
+  matchId: string;
+  paragraph: string;
+  matchChannel: string;
+};
+
+/** The server wraps payloads as `{ success, message, data }`. */
+function unwrap<T>(res: unknown): T {
+  if (res && typeof res === "object" && "data" in (res as Record<string, unknown>)) {
+    return (res as Record<string, unknown>).data as T;
+  }
+  return res as T;
+}
+
+export const battleApi = baseApi.injectEndpoints({
+  overrideExisting: false,
+  endpoints: (builder) => ({
+    joinQueue: builder.mutation<QueueStatus, void>({
+      query: () => ({ url: "/api/v1/matchmaking/join", method: "POST" }),
+      transformResponse: (res: unknown) => unwrap<QueueStatus>(res),
+      invalidatesTags: ["Queue"],
+    }),
+    cancelQueue: builder.mutation<QueueStatus, void>({
+      query: () => ({ url: "/api/v1/matchmaking/cancel", method: "POST" }),
+      transformResponse: (res: unknown) => unwrap<QueueStatus>(res),
+      invalidatesTags: ["Queue"],
+    }),
+    getQueueStatus: builder.query<QueueStatus, void>({
+      query: () => ({ url: "/api/v1/matchmaking/status" }),
+      transformResponse: (res: unknown) => unwrap<QueueStatus>(res),
+      providesTags: ["Queue"],
+    }),
+    getMatch: builder.query<BattleMatch, string>({
+      query: (id) => ({ url: `/api/v1/matches/${id}` }),
+      transformResponse: (res: unknown) => unwrap<BattleMatch>(res),
+      providesTags: (_result, _error, id) => [{ type: "Match" as const, id }],
+    }),
+    submitMatchResult: builder.mutation<
+      { match: BattleMatch; finished: boolean },
+      { id: string; wpm: number; accuracy: number; errors: number }
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/api/v1/matches/${id}/result`,
+        method: "POST",
+        body,
+      }),
+      transformResponse: (res: unknown) =>
+        unwrap<{ match: BattleMatch; finished: boolean }>(res),
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Match" as const, id: arg.id },
+        "Queue",
+        "Session",
+      ],
+    }),
+    forfeitMatch: builder.mutation<{ ok: boolean }, string>({
+      query: (id) => ({ url: `/api/v1/matches/${id}/forfeit`, method: "POST" }),
+      invalidatesTags: (_result, _error, id) => [
+        { type: "Match" as const, id },
+        "Queue",
+      ],
+    }),
+  }),
+});
+
+export const {
+  useJoinQueueMutation,
+  useCancelQueueMutation,
+  useGetQueueStatusQuery,
+  useGetMatchQuery,
+  useSubmitMatchResultMutation,
+  useForfeitMatchMutation,
+} = battleApi;
