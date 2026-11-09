@@ -314,7 +314,7 @@ export function BattleRoom({ matchId }: { matchId: string }) {
           href="/battles"
           className="mt-4 inline-block rounded-lg bg-mint px-4 py-2 text-sm font-bold text-black transition hover:brightness-110"
         >
-          Back to battles
+          Back to battle
         </Link>
       </Card>
     );
@@ -350,7 +350,7 @@ export function BattleRoom({ matchId }: { matchId: string }) {
           href="/battles"
           className="text-[13px] text-muted transition hover:text-accent"
         >
-          ← Battles
+          ← Battle
         </Link>
         <span className="inline-flex items-center gap-1.5 rounded-full border border-line px-2.5 py-1 text-[11px] font-bold text-muted">
           <Swords size={12} aria-hidden />

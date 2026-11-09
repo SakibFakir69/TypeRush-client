@@ -156,7 +156,7 @@ export default function BattlesPage() {
           Live · global queue
         </p>
         <h1 className="mt-1.5 text-2xl font-black tracking-tight sm:text-3xl">
-          1v1 Battles
+          Battle
         </h1>
         <p className="mt-1 text-sm text-muted">
           Race a typist anywhere in the world on the same paragraph. Faster run
