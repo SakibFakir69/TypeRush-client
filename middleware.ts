@@ -5,6 +5,7 @@ import { backendUrl } from "@/lib/backend-url";
 const PROTECTED_PATHS = [
   "/home",
   "/battles",
+  "/history",
   "/practice",
   "/contests",
   "/leaderboard",
@@ -132,6 +133,7 @@ export const config = {
   matcher: [
     "/home/:path*",
     "/battles/:path*",
+    "/history/:path*",
     "/practice/:path*",
     "/contests/:path*",
     "/leaderboard/:path*",

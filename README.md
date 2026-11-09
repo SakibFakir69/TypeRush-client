@@ -236,6 +236,8 @@ Results carry a `duration` field, which is the leaderboard category. The global 
 
 `/battles/invite` is "play a friend". The inviter picks a race length (30/60/120 s) and the newest passage; `POST /api/v1/battle/invite` returns a code that lasts 5 minutes. The page shows the code plus a copyable link (`/battles/invite?code=…`) and subscribes to `private-match:{code}` through `/backend/api/v1/ably/invite-token/:code`, with `GET /api/v1/battle/invite/:code/status` polled every 3 s as the fallback. Opening a shared code offers accept/decline; accepting calls `POST /api/v1/battle/invite/accept`, which creates the match immediately (no queue, no ack handshake) and sends both players to the same `/battles/[id]` room.
 
+`/history` is the record view. `GET /api/v1/matchmaking/history` returns the player's ranked rows (own WPM, accuracy, errors, result and rating delta, plus the opponent), while `GET /api/v1/battle/invite/history` returns invites sent and received. The page splits them into Ranked / Invites tabs with result and direction filters, and the dashboard's **Latest battles** panel merges the newest rows from both.
+
 Ably never sees an API key: `lib/ably.ts` gets tokens from `/backend/api/v1/ably/token` (lobby), `/backend/api/v1/ably/token/:matchId` (race) and `/backend/api/v1/ably/invite-token/:code` (private invite) through an `authCallback`, so auth cookies stay first-party.
 
 ### Avatars

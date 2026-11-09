@@ -74,6 +74,49 @@ export type InviteState = {
   paragraphId: string;
 };
 
+/** One row of `GET /api/v1/matchmaking/history`. */
+export type RankedHistoryEntry = {
+  wpm: number | null;
+  accuracy: number | null;
+  errors: number | null;
+  result: BattleResult | null;
+  ratingBefore: number;
+  ratingAfter: number | null;
+  joinedAt: string;
+  match: {
+    id: string;
+    status: "WAITING" | "ACTIVE" | "COMPLETED" | "ABANDONED";
+    duration: number;
+    startedAt: string | null;
+    endedAt: string | null;
+    paragraph: { content: string; difficulty: string | null };
+    participants: Array<{
+      userId: string;
+      wpm: number | null;
+      result: BattleResult | null;
+      user: { name: string };
+    }>;
+  };
+};
+
+/** One row of `GET /api/v1/battle/invite/history`. */
+export type InviteHistoryEntry = {
+  code: string;
+  status: InviteStatus;
+  duration: number;
+  matchId: string | null;
+  createdAt: string;
+  respondedAt: string | null;
+  invitee?: { id: string; name: string } | null;
+  inviter?: { id: string; name: string } | null;
+  paragraph: { content: string; difficulty: string | null };
+};
+
+export type InviteHistory = {
+  sent: InviteHistoryEntry[];
+  received: InviteHistoryEntry[];
+};
+
 /** The server wraps payloads as `{ success, message, data }`. */
 function unwrap<T>(res: unknown): T {
   if (res && typeof res === "object" && "data" in (res as Record<string, unknown>)) {
@@ -180,6 +223,29 @@ export const battleApi = baseApi.injectEndpoints({
       transformResponse: (res: unknown) => unwrap<InviteState>(res),
       providesTags: (_result, _error, code) => [{ type: "Invite" as const, id: code }],
     }),
+
+    /** The signed-in player's ranked matchmaking history (newest first). */
+    getMatchHistory: builder.query<
+      RankedHistoryEntry[],
+      { limit?: number } | void
+    >({
+      query: (arg) => ({
+        url: "/api/v1/matchmaking/history",
+        params: { limit: String(arg?.limit ?? 50) },
+      }),
+      transformResponse: (res: unknown) => unwrap<RankedHistoryEntry[]>(res),
+      providesTags: ["Match"],
+    }),
+
+    /** Private invites the player sent and received (newest first). */
+    getInviteHistory: builder.query<InviteHistory, { limit?: number } | void>({
+      query: (arg) => ({
+        url: "/api/v1/battle/invite/history",
+        params: { limit: String(arg?.limit ?? 50) },
+      }),
+      transformResponse: (res: unknown) => unwrap<InviteHistory>(res),
+      providesTags: ["Invite"],
+    }),
   }),
 });
 
@@ -195,4 +261,6 @@ export const {
   useDeclineInviteMutation,
   useCancelInviteMutation,
   useGetInviteStatusQuery,
+  useGetMatchHistoryQuery,
+  useGetInviteHistoryQuery,
 } = battleApi;

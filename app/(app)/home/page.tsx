@@ -4,6 +4,7 @@ import { StatCards } from "@/components/app/Stats";
 import { QuickPractice } from "@/components/app/QuickPractice";
 import { ProgressChart } from "@/components/app/ProgressChart";
 import { UpcomingContests } from "@/components/app/Contests";
+import { RecentBattles } from "@/components/app/RecentBattles";
 import {
   AchievementsRow,
   ActivityFeed,
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
         </div>
         <div className="min-w-0 space-y-4">
           <ProfileCard name={name} today={today} />
+          <RecentBattles />
           <MiniLeaderboard />
           <ActivityFeed />
           <AchievementsRow today={today} />

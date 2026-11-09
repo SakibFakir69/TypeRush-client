@@ -48,6 +48,10 @@ Living notes for future work. Update when conventions change.
   `/battles/[id]` room. `private-match:{code}` rides Ably with 3 s status
   polling; invites skip the queue and the ack handshake, and `match.duration`
   drives the race clock.
+- **History**: sidebar `/history` → Ranked tab (`/api/v1/matchmaking/history`:
+  own WPM/accuracy/result/rating delta + opponent) and Invites tab
+  (`/api/v1/battle/invite/history`: sent + received). Filters, empty states,
+  and a "Latest battles" panel on the dashboard that merges the newest of both.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)
