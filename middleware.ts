@@ -113,7 +113,9 @@ export async function middleware(req: NextRequest) {
   }
 
   const loginUrl = new URL("/login", req.url);
-  loginUrl.searchParams.set("next", pathname);
+  // Keep the query string: invite links (`/battles/invite?code=…`) must survive
+  // the login round-trip.
+  loginUrl.searchParams.set("next", `${pathname}${req.nextUrl.search}`);
   const response = NextResponse.redirect(loginUrl);
 
   // Only drop cookies the backend explicitly rejected; a network blip must
