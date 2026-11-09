@@ -34,6 +34,8 @@ export type BattleMatch = {
   id: string;
   status: "WAITING" | "ACTIVE" | "COMPLETED" | "ABANDONED";
   paragraph: string;
+  /** Race length in seconds — invites choose it, ranked matches use the default. */
+  duration: number;
   startedAt: string | null;
   endedAt: string | null;
   winnerId: string | null;
@@ -45,6 +47,31 @@ export type MatchFoundPayload = {
   matchId: string;
   paragraph: string;
   matchChannel: string;
+};
+
+/** Private ("play a friend") invites. */
+export type InviteStatus =
+  | "PENDING"
+  | "MATCHED"
+  | "DECLINED"
+  | "CANCELLED"
+  | "EXPIRED";
+
+export type CreatedInvite = {
+  code: string;
+  /** Seconds until the code stops working (server: 5 minutes). */
+  expiresIn: number;
+};
+
+export type AcceptedInvite = {
+  matchId: string;
+  paragraphId: string;
+};
+
+export type InviteState = {
+  status: InviteStatus;
+  matchId: string | null;
+  paragraphId: string;
 };
 
 /** The server wraps payloads as `{ success, message, data }`. */
@@ -102,6 +129,57 @@ export const battleApi = baseApi.injectEndpoints({
         "Queue",
       ],
     }),
+
+    /** Create a private invite and hand the code to a friend. */
+    createInvite: builder.mutation<
+      CreatedInvite,
+      { time: number; paragraphId: string }
+    >({
+      query: (body) => ({
+        url: "/api/v1/battle/invite",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (res: unknown) => unwrap<CreatedInvite>(res),
+      invalidatesTags: ["Invite"],
+    }),
+    /** Accept a friend's code — the server creates the match immediately. */
+    acceptInvite: builder.mutation<AcceptedInvite, { code: string }>({
+      query: (body) => ({
+        url: "/api/v1/battle/invite/accept",
+        method: "POST",
+        body,
+      }),
+      transformResponse: (res: unknown) => unwrap<AcceptedInvite>(res),
+      invalidatesTags: ["Invite", "Queue"],
+    }),
+    declineInvite: builder.mutation<{ ok: boolean }, { code: string }>({
+      query: (body) => ({
+        url: "/api/v1/battle/invite/decline",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Invite"],
+    }),
+    cancelInvite: builder.mutation<{ ok: boolean }, { code: string }>({
+      query: (body) => ({
+        url: "/api/v1/battle/invite/cancel",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Invite"],
+    }),
+    /**
+     * Polling fallback for the `private-match:{code}` channel. Only the inviter
+     * and the invitee can read it, so the inviter polls their own code.
+     */
+    getInviteStatus: builder.query<InviteState, string>({
+      query: (code) => ({
+        url: `/api/v1/battle/invite/${encodeURIComponent(code)}/status`,
+      }),
+      transformResponse: (res: unknown) => unwrap<InviteState>(res),
+      providesTags: (_result, _error, code) => [{ type: "Invite" as const, id: code }],
+    }),
   }),
 });
 
@@ -112,4 +190,9 @@ export const {
   useGetMatchQuery,
   useSubmitMatchResultMutation,
   useForfeitMatchMutation,
+  useCreateInviteMutation,
+  useAcceptInviteMutation,
+  useDeclineInviteMutation,
+  useCancelInviteMutation,
+  useGetInviteStatusQuery,
 } = battleApi;

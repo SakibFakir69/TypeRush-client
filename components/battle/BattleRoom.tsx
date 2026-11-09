@@ -138,6 +138,7 @@ export function BattleRoom({ matchId }: { matchId: string }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const submittedRef = useRef(false);
   const lastProgressRef = useRef(0);
+  const appliedDurationRef = useRef<number | null>(null);
 
   const {
     typed,
@@ -147,8 +148,21 @@ export function BattleRoom({ matchId }: { matchId: string }) {
     errors,
     accuracy,
     wpm,
+    reset,
     onChange,
   } = useTypingTest(target, RACE_SECONDS);
+
+  // Ranked matches run the default length; invites choose their own. The hook
+  // seeds its clock once, so re-seed it before the first keystroke.
+  useEffect(() => {
+    const duration = match?.duration;
+    if (!duration) return;
+    if (appliedDurationRef.current === duration) return;
+    appliedDurationRef.current = duration;
+    if (started || typed.length > 0) return;
+    // Re-seeds the clock from server data before the race starts.
+    reset(duration);
+  }, [match?.duration, started, typed.length, reset]);
 
   const me = match?.participants.find((p) => p.userId === userId);
   const other = match?.participants.find((p) => p.userId !== userId);

@@ -41,6 +41,13 @@ Living notes for future work. Update when conventions change.
   polling fallback so a blocked WebSocket still ends in a finished race.
   Starting gun is server-side: both players must read/ack the match, then
   `startedAt = now + 3s`. Results are Elo-settled once both submit.
+- **Private invite**: `Play a friend` on `/battles` opens `/battles/invite`,
+  which creates a 5-minute code (`/api/v1/battle/invite`) with a chosen race
+  length (30/60/120 s) and the newest passage. Sharing
+  `/battles/invite?code=…` lets a friend accept; both land in the same
+  `/battles/[id]` room. `private-match:{code}` rides Ably with 3 s status
+  polling; invites skip the queue and the ack handshake, and `match.duration`
+  drives the race clock.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

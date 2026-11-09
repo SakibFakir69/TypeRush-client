@@ -74,3 +74,34 @@ export function createMatchClient(matchId: string): Ably.Realtime {
     },
   });
 }
+
+/**
+ * A dedicated connection for one private invite, authorised by
+ * `GET /backend/api/v1/ably/invite-token/:code`. The inviter subscribes to
+ * `private-match:{code}` so accept / decline / cancel arrive instantly, with
+ * status polling as the fallback.
+ */
+export function createInviteClient(code: string): Ably.Realtime {
+  return new Ably.Realtime({
+    authCallback: (params, callback) => {
+      void (async () => {
+        try {
+          const res = await fetch(
+            `/backend/api/v1/ably/invite-token/${encodeURIComponent(
+              code
+            )}?${new URLSearchParams(
+              params as unknown as Record<string, string>
+            ).toString()}`,
+            { credentials: "include", cache: "no-store" }
+          );
+          if (!res.ok) {
+            throw new Error(`Invite token request failed (${res.status})`);
+          }
+          callback(null, await res.json());
+        } catch (error) {
+          callback(error instanceof Error ? error.message : String(error), null);
+        }
+      })();
+    },
+  });
+}

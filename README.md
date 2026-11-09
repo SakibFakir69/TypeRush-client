@@ -228,13 +228,15 @@ Contest runs submit to `POST /contests/:id/submit` instead of the practice board
 
 Results carry a `duration` field, which is the leaderboard category. The global board (`GET /practices/results?duration=…&offset=…`) loads one category at a time with a "Load more" button. Contest boards (`GET /contests/:id/leaderboard`) collapse duplicate typists and keep the best run per person. Each contest has its own board.
 
-### 1v1 battles
+### Battle
 
 `/battles` joins the global queue with `POST /api/v1/matchmaking/join`. The server pairs players by rating and widens the range the longer you wait, then publishes `match_found` on `matchmaking:user:{id}`. The lobby also polls `GET /api/v1/matchmaking/status` every 2.5 s, so a blocked WebSocket slows the hand-off down instead of breaking it.
 
-`/battles/[id]` is the race room. Both players read the same paragraph from `GET /api/v1/matches/:id` (polled every 2 s) and share one start time: the match starts once both are in, followed by a 3-second countdown. Opening the match counts as being ready, so the race still starts when Ably is unavailable. Progress bars ride on the `match:{id}` channel; each player submits `POST /api/v1/matches/:id/result`, and the server settles Elo (WPM wins, accuracy breaks ties) as soon as both runs are in. Leaving early calls `POST /api/v1/matches/:id/forfeit`, which voids the match with no rating change.
+`/battles/[id]` is the race room. Both players read the same paragraph from `GET /api/v1/matches/:id` (polled every 2 s) and share one start time: the match starts once both are in, followed by a 3-second countdown. Opening the match counts as being ready, so the race still starts when Ably is unavailable. Progress bars ride on the `match:{id}` channel; each player submits `POST /api/v1/matches/:id/result`, and the server settles Elo (WPM wins, accuracy breaks ties) as soon as both runs are in. Leaving early calls `POST /api/v1/matches/:id/forfeit`, which voids the match with no rating change. The race clock follows `match.duration` — ranked matches use the default, invites pick their own.
 
-Ably never sees an API key: `lib/ably.ts` gets tokens from `/backend/api/v1/ably/token` (lobby) and `/backend/api/v1/ably/token/:matchId` (race) through an `authCallback`, so auth cookies stay first-party.
+`/battles/invite` is "play a friend". The inviter picks a race length (30/60/120 s) and the newest passage; `POST /api/v1/battle/invite` returns a code that lasts 5 minutes. The page shows the code plus a copyable link (`/battles/invite?code=…`) and subscribes to `private-match:{code}` through `/backend/api/v1/ably/invite-token/:code`, with `GET /api/v1/battle/invite/:code/status` polled every 3 s as the fallback. Opening a shared code offers accept/decline; accepting calls `POST /api/v1/battle/invite/accept`, which creates the match immediately (no queue, no ack handshake) and sends both players to the same `/battles/[id]` room.
+
+Ably never sees an API key: `lib/ably.ts` gets tokens from `/backend/api/v1/ably/token` (lobby), `/backend/api/v1/ably/token/:matchId` (race) and `/backend/api/v1/ably/invite-token/:code` (private invite) through an `authCallback`, so auth cookies stay first-party.
 
 ### Avatars
 

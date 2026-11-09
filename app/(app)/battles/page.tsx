@@ -11,6 +11,7 @@ import {
   Swords,
   Timer,
   Trophy,
+  UserPlus,
   Users,
   X,
   Zap,
@@ -260,6 +261,13 @@ export default function BattlesPage() {
               <p className="text-[11px] text-faint">
                 Free · no entry fee · results update your rating
               </p>
+              <Link
+                href="/battles/invite"
+                className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-bold text-accent transition hover:underline"
+              >
+                <UserPlus size={12} aria-hidden />
+                Play a friend with a code
+              </Link>
             </div>
           )}
         </div>
