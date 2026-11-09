@@ -594,7 +594,7 @@ export function BattleHistory() {
             <StatTile
               label="Accept rate"
               value={`${inviteStats.acceptRate}%`}
-              hint="of answered invites"
+              hint="of closed invites"
               tone="text-accent"
             />
           </div>
