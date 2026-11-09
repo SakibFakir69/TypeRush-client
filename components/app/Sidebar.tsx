@@ -22,7 +22,7 @@ export type NavItem = { href: string; label: string; Icon: typeof Home; badge?: 
 export const APP_NAV: NavItem[] = [
   { href: "/home", label: "Home", Icon: Home },
   { href: "/practice", label: "Practice", Icon: Keyboard },
-  { href: "/battles", label: "Battle", Icon: Swords, badge: "2" },
+  { href: "/battles", label: "Battle", Icon: Swords },
   { href: "/contests", label: "Contests", Icon: Trophy },
   { href: "/leaderboard", label: "Leaderboard", Icon: BarChart3 },
   { href: "/progress", label: "Progress", Icon: TrendingUp },
