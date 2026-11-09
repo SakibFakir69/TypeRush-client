@@ -27,7 +27,7 @@ Living notes for future work. Update when conventions change.
 - `app/page.tsx` landing (thin composition) · `app/test/page.tsx` typing app
 - `app/(app)/` guarded member area (Sidebar+Topbar shell, session gate in
   layout): home (dashboard), practice (hub), profile, settings, leaderboard
-  (live) + Coming Soon screens (battles, contests, progress, achievements).
+  (live), contests, battles + Coming Soon screens (progress, achievements).
   No friends route. URL-stable.
 - `/test` is the PUBLIC arena: logged-in visitors redirect to `/practice`.
   Shortcuts are session-aware: S→session/test, B→battles/login,
@@ -35,6 +35,12 @@ Living notes for future work. Update when conventions change.
 - Results: TypingCard submits `{paragraphId,wpm,accuracy,errors,timeTaken}`
   on finish (admin passages + logged in only) → in-app `/leaderboard`
   renders the live board with your row highlighted.
+- **Battles**: `/battles` queue (`/api/v1/matchmaking/*`) → `/battles/[id]`
+  race. One Ably connection per tab (`lib/ably.ts`), tokens come from the API
+  (never a browser key). Realtime is the fast path; every step has an HTTP
+  polling fallback so a blocked WebSocket still ends in a finished race.
+  Starting gun is server-side: both players must read/ack the match, then
+  `startedAt = now + 3s`. Results are Elo-settled once both submit.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)
