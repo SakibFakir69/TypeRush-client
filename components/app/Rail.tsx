@@ -38,7 +38,7 @@ function PanelHead({ title, href }: { title: string; href: string }) {
     <div className="flex items-center gap-2">
       <p className="text-sm font-extrabold">{title}</p>
       <Link href={href} className="ml-auto text-xs font-semibold text-accent hover:underline">
-        View all â†’
+        View all
       </Link>
     </div>
   );
@@ -117,7 +117,7 @@ export function ProfileCard({ name, today }: { name: string; today: string }) {
         href="/settings"
         className="mt-3 block rounded-lg border border-line px-4 py-2 text-[13px] font-bold transition hover:bg-chip"
       >
-        View Profile â†’
+        View Profile
       </Link>
     </Card>
   );
@@ -132,7 +132,7 @@ const BOARDS = [
 ] as const;
 type BoardTab = (typeof BOARDS)[number]["id"];
 
-/** "sakib.fakir@gmail.com" â†’ "Sakib Fakir"; names pass through. */
+/** "sakib.fakir@gmail.com" to "Sakib Fakir"; names pass through. */
 function displayName(raw: string | undefined, fallback: string): string {
   if (!raw) return fallback;
   if (!raw.includes("@")) return raw;
