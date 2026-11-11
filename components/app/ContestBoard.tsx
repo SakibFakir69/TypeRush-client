@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   ArrowRight,
   CalendarDays,
+  Clock,
   Timer,
   Trophy,
   Users,
@@ -14,17 +15,21 @@ import { Card } from "@/components/ui/primitives";
 import { getApiError } from "@/helper/error-helper";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
+import { useNow } from "@/hooks/useNow";
 import {
   contestExcerpt,
   contestStatus,
+  contestTiming,
   formatContestDate,
   formatContestTime,
+  formatCountdown,
   statusLabel,
   statusStyle,
   useGetAllContestLeaderboardsQuery,
   useGetContestsQuery,
   useJoinContestMutation,
   type Contest,
+  type ContestCondition,
   type ContestLeaderboardRow,
 } from "@/lib/features/contest/features.contest";
 
@@ -47,15 +52,42 @@ function isConflict(error: unknown): boolean {
   );
 }
 
+/** Sort weight: live races, then upcoming, then finished. */
+const PHASE_ORDER: Record<ContestCondition, number> = {
+  RUNNING: 0,
+  UPCOMING: 1,
+  FINISHED: 2,
+};
+
 function ContestCard({
   contest,
   board,
+  now,
 }: {
   contest: Contest;
   board: ContestLeaderboardRow[] | undefined;
+  now: number;
 }) {
+  const { user } = useAuth();
   const [join, { isLoading }] = useJoinContestMutation();
-  const status = contestStatus(contest.condition);
+  const phase = contestStatus(contest, now);
+  const timing = contestTiming(contest, now);
+
+  const myId = typeof user?.id === "string" ? user.id : "";
+  const joined =
+    myId !== "" &&
+    (contest.participants ?? []).some((p) => p.userId === myId);
+
+  // The clock is the source of truth: a race that started 5 seconds ago is
+  // live even if nobody flipped the stored condition yet.
+  const countdown =
+    phase === "UPCOMING"
+      ? `Starts in ${formatCountdown(timing.startsInMs)}`
+      : phase === "RUNNING"
+        ? `Ends in ${formatCountdown(timing.endsInMs)}`
+        : timing.endsAt
+          ? `Ended ${formatCountdown(now - timing.endsAt)} ago`
+          : "Finished";
 
   const onJoin = async () => {
     try {
@@ -76,7 +108,7 @@ function ContestCard({
         <span
           className={cn(
             "mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border",
-            statusStyle(contest.condition)
+            statusStyle(contest, now)
           )}
         >
           <Trophy size={16} aria-hidden />
@@ -87,12 +119,20 @@ function ContestCard({
             <h3 className="truncate text-sm font-extrabold">{contest.name}</h3>
             <span
               className={cn(
-                "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                statusStyle(contest.condition)
+                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                statusStyle(contest, now)
               )}
             >
-              {statusLabel(contest.condition)}
+              {phase === "RUNNING" && (
+                <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              )}
+              {statusLabel(contest, now)}
             </span>
+            {joined && phase !== "FINISHED" && (
+              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">
+                Joined
+              </span>
+            )}
           </div>
 
           <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-muted">
@@ -107,6 +147,19 @@ function ContestCard({
             <span className="inline-flex items-center gap-1.5 tabular-nums">
               <Timer size={12} aria-hidden />
               {formatContestTime(contest.time)}
+            </span>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 font-bold tabular-nums",
+                phase === "RUNNING"
+                  ? "text-emerald-500"
+                  : phase === "UPCOMING"
+                    ? "text-sky-500"
+                    : "text-muted"
+              )}
+            >
+              <Clock size={12} aria-hidden />
+              {countdown}
             </span>
             {contest.participants && (
               <span className="inline-flex items-center gap-1.5 tabular-nums">
@@ -135,7 +188,11 @@ function ContestCard({
               </>
             ) : (
               <span className="text-faint">
-                No runs yet — the first submission takes #1
+                {phase === "RUNNING"
+                  ? "No runs yet — the first submission takes #1"
+                  : phase === "UPCOMING"
+                    ? "Board opens when the race starts"
+                    : "No results — nobody submitted a run"}
               </span>
             )}
           </div>
@@ -147,18 +204,24 @@ function ContestCard({
           href={`/contests/${contest.id}`}
           className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[13px] font-bold text-muted transition hover:bg-chip hover:text-ink"
         >
-          Open <ArrowRight size={13} aria-hidden />
+          {phase === "FINISHED" ? "Results" : "Open"}{" "}
+          <ArrowRight size={13} aria-hidden />
         </Link>
-        {status !== "FINISHED" && (
-          <button
-            type="button"
-            onClick={onJoin}
-            disabled={isLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-3 py-1.5 text-[13px] font-bold text-black transition hover:brightness-110 disabled:opacity-60"
-          >
-            {isLoading ? "Joining…" : "Join contest"}
-          </button>
-        )}
+        {phase !== "FINISHED" &&
+          (joined ? (
+            <span className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-1.5 text-[13px] font-bold text-emerald-500">
+              ✓ You&apos;re in
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={onJoin}
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-3 py-1.5 text-[13px] font-bold text-black transition hover:brightness-110 disabled:opacity-60"
+            >
+              {isLoading ? "Joining…" : "Join contest"}
+            </button>
+          ))}
       </div>
     </li>
   );
@@ -170,6 +233,8 @@ export function ContestBoard() {
   const boards = useGetAllContestLeaderboardsQuery();
   const [filter, setFilter] = useState<Filter>("ALL");
   const [view, setView] = useState<View>("CONTESTS");
+  // Contest phases and countdowns move with the clock, not with a refetch.
+  const now = useNow(1000);
 
   const contests = useMemo(() => data ?? [], [data]);
 
@@ -189,19 +254,25 @@ export function ContestBoard() {
       RUNNING: 0,
       FINISHED: 0,
     };
-    for (const c of contests) base[contestStatus(c.condition)] += 1;
+    for (const c of contests) base[contestStatus(c, now)] += 1;
     return base;
-  }, [contests]);
+  }, [contests, now]);
 
   const visible = useMemo(
     () =>
       contests
-        .filter((c) => filter === "ALL" || contestStatus(c.condition) === filter)
-        .sort(
-          (a, b) =>
-            new Date(b.contestDate).getTime() - new Date(a.contestDate).getTime()
-        ),
-    [contests, filter]
+        .filter((c) => filter === "ALL" || contestStatus(c, now) === filter)
+        .sort((a, b) => {
+          const pa = contestStatus(a, now);
+          const pb = contestStatus(b, now);
+          // Live races first, then the next one up, then past races.
+          if (pa !== pb) return PHASE_ORDER[pa] - PHASE_ORDER[pb];
+          const ta = new Date(a.contestDate).getTime() || 0;
+          const tb = new Date(b.contestDate).getTime() || 0;
+          // Upcoming: soonest first. Running/finished: most recent first.
+          return pa === "UPCOMING" ? ta - tb : tb - ta;
+        }),
+    [contests, filter, now]
   );
 
   if (isLoading) {
@@ -313,10 +384,10 @@ export function ContestBoard() {
                   <span
                     className={cn(
                       "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                      statusStyle(c.condition)
+                      statusStyle(c, now)
                     )}
                   >
-                    {statusLabel(c.condition)}
+                    {statusLabel(c, now)}
                   </span>
                   <span className="text-[11px] tabular-nums text-faint">
                     {rows.length} ranked
@@ -340,9 +411,11 @@ export function ContestBoard() {
                   </div>
                 ) : rows.length === 0 ? (
                   <p className="mt-2 text-[12px] text-muted">
-                    {contestStatus(c.condition) === "RUNNING"
+                    {contestStatus(c, now) === "RUNNING"
                       ? "No runs yet — the first submission takes #1."
-                      : "Results appear here once the contest has run."}
+                      : contestStatus(c, now) === "UPCOMING"
+                        ? "The board opens when the race starts."
+                        : "Results appear here once the contest has run."}
                   </p>
                 ) : (
                   <ol className="mt-2 space-y-1">
@@ -376,6 +449,7 @@ export function ContestBoard() {
               key={c.id}
               contest={c}
               board={boardById.get(c.id)}
+              now={now}
             />
           ))}
         </ul>

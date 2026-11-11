@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft,
   CalendarDays,
+  Clock,
   LogOut,
   Timer,
   Trophy,
@@ -16,12 +17,15 @@ import { Card } from "@/components/ui/primitives";
 import { TypingCard } from "@/components/landing/TypingCard";
 import { getApiError } from "@/helper/error-helper";
 import { useAuth } from "@/lib/auth";
+import { useNow } from "@/hooks/useNow";
 import { cn } from "@/lib/cn";
 import {
   contestExcerpt,
   contestStatus,
+  contestTiming,
   formatContestDate,
   formatContestTime,
+  formatCountdown,
   statusLabel,
   statusStyle,
   useGetContestByIdQuery,
@@ -76,7 +80,11 @@ export function ContestDetail({ id }: { id: string }) {
   const joined =
     myId !== "" && participants.some((p) => p.userId === myId);
   const myRow = (board ?? []).find((r) => myId !== "" && r.userId === myId);
-  const status = contestStatus(data?.condition);
+  // Phases follow the clock, so a race turns live/finished on its own instead
+  // of waiting for an admin to flip the stored condition.
+  const now = useNow(1000);
+  const status = contestStatus(data, now);
+  const timing = contestTiming(data, now);
   const status404 =
     !!error &&
     typeof error === "object" &&
@@ -169,7 +177,7 @@ export function ContestDetail({ id }: { id: string }) {
           <span
             className={cn(
               "grid h-11 w-11 shrink-0 place-items-center rounded-xl border",
-              statusStyle(data.condition)
+              statusStyle(data, now)
             )}
           >
             <Trophy size={18} aria-hidden />
@@ -179,11 +187,14 @@ export function ContestDetail({ id }: { id: string }) {
               <h1 className="text-xl font-black tracking-tight">{data.name}</h1>
               <span
                 className={cn(
-                  "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
-                  statusStyle(data.condition)
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide",
+                  statusStyle(data, now)
                 )}
               >
-                {statusLabel(data.condition)}
+                {status === "RUNNING" && (
+                  <span className="live-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                )}
+                {statusLabel(data, now)}
               </span>
             </div>
             <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-faint">
@@ -198,6 +209,25 @@ export function ContestDetail({ id }: { id: string }) {
               <span className="inline-flex items-center gap-1.5 tabular-nums">
                 <Users size={12} aria-hidden />
                 {participants.length} joined
+              </span>
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 font-bold tabular-nums",
+                  status === "RUNNING"
+                    ? "text-emerald-500"
+                    : status === "UPCOMING"
+                      ? "text-sky-500"
+                      : "text-muted"
+                )}
+              >
+                <Clock size={12} aria-hidden />
+                {status === "RUNNING"
+                  ? `Ends in ${formatCountdown(timing.endsInMs)}`
+                  : status === "UPCOMING"
+                    ? `Starts in ${formatCountdown(timing.startsInMs)}`
+                    : timing.endsAt
+                      ? `Ended ${formatCountdown(now - timing.endsAt)} ago`
+                      : "Finished"}
               </span>
             </div>
           </div>

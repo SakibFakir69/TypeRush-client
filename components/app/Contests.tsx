@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Timer, Trophy } from "lucide-react";
+import { ArrowRight, CalendarDays, Clock, Timer, Trophy } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
+import { useNow } from "@/hooks/useNow";
 import { useGetMyStatsQuery } from "@/lib/features/practice/features.practice";
 import {
   formatRunWhen,
@@ -12,8 +13,10 @@ import {
 import {
   contestExcerpt,
   contestStatus,
+  contestTiming,
   formatContestDate,
   formatContestTime,
+  formatCountdown,
   statusLabel,
   statusStyle,
   useGetContestsQuery,
@@ -28,11 +31,12 @@ import {
 export function UpcomingContests() {
   const { data, isLoading } = useGetContestsQuery();
   const { data: stats } = useGetMyStatsQuery();
+  const now = useNow(1000);
   const contests = data ?? [];
 
-  const live = contests.find((c) => contestStatus(c.condition) === "RUNNING");
+  const live = contests.find((c) => contestStatus(c, now) === "RUNNING");
   const upcoming = contests
-    .filter((c) => contestStatus(c.condition) === "UPCOMING")
+    .filter((c) => contestStatus(c, now) === "UPCOMING")
     .sort(
       (a, b) =>
         new Date(a.contestDate).getTime() - new Date(b.contestDate).getTime()
@@ -40,6 +44,7 @@ export function UpcomingContests() {
 
   const featured = live ?? upcoming[0] ?? null;
   const rest = upcoming.filter((c) => c.id !== featured?.id).slice(0, 3);
+  const featuredTiming = featured ? contestTiming(featured, now) : null;
 
   // Real recent runs plus the next race — no mock goals or rival challenges.
   const chips = [
@@ -111,7 +116,7 @@ export function UpcomingContests() {
                   Live
                 </>
               ) : (
-                statusLabel(featured.condition)
+                statusLabel(featured, now)
               )}
             </p>
             <p className="mt-2 line-clamp-2 text-[15px] font-extrabold">
@@ -129,12 +134,28 @@ export function UpcomingContests() {
                 <Timer size={12} aria-hidden />
                 {formatContestTime(featured.time)}
               </span>
+              {featuredTiming && (
+                <span
+                  className={`inline-flex items-center gap-1 font-bold tabular-nums ${
+                    featuredTiming.phase === "RUNNING"
+                      ? "text-emerald-500"
+                      : "text-sky-500"
+                  }`}
+                >
+                  <Clock size={12} aria-hidden />
+                  {featuredTiming.phase === "RUNNING"
+                    ? `Ends in ${formatCountdown(featuredTiming.endsInMs)}`
+                    : `Starts in ${formatCountdown(featuredTiming.startsInMs)}`}
+                </span>
+              )}
             </p>
             <Link
               href={`/contests/${featured.id}`}
               className="mt-3 block rounded-lg bg-mint px-4 py-2 text-center text-sm font-bold text-black transition hover:brightness-110"
             >
-              Join Contest →
+              {featuredTiming?.phase === "RUNNING"
+                ? "Race now →"
+                : "Join Contest →"}
             </Link>
           </div>
 
@@ -156,11 +177,14 @@ export function UpcomingContests() {
                     <span className="block text-[11px] text-muted">
                       {formatContestDate(c.contestDate)}
                     </span>
+                    <span className="block text-[11px] font-bold tabular-nums text-sky-500">
+                      Starts in {formatCountdown(contestTiming(c, now).startsInMs)}
+                    </span>
                   </span>
                   <span
-                    className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${statusStyle(c.condition)}`}
+                    className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-bold ${statusStyle(c, now)}`}
                   >
-                    {statusLabel(c.condition)}
+                    {statusLabel(c, now)}
                   </span>
                   <Link
                     href={`/contests/${c.id}`}

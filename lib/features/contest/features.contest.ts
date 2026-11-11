@@ -74,9 +74,104 @@ function unwrap(res: unknown): unknown {
   return res;
 }
 
-export function contestStatus(condition: string | undefined): ContestCondition {
-  const value = (condition ?? "").toUpperCase();
-  return value === "RUNNING" || value === "FINISHED" ? value : "UPCOMING";
+/** Anything that can tell us when a contest starts and how long it runs. */
+export type ContestLike = {
+  condition?: string;
+  contestDate?: string;
+  time?: number;
+};
+
+/** A contest with no usable duration is treated as a one-hour window. */
+const DEFAULT_WINDOW_SECONDS = 60 * 60;
+
+function startOf(contest: ContestLike | null | undefined): number | null {
+  const raw = contest?.contestDate;
+  if (!raw) return null;
+  const ms = new Date(raw).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function endOf(contest: ContestLike | null | undefined): number | null {
+  const start = startOf(contest);
+  if (start === null) return null;
+  const seconds = Math.max(0, Math.round(Number(contest?.time) || 0));
+  return start + (seconds > 0 ? seconds : DEFAULT_WINDOW_SECONDS) * 1000;
+}
+
+/**
+ * Phase of a contest.
+ *
+ * The server's `condition` column is only changed by admin actions, so a race
+ * whose scheduled time has passed would keep reading "UPCOMING" forever. When
+ * a start time is available we derive the phase from the clock instead; the
+ * stored condition is only a fallback (an explicit FINISHED always wins).
+ *
+ * Pass `now` as `undefined` to get the server-condition-only answer.
+ */
+export function contestStatus(
+  contest: ContestLike | null | undefined,
+  now?: number
+): ContestCondition {
+  const stored = (contest?.condition ?? "").toUpperCase();
+  const fallback: ContestCondition =
+    stored === "RUNNING" || stored === "FINISHED" ? stored : "UPCOMING";
+
+  // An admin marking a contest finished is final; without a clock we have to
+  // trust whatever the server stored.
+  if (fallback === "FINISHED" || now === undefined) return fallback;
+
+  const start = startOf(contest);
+  const end = endOf(contest);
+  if (start === null || end === null) return fallback;
+
+  if (now >= end) return "FINISHED";
+  if (now >= start) return "RUNNING";
+  return "UPCOMING";
+}
+
+export type ContestTiming = {
+  phase: ContestCondition;
+  /** Epoch ms, or null when the contest has no scheduled date. */
+  startsAt: number | null;
+  endsAt: number | null;
+  /** Milliseconds until the start line; 0 once it has passed. */
+  startsInMs: number;
+  /** Milliseconds until the window closes; 0 once it has passed. */
+  endsInMs: number;
+};
+
+export function contestTiming(
+  contest: ContestLike | null | undefined,
+  now: number = Date.now()
+): ContestTiming {
+  const startsAt = startOf(contest);
+  const endsAt = endOf(contest);
+  return {
+    phase: contestStatus(contest, now),
+    startsAt,
+    endsAt,
+    startsInMs: startsAt === null ? 0 : Math.max(0, startsAt - now),
+    endsInMs: endsAt === null ? 0 : Math.max(0, endsAt - now),
+  };
+}
+
+/**
+ * "2d 4h", "5h 12m", "12m 08s", "42s" — short enough for a chip.
+ * Counts stay coarse until the last hour so the text doesn't jitter much.
+ */
+export function formatCountdown(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  if (total <= 0) return "now";
+
+  const days = Math.floor(total / 86_400);
+  const hours = Math.floor((total % 86_400) / 3_600);
+  const minutes = Math.floor((total % 3_600) / 60);
+  const seconds = total % 60;
+
+  if (days > 0) return `${days}d ${hours}h`;
+  if (hours > 0) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+  if (minutes > 0) return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+  return `${seconds}s`;
 }
 
 const STATUS_LABEL: Record<ContestCondition, string> = {
@@ -91,12 +186,18 @@ const STATUS_STYLE: Record<ContestCondition, string> = {
   FINISHED: "border-line bg-inset text-muted",
 };
 
-export function statusLabel(condition: string | undefined): string {
-  return STATUS_LABEL[contestStatus(condition)];
+export function statusLabel(
+  contest: ContestLike | null | undefined,
+  now?: number
+): string {
+  return STATUS_LABEL[contestStatus(contest, now)];
 }
 
-export function statusStyle(condition: string | undefined): string {
-  return STATUS_STYLE[contestStatus(condition)];
+export function statusStyle(
+  contest: ContestLike | null | undefined,
+  now?: number
+): string {
+  return STATUS_STYLE[contestStatus(contest, now)];
 }
 
 /** The backend stores `time` in **seconds** (60 = one minute). */
