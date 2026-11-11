@@ -110,6 +110,20 @@ export type InviteHistoryEntry = {
   invitee?: { id: string; name: string } | null;
   inviter?: { id: string; name: string } | null;
   paragraph: { content: string; difficulty: string | null };
+  /** The invite's match with the signed-in player's own row. */
+  match?: {
+    id: string;
+    status: "WAITING" | "ACTIVE" | "COMPLETED" | "ABANDONED";
+    winnerId: string | null;
+    participants: Array<{
+      userId: string;
+      result: BattleResult | null;
+      wpm: number | null;
+      accuracy: number | null;
+      ratingBefore: number;
+      ratingAfter: number | null;
+    }>;
+  } | null;
 };
 
 export type InviteHistory = {

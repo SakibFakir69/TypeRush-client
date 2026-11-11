@@ -232,6 +232,11 @@ function InviteRow({
   const other =
     direction === "sent" ? entry.invitee?.name : entry.inviter?.name;
   const when = entry.respondedAt ?? entry.createdAt;
+  const me = entry.match?.participants[0] ?? null;
+  const myResult = me?.result ?? null;
+  const live = entry.match?.status === "ACTIVE";
+  const delta =
+    me && me.ratingAfter !== null ? me.ratingAfter - me.ratingBefore : null;
 
   return (
     <div className="grid gap-3 rounded-xl border border-line bg-inset p-3 transition hover:border-accent/40 sm:grid-cols-[auto_1fr_auto]">
@@ -268,18 +273,68 @@ function InviteRow({
           </span>
           <span aria-hidden>·</span>
           <span>{entry.paragraph.difficulty ?? "Custom"}</span>
+          {me?.wpm !== null && me?.wpm !== undefined && (
+            <>
+              <span aria-hidden>·</span>
+              <span>{me.wpm} WPM</span>
+            </>
+          )}
+          {delta !== null && (
+            <>
+              <span aria-hidden>·</span>
+              <span
+                className={cn(
+                  "font-bold",
+                  delta > 0
+                    ? "text-emerald-500"
+                    : delta < 0
+                      ? "text-rose-500"
+                      : "text-muted"
+                )}
+              >
+                {delta > 0 ? "+" : ""}
+                {delta} ELO
+              </span>
+            </>
+          )}
         </p>
       </div>
 
       <div className="flex items-center justify-end gap-2">
-        <span
-          className={cn(
-            "inline-flex min-w-16 items-center justify-center rounded-md border px-2 py-1 text-[10px] font-extrabold tracking-wide",
-            INVITE_TONE[entry.status]
-          )}
-        >
-          {INVITE_LABEL[entry.status]}
-        </span>
+        {entry.status === "MATCHED" ? (
+          myResult ? (
+            <span
+              className={cn(
+                "inline-flex min-w-16 items-center justify-center rounded-md border px-2 py-1 text-[10px] font-extrabold tracking-wide",
+                RESULT_TONE[myResult]
+              )}
+            >
+              {myResult}
+            </span>
+          ) : live ? (
+            <span className="inline-flex min-w-16 items-center justify-center rounded-md border border-accent/40 bg-accent/10 px-2 py-1 text-[10px] font-extrabold tracking-wide text-accent">
+              LIVE
+            </span>
+          ) : (
+            <span
+              className={cn(
+                "inline-flex min-w-16 items-center justify-center rounded-md border px-2 py-1 text-[10px] font-extrabold tracking-wide",
+                INVITE_TONE[entry.status]
+              )}
+            >
+              {INVITE_LABEL[entry.status]}
+            </span>
+          )
+        ) : (
+          <span
+            className={cn(
+              "inline-flex min-w-16 items-center justify-center rounded-md border px-2 py-1 text-[10px] font-extrabold tracking-wide",
+              INVITE_TONE[entry.status]
+            )}
+          >
+            {INVITE_LABEL[entry.status]}
+          </span>
+        )}
         {entry.matchId && (
           <Link
             href={`/battles/${entry.matchId}`}

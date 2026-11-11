@@ -79,14 +79,16 @@ export function RecentBattles() {
     if (entry.status !== "MATCHED" || !entry.matchId) continue;
     const opponent =
       direction === "sent" ? entry.invitee?.name : entry.inviter?.name;
+    const me = entry.match?.participants[0] ?? null;
     items.push({
       key: `invite-${entry.code}`,
       kind: "invite",
       at: entry.respondedAt ?? entry.createdAt,
       opponent: opponent ?? "a friend",
-      wpm: null,
-      result: null,
+      wpm: me?.wpm ?? null,
+      result: me?.result ?? null,
       href: `/battles/${entry.matchId}`,
+      pending: entry.match?.status === "ACTIVE",
     });
   }
 
