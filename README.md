@@ -168,6 +168,7 @@ The API repo must be running on that origin, with its database migrated and seed
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_BACKEND_URL` | Production | Client + server | Full origin of the Express API, no trailing slash (e.g. `https://typerush-server.onrender.com`). |
 | `API_URL` | No | Server only | Optional fallback used by server-side helpers when the public variable is absent. |
+| `MAINTENANCE_MODE` | No | Edge middleware | `true` redirects every page to `/maintenance`. Static assets and `/backend` stay reachable. |
 
 `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` appear in older local `.env` files but are **not used by this app** — uploads are handled by the API. Do not add them to Vercel.
 
@@ -206,7 +207,7 @@ Slices live in `lib/features/*` (`features.auth.ts`, `features.user.ts`, `featur
 ### Sessions and auth
 
 - The API sets httpOnly `accessToken` (15 min) and `refreshToken` (15 days) cookies.
-- `middleware.ts` guards `/home`, `/practice`, `/contests`, `/leaderboard`, `/profile`, `/progress`, `/achievements`, `/settings`, `/battles`, and refreshes an expired access token before the page renders.
+- `middleware.ts` guards `/home`, `/practice`, `/contests`, `/leaderboard`, `/profile`, `/progress`, `/achievements`, `/settings`, `/battles`, `/history`, and refreshes an expired access token before the page renders. It also owns maintenance mode, so it now matches every page (the auth refresh still only runs for the guarded paths).
 - `ClientAuthGate` re-checks the session in the browser and redirects to `/login?next=…` if needed.
 - `useAuth()` exposes the current user; the navbar and dashboard read from it so profile/avatar edits appear instantly.
 
@@ -263,6 +264,10 @@ npx vercel --prod
 ### Backend dependency
 
 The client expects the API to be reachable at `NEXT_PUBLIC_BACKEND_URL` with CORS-safe cookie settings (the proxy makes them first-party, so the API only needs to accept the forwarded `Cookie` header). Server routes and the full API contract are documented in the server repository.
+
+### Maintenance mode
+
+Set `MAINTENANCE_MODE=true` in the Vercel project (Production/Preview) and redeploy. Every page redirects to `/maintenance`; the holding page itself, static assets and `/backend` stay reachable so the API and the admin app keep working. Remove the variable (or set it to `false`) and redeploy to lift the window.
 
 ---
 

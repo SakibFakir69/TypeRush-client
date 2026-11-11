@@ -50,8 +50,13 @@ Living notes for future work. Update when conventions change.
   drives the race clock.
 - **History**: sidebar `/history` → Ranked tab (`/api/v1/matchmaking/history`:
   own WPM/accuracy/result/rating delta + opponent) and Invites tab
-  (`/api/v1/battle/invite/history`: sent + received). Filters, empty states,
-  and a "Latest battles" panel on the dashboard that merges the newest of both.
+  (`/api/v1/battle/invite/history`: sent + received). Invite rows also carry the
+  match result (`WIN`/`LOSS`/`DRAW`/`ABANDONED`), WPM and Elo delta, and keep the
+  `Open` link. Filters, empty states, and a "Latest battles" panel on the
+  dashboard that merges the newest of both.
+- **Maintenance**: `MAINTENANCE_MODE=true` on Vercel sends every page to
+  `/maintenance`; static assets and `/backend` bypass so the API/admin still
+  work. The flag lives in `middleware.ts` and needs a redeploy after changing.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

@@ -15,6 +15,27 @@ const PROTECTED_PATHS = [
   "/settings",
 ];
 
+const MAINTENANCE_PATH = "/maintenance";
+
+/** A file request (`/logo.png`, `/robots.txt`) — keep it out of the maintenance redirect. */
+function looksLikeFile(pathname: string) {
+  return /\/[^/]+\.[^/]+$/.test(pathname);
+}
+
+/**
+ * What stays reachable while maintenance mode is on: the holding page itself,
+ * its static assets, and the API (which the admin app and health checks use).
+ */
+function bypassesMaintenance(pathname: string) {
+  return (
+    pathname === MAINTENANCE_PATH ||
+    pathname.startsWith(`${MAINTENANCE_PATH}/`) ||
+    pathname === "/backend" ||
+    pathname.startsWith("/backend/") ||
+    looksLikeFile(pathname)
+  );
+}
+
 /** Access token lives on `data.accessToken` (and sometimes on the root). */
 function readAccessToken(body: unknown): string | null {
   if (!body || typeof body !== "object") return null;
@@ -69,6 +90,16 @@ async function refreshSession(refreshToken: string): Promise<RefreshResult> {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // Maintenance window: flip `MAINTENANCE_MODE=true` in the Vercel project and
+  // every page lands on the holding screen. Assets and the API stay reachable
+  // so the page renders and operators can still inspect the backend.
+  if (
+    process.env.MAINTENANCE_MODE === "true" &&
+    !bypassesMaintenance(pathname)
+  ) {
+    return NextResponse.redirect(new URL(MAINTENANCE_PATH, req.url));
+  }
 
   const isProtected = PROTECTED_PATHS.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`)
@@ -130,16 +161,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/home/:path*",
-    "/battles/:path*",
-    "/history/:path*",
-    "/practice/:path*",
-    "/contests/:path*",
-    "/leaderboard/:path*",
-    "/profile/:path*",
-    "/progress/:path*",
-    "/achievements/:path*",
-    "/settings/:path*",
-  ],
+  // Every page except Next's static assets. Maintenance mode needs to catch
+  // all routes; the protected-path check above still narrows auth refreshes.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
