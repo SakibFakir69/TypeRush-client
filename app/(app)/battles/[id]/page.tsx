@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BattleRoom } from "@/components/battle/BattleRoom";
 
 export const metadata: Metadata = {
-  title: "Battle — TypeRush",
+  title: "Battle — TypePotijogita",
   description: "Race another typist on the same paragraph in real time.",
 };
 

@@ -191,7 +191,7 @@ export function Navbar() {
         >
           <span className="text-accent">⚡</span>
           <span>
-            Type<span className="text-accent">Rush</span>
+            Type<span className="text-accent">Potijogita</span>
           </span>
         </Link>
 

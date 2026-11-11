@@ -3,8 +3,8 @@ import Link from "next/link";
 import { RefreshCw, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Maintenance — TypeRush",
-  description: "TypeRush is temporarily under maintenance.",
+  title: "Maintenance — TypePotijogita",
+  description: "TypePotijogita is temporarily under maintenance.",
   robots: { index: false, follow: false },
 };
 
@@ -23,7 +23,7 @@ export default function MaintenancePage() {
           We&apos;ll be right back
         </h1>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted">
-          TypeRush is getting a quick tune-up. Your runs, ratings and battle
+          TypePotijogita is getting a quick tune-up. Your runs, ratings and battle
           history are safe — check back in a few minutes.
         </p>
 
@@ -39,7 +39,7 @@ export default function MaintenancePage() {
         </div>
 
         <p className="mt-10 text-[11px] font-bold tracking-wide text-faint">
-          ⚡ Type<span className="text-accent">Rush</span>
+          ⚡ Type<span className="text-accent">Potijogita</span>
         </p>
       </div>
     </main>

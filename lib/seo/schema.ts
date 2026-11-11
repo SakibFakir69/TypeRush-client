@@ -12,18 +12,18 @@ export const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "How does TypeRush measure accuracy?",
+      name: "How does TypePotijogita measure accuracy?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "TypeRush calculates accuracy as the percentage of correctly typed characters against total characters typed, measured in real time.",
+        text: "TypePotijogita calculates accuracy as the percentage of correctly typed characters against total characters typed, measured in real time.",
       },
     },
     {
       "@type": "Question",
-      name: "Is TypeRush free to use?",
+      name: "Is TypePotijogita free to use?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes, TypeRush is free for typing tests and practice. Account sign-in is required to save history and join contests.",
+        text: "Yes, TypePotijogita is free for typing tests and practice. Account sign-in is required to save history and join contests.",
       },
     },
   ],
@@ -32,7 +32,7 @@ export const faqSchema = {
 export const appSchema = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "TypeRush",
+  name: "TypePotijogita",
   url: "https://typerush.app",
   applicationCategory: "UtilitiesApplication",
   description: "Free online typing speed test with practice mode and live typing contests.",

@@ -169,7 +169,7 @@ export default function SettingsPage() {
         </Link>
       </Card>
 
-      <Section title="Appearance" desc="Pick how TypeRush looks on this device.">
+      <Section title="Appearance" desc="Pick how TypePotijogita looks on this device.">
         <div className="grid grid-cols-3 gap-2">
           {(
             [

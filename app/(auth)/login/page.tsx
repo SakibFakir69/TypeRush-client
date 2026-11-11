@@ -134,7 +134,7 @@ export default function LoginPage() {
     <AuthShell
       title="Welcome back"
       subtitle="Log in to track results, join contests, and climb the leaderboard."
-      footer={<>New to TypeRush? <InlineLink href="/signup">Create an account</InlineLink></>}
+      footer={<>New to TypePotijogita? <InlineLink href="/signup">Create an account</InlineLink></>}
     >
       <Suspense>
         <LoginForm />

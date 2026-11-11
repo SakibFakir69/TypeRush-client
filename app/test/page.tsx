@@ -7,7 +7,7 @@ import { TestExperience } from "@/components/test/TestExperience";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
-  title: "Typing Test — TypeRush",
+  title: "Typing Test — TypePotijogita",
   description:
     "Take a focused 15, 30 or 60 second typing test with live WPM, accuracy and error tracking.",
 };

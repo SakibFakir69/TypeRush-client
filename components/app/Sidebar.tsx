@@ -51,7 +51,7 @@ export function Sidebar({
       <Link href="/home" className="flex items-center gap-1.5 px-2 text-lg font-extrabold tracking-tight">
         <span className="text-accent">⚡</span>
         <span>
-          Type<span className="text-accent">Rush</span>
+          Type<span className="text-accent">Potijogita</span>
         </span>
       </Link>
 

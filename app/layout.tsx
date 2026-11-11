@@ -24,14 +24,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://YOUR-DOMAIN.com"),
 
   title: {
-    default: "TypeRush — Free Online Typing Test & Competition",
-    template: "%s | TypeRush",
+    default: "TypePotijogita — Free Online Typing Test & Competition",
+    template: "%s | TypePotijogita",
   },
 
   description:
-    "Improve your typing speed with TypeRush. Take free typing tests, measure WPM and accuracy, practice daily, join typing competitions, and climb global leaderboards.",
+    "Improve your typing speed with TypePotijogita. Take free typing tests, measure WPM and accuracy, practice daily, join typing competitions, and climb global leaderboards.",
 
-  applicationName: "TypeRush",
+  applicationName: "TypePotijogita",
 
   alternates: {
     canonical: "/",
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "TypeRush",
-    title: "TypeRush — Practice. Compete. Improve.",
+    siteName: "TypePotijogita",
+    title: "TypePotijogita — Practice. Compete. Improve.",
     description:
       "Test your typing speed, improve your accuracy, and compete with typists worldwide.",
     images: [
@@ -49,14 +49,14 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "TypeRush typing test and competition platform",
+        alt: "TypePotijogita typing test and competition platform",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "TypeRush — Practice. Compete. Improve.",
+    title: "TypePotijogita — Practice. Compete. Improve.",
     description:
       "Improve your typing speed, compete with others, and climb the leaderboard.",
     images: ["/og-image.png"],

@@ -23,7 +23,7 @@ export default function WpmTestPage() {
           WPM test: how fast do you type?
         </h1>
         <p className="mt-3 text-sm leading-6 text-muted">
-          WPM stands for words per minute. TypeRush counts one word as five
+          WPM stands for words per minute. TypePotijogita counts one word as five
           characters, so the number reflects raw typing throughput rather than
           the length of the words in a particular passage.
         </p>
@@ -68,7 +68,7 @@ export default function WpmTestPage() {
         <p className="text-sm leading-6 text-muted">
           A 100 WPM run at 80% accuracy costs you a correction every fifth
           character, so the real-world speed is lower than the headline number.
-          TypeRush ranks runs by WPM first and accuracy second, and every run
+          TypePotijogita ranks runs by WPM first and accuracy second, and every run
           records its errors so you can see both sides of the score.
         </p>
       </section>
@@ -98,7 +98,7 @@ export default function WpmTestPage() {
             Are short runs comparable to 60-second runs?
           </summary>
           <p className="mt-2 text-[13px] leading-6 text-muted">
-            Not directly, which is why TypeRush keeps a separate leaderboard for
+            Not directly, which is why TypePotijogita keeps a separate leaderboard for
             each run length. Your 15-second score is ranked with other
             15-second runs only.
           </p>

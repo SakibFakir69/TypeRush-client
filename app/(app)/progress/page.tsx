@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ComingSoon } from "@/components/app/ComingSoon";
 
 export const metadata: Metadata = {
-  title: "Progress — TypeRush",
+  title: "Progress — TypePotijogita",
   description: "Your typing stats and curves. Coming soon.",
 };
 

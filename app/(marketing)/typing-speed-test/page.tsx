@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Free Typing Speed Test",
   description:
-    "Take a free typing speed test and measure your WPM and accuracy in 15, 30 or 60 seconds. See where you rank on the TypeRush leaderboard.",
+    "Take a free typing speed test and measure your WPM and accuracy in 15, 30 or 60 seconds. See where you rank on the TypePotijogita leaderboard.",
   alternates: { canonical: "/typing-speed-test" },
 };
 
@@ -31,7 +31,7 @@ export default function TypingSpeedTestPage() {
           Free typing speed test
         </h1>
         <p className="mt-3 text-sm leading-6 text-muted">
-          Measure how fast and how accurately you type. TypeRush scores every
+          Measure how fast and how accurately you type. TypePotijogita scores every
           run in words per minute (WPM) and accuracy, then keeps a 90-day record
           of your progress so you can see the improvement instead of guessing.
         </p>

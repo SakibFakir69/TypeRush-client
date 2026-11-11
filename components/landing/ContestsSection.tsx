@@ -56,7 +56,7 @@ export function ContestsSection() {
     <section id="contests" className="scroll-mt-20">
       <Card className="p-5 sm:p-8">
         <h2 className="text-center text-2xl font-black tracking-tight sm:text-3xl">
-          TypeRush <span className="text-accent">Contests</span>
+          TypePotijogita <span className="text-accent">Contests</span>
         </h2>
         <p className="mt-1.5 text-center text-[13px] text-muted">
           Compete with typists around the world and climb on points alone —

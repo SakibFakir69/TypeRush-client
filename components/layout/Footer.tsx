@@ -81,10 +81,10 @@ function LinkedInIcon() {
 }
 
 const SOCIALS = [
-  { Icon: XIcon, label: "TypeRush on X" },
-  { Icon: YouTubeIcon, label: "TypeRush on YouTube" },
-  { Icon: InstagramIcon, label: "TypeRush on Instagram" },
-  { Icon: GitHubIcon, label: "TypeRush on GitHub" },
+  { Icon: XIcon, label: "TypePotijogita on X" },
+  { Icon: YouTubeIcon, label: "TypePotijogita on YouTube" },
+  { Icon: InstagramIcon, label: "TypePotijogita on Instagram" },
+  { Icon: GitHubIcon, label: "TypePotijogita on GitHub" },
 ];
 
 const BUILDER_URL =
@@ -99,7 +99,7 @@ export function Footer() {
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-accent/15 text-accent">
               <Zap size={15} strokeWidth={2.5} aria-hidden />
             </span>
-            Type<span className="-ml-1.5 text-accent">Rush</span>
+            Type<span className="-ml-1.5 text-accent">Potijogita</span>
           </p>
           <p className="mt-3 max-w-[230px] text-xs leading-5 text-muted">
             The modern way to practice typing and compete. Free to start, no
@@ -143,7 +143,7 @@ export function Footer() {
 
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-4 text-[11px] text-faint sm:flex-row">
-          <p>© 2026 TypeRush. All rights reserved.</p>
+          <p>© 2026 TypePotijogita. All rights reserved.</p>
           <p className="inline-flex items-center gap-1.5">
             Built by
             <a

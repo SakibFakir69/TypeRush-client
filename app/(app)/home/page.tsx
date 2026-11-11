@@ -14,8 +14,8 @@ import {
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
-  title: "Home — TypeRush",
-  description: "Your TypeRush dashboard: practice, battles, contests, and ranks.",
+  title: "Home — TypePotijogita",
+  description: "Your TypePotijogita dashboard: practice, battles, contests, and ranks.",
 };
 
 /** Member dashboard. The (app) layout already enforced the session. */

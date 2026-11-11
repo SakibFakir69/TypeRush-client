@@ -15,8 +15,8 @@ import { resolveCountry } from "@/lib/countries";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
-  title: "Profile — TypeRush",
-  description: "Your TypeRush member profile.",
+  title: "Profile — TypePotijogita",
+  description: "Your TypePotijogita member profile.",
   
 };
 

@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/primitives";
 import { ContestBoard } from "@/components/app/ContestBoard";
 
 export const metadata: Metadata = {
-  title: "Contests — TypeRush",
+  title: "Contests — TypePotijogita",
   description: "Weekly and monthly typing contests. Join a race and climb the board.",
 };
 

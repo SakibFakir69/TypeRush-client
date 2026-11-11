@@ -32,7 +32,7 @@ export function WelcomeOverlay({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome to TypeRush"
+      aria-label="Welcome to TypePotijogita"
       className="fixed inset-0 z-[100] grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
     >
       <div className="w-full max-w-sm rounded-2xl border border-line bg-card p-8 text-center shadow-[var(--card-shadow)]">
