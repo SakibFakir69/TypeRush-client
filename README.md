@@ -168,7 +168,7 @@ The API repo must be running on that origin, with its database migrated and seed
 | --- | --- | --- | --- |
 | `NEXT_PUBLIC_BACKEND_URL` | Production | Client + server | Full origin of the Express API, no trailing slash (e.g. `https://typerush-server.onrender.com`). |
 | `API_URL` | No | Server only | Optional fallback used by server-side helpers when the public variable is absent. |
-| `MAINTENANCE_MODE` | No | Edge middleware | `true` redirects every page to `/maintenance`. Static assets and `/backend` stay reachable. |
+| `MAINTENANCE_MODE` | No | Edge middleware | `true` locks the app to `/maintenance`; every other path redirects back there. |
 
 `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` appear in older local `.env` files but are **not used by this app** — uploads are handled by the API. Do not add them to Vercel.
 
@@ -267,7 +267,7 @@ The client expects the API to be reachable at `NEXT_PUBLIC_BACKEND_URL` with COR
 
 ### Maintenance mode
 
-Set `MAINTENANCE_MODE=true` in the Vercel project (Production/Preview) and redeploy. Every page redirects to `/maintenance`; the holding page itself, static assets and `/backend` stay reachable so the API and the admin app keep working. Remove the variable (or set it to `false`) and redeploy to lift the window.
+Set `MAINTENANCE_MODE=true` in the Vercel project (Production/Preview) and redeploy. The whole app locks to `/maintenance`: every page, `/login`, `/robots.txt` and `/backend/*` requests redirect back to the holding page, so visitors cannot navigate anywhere else. Only Next's build assets (`_next/static`, `_next/image`, `favicon.ico`) still load, which is what lets the page render. Remove the variable (or set it to `false`) and redeploy to lift the window.
 
 ---
 

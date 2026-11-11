@@ -17,23 +17,14 @@ const PROTECTED_PATHS = [
 
 const MAINTENANCE_PATH = "/maintenance";
 
-/** A file request (`/logo.png`, `/robots.txt`) — keep it out of the maintenance redirect. */
-function looksLikeFile(pathname: string) {
-  return /\/[^/]+\.[^/]+$/.test(pathname);
-}
-
 /**
- * What stays reachable while maintenance mode is on: the holding page itself,
- * its static assets, and the API (which the admin app and health checks use).
+ * The holding page is the *only* route reachable while maintenance mode is on.
+ * Next's own assets (`_next/static`, `_next/image`, `favicon.ico`) never reach
+ * this middleware because the matcher below skips them, so the page still
+ * renders — everything else is redirected back here.
  */
 function bypassesMaintenance(pathname: string) {
-  return (
-    pathname === MAINTENANCE_PATH ||
-    pathname.startsWith(`${MAINTENANCE_PATH}/`) ||
-    pathname === "/backend" ||
-    pathname.startsWith("/backend/") ||
-    looksLikeFile(pathname)
-  );
+  return pathname === MAINTENANCE_PATH;
 }
 
 /** Access token lives on `data.accessToken` (and sometimes on the root). */
@@ -92,8 +83,8 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Maintenance window: flip `MAINTENANCE_MODE=true` in the Vercel project and
-  // every page lands on the holding screen. Assets and the API stay reachable
-  // so the page renders and operators can still inspect the backend.
+  // the whole app is locked to the holding screen — every other path (pages,
+  // login, and even `/backend` proxy calls) redirects back to `/maintenance`.
   if (
     process.env.MAINTENANCE_MODE === "true" &&
     !bypassesMaintenance(pathname)

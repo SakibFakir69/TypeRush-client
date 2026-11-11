@@ -30,7 +30,7 @@ export default function MaintenancePage() {
         <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
           {/* Re-runs the middleware flag check; lands back here until it lifts. */}
           <Link
-            href="/"
+            href="/maintenance"
             className="inline-flex items-center gap-1.5 rounded-lg bg-mint px-4 py-2.5 text-sm font-extrabold text-black transition hover:brightness-110"
           >
             <RefreshCw size={14} aria-hidden />
