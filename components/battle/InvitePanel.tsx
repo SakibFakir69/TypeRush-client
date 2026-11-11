@@ -80,6 +80,7 @@ function CreateInvite() {
   const userId = typeof user?.id === "string" ? user.id : null;
 
   const [duration, setDuration] = useState<number>(60);
+  const [paragraphId, setParagraphId] = useState("");
   const [activeInvite, setActiveInvite] = useState<ActiveInvite | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [copied, setCopied] = useState<"code" | "link" | null>(null);
@@ -87,8 +88,10 @@ function CreateInvite() {
   const navigatedRef = useRef(false);
 
   const { data: paragraphPage, isLoading: paragraphsLoading } =
-    useGetParagraphsQuery({ limit: 1 });
-  const newest = paragraphPage?.items?.[0] ?? null;
+    useGetParagraphsQuery({ limit: 50 });
+  const paragraphs = paragraphPage?.items ?? [];
+  const selectedParagraph =
+    paragraphs.find((p) => p.id === paragraphId) ?? paragraphs[0] ?? null;
 
   const [createInvite, { isLoading: creating }] = useCreateInviteMutation();
   const [cancelInvite, { isLoading: cancelling }] = useCancelInviteMutation();
@@ -163,14 +166,14 @@ function CreateInvite() {
   }, [activeInvite, userId, goToMatch]);
 
   const startInvite = async () => {
-    if (!newest) {
+    if (!selectedParagraph) {
       toast.error("No paragraph is available right now. Try again in a moment.");
       return;
     }
     try {
       const res = await createInvite({
         time: duration,
-        paragraphId: newest.id,
+        paragraphId: selectedParagraph.id,
       }).unwrap();
       navigatedRef.current = false;
       setNow(Date.now());
@@ -298,27 +301,47 @@ function CreateInvite() {
           </div>
 
           <div className="rounded-lg border border-line bg-inset p-3">
-            <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-faint">
+            <label
+              htmlFor="invite-paragraph"
+              className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-faint"
+            >
               <Timer size={12} aria-hidden />
               Paragraph
-            </p>
+            </label>
             {paragraphsLoading ? (
-              <p className="mt-1 text-xs text-muted">Loading the newest passage…</p>
-            ) : newest ? (
-              <p className="mt-1 line-clamp-3 text-xs leading-5 text-muted">
-                {newest.content}
-              </p>
-            ) : (
-              <p className="mt-1 text-xs text-muted">
+              <p className="mt-2 text-xs text-muted">Loading passages…</p>
+            ) : paragraphs.length === 0 ? (
+              <p className="mt-2 text-xs text-muted">
                 No passage is available right now.
               </p>
+            ) : (
+              <>
+                <select
+                  id="invite-paragraph"
+                  value={selectedParagraph?.id ?? ""}
+                  onChange={(event) => setParagraphId(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-line bg-card px-3 py-2 text-xs font-bold text-ink outline-none transition focus:border-accent"
+                >
+                  {paragraphs.map((paragraph) => (
+                    <option key={paragraph.id} value={paragraph.id}>
+                      {paragraph.title} · {paragraph.difficulty} ·{" "}
+                      {paragraph.wordCount} words
+                    </option>
+                  ))}
+                </select>
+                {selectedParagraph && (
+                  <p className="mt-2 line-clamp-3 text-xs leading-5 text-muted">
+                    {selectedParagraph.content}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
           <button
             type="button"
             onClick={startInvite}
-            disabled={creating || paragraphsLoading || !newest}
+            disabled={creating || paragraphsLoading || !selectedParagraph}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-mint px-6 py-2.5 text-sm font-extrabold text-black transition hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
           >
             {creating ? (

@@ -24,6 +24,7 @@ import {
 } from "@/lib/features/practice/features.practice";
 import {
   formatRunWhen,
+  isLeaderboardRowMine,
   levelFromXp,
   milestonesFrom,
   runLengthLabel,
@@ -157,9 +158,6 @@ export function MiniLeaderboard() {
   const { data, isLoading, isFetching, isError, refetch } =
     useGetLeaderboardQuery({ duration: board.duration, limit: 50 });
 
-  const myEmail = typeof user?.email === "string" ? user.email : "";
-  const myId = typeof user?.id === "string" ? user.id : "";
-
   // One row per typist: their best run in this category. Without this the same
   // person filled four ranks with four different runs.
   const rows = useMemo(() => {
@@ -180,11 +178,7 @@ export function MiniLeaderboard() {
     );
   }, [data]);
 
-  const mine = rows.findIndex(
-    (r) =>
-      (myId !== "" && r.userId === myId) ||
-      (myEmail !== "" && r.userName === myEmail)
-  );
+  const mine = rows.findIndex((r) => isLeaderboardRowMine(r, user));
   // Top four, plus your own row when you rank below them.
   const shown = rows.slice(0, 4).map((r, i) => ({ r, rank: i + 1 }));
   if (mine >= 4) shown.push({ r: rows[mine], rank: mine + 1 });

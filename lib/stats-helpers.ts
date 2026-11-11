@@ -61,6 +61,32 @@ export function formatRunWhen(value: string | undefined): string {
 
 export const PRESET_LENGTHS = [15, 30, 60] as const;
 
+/**
+ * Leaderboard rows only carry `userName` today (often the display name, not
+ * the email) and no real user id. Match every identity the session exposes so
+ * the same person is highlighted — and gets their own avatar — on every run.
+ */
+export function isLeaderboardRowMine(
+  row: { userId?: string; userName?: string },
+  user:
+    | { id?: string; name?: string; fullName?: string; email?: string }
+    | null
+    | undefined
+): boolean {
+  if (!user) return false;
+  const id = typeof user.id === "string" ? user.id.trim() : "";
+  if (id && row.userId === id) return true;
+
+  const rowName =
+    typeof row.userName === "string" ? row.userName.trim().toLowerCase() : "";
+  if (!rowName) return false;
+
+  return [user.email, user.name, user.fullName].some((value) => {
+    if (typeof value !== "string" || !value.trim()) return false;
+    return value.trim().toLowerCase() === rowName;
+  });
+}
+
 /** "60s" for a preset run, "12s" for a custom/legacy one. */
 export function runLengthLabel(seconds: number | null | undefined): string {
   const value = Math.round(Number(seconds) || 0);

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { Card } from "@/components/ui/primitives";
 import { ProfileEditor } from "@/components/app/ProfileEditor";
+import { ProfileOverview } from "@/components/app/ProfileOverview";
 import { resolveCountry } from "@/lib/countries";
 import { getSessionUser } from "@/lib/server/session";
 
@@ -36,6 +37,8 @@ export default async function ProfilePage() {
   const provider = str(user?.authProvider) || "local";
   const bio = str(user?.bio);
   const avatarUrl = str(user?.avatarUrl);
+  const xp = Math.max(0, Math.round(Number(user?.xp) || 0));
+  const today = new Date().toISOString().slice(0, 10);
   const since = (() => {
     const raw = str(user?.createdAt);
     if (!raw) return "";
@@ -133,14 +136,16 @@ export default async function ProfilePage() {
         </div>
       </Card>
 
-        <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-          <Link
-            href="/practice"
-            className="inline-block rounded-lg bg-mint px-5 py-2.5 text-center text-sm font-bold text-black transition hover:brightness-110"
-          >
-            Start Practice →
-          </Link>
-        </div>
+      <ProfileOverview xp={xp} today={today} />
+
+      <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
+        <Link
+          href="/practice"
+          className="inline-block rounded-lg bg-mint px-5 py-2.5 text-center text-sm font-bold text-black transition hover:brightness-110"
+        >
+          Start Practice →
+        </Link>
+      </div>
     </div>
   );
 }

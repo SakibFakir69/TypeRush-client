@@ -10,6 +10,7 @@ import {
   useLazyGetLeaderboardQuery,
   type LeaderboardEntry,
 } from "@/lib/features/practice/features.practice";
+import { isLeaderboardRowMine } from "@/lib/stats-helpers";
 import { cn } from "@/lib/cn";
 
 const MEDALS = [
@@ -20,6 +21,23 @@ const MEDALS = [
 
 /** Rows per request; "Load more" walks the server's offset paging. */
 const PAGE = 10;
+
+/**
+ * Stable avatar per typist. The same person can own several ranked runs, so
+ * seeding from the rank made one account show a different face on every row
+ * (and again after each "Load more" shifted the ranks).
+ */
+function avatarIndex(identity: string): number {
+  let hash = 0;
+  for (let i = 0; i < identity.length; i += 1) {
+    hash = (hash * 31 + identity.charCodeAt(i)) | 0;
+  }
+  return (Math.abs(hash) % 70) + 1;
+}
+
+function identityOf(row: LeaderboardEntry): string {
+  return (row.userId || row.userName || "anon").trim().toLowerCase();
+}
 
 /** Time categories match the practice presets (custom lengths are unranked). */
 const CATEGORIES: { label: string; seconds?: number }[] = [
@@ -58,13 +76,8 @@ export function LiveBoard() {
   const nextOffset = mineLoaded ? extra.nextOffset : (first.data?.nextOffset ?? null);
   const total = first.data?.total ?? 0;
 
-  const myId = typeof user?.id === "string" ? user.id : "";
-  const myEmail = typeof user?.email === "string" ? user.email : "";
-  const myRank = rows.findIndex(
-    (r) =>
-      (myId !== "" && r.userId === myId) ||
-      (myEmail !== "" && r.userName === myEmail)
-  );
+  const myAvatar = typeof user?.avatarUrl === "string" ? user.avatarUrl : "";
+  const myRank = rows.findIndex((r) => isLeaderboardRowMine(r, user));
 
   const onLoadMore = async () => {
     if (nextOffset === null) return;
@@ -155,11 +168,13 @@ export function LiveBoard() {
         <>
           <ul className="space-y-2">
             {rows.map((r, i) => {
-              const mine =
-                (myId !== "" && r.userId === myId) ||
-                (myEmail !== "" && r.userName === myEmail);
+              const mine = isLeaderboardRowMine(r, user);
               const rank = r.rank || i + 1;
               const seconds = r.duration ?? r.timeTaken;
+              const avatarSrc =
+                mine && myAvatar
+                  ? myAvatar
+                  : `https://i.pravatar.cc/56?img=${avatarIndex(identityOf(r))}`;
               return (
                 <li
                   key={`${rank}-${r.userId}-${i}`}
@@ -179,7 +194,7 @@ export function LiveBoard() {
                     {rank}
                   </span>
                   <Avatar
-                    src={`https://i.pravatar.cc/56?img=${(rank * 13) % 60 + 1}`}
+                    src={avatarSrc}
                     alt={mine ? "You" : `Rank ${rank} typist`}
                     width={28}
                     height={28}
