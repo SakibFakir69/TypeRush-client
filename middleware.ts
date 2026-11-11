@@ -18,6 +18,16 @@ const PROTECTED_PATHS = [
 const MAINTENANCE_PATH = "/maintenance";
 
 /**
+ * The flag arrives from the environment, and a copy-pasted value often keeps a
+ * trailing newline or different casing — treat `true`, `1`, `yes` and `on` as
+ * on, ignoring surrounding whitespace.
+ */
+function maintenanceEnabled() {
+  const value = process.env.MAINTENANCE_MODE?.trim().toLowerCase();
+  return value === "true" || value === "1" || value === "yes" || value === "on";
+}
+
+/**
  * The holding page is the *only* route reachable while maintenance mode is on.
  * Next's own assets (`_next/static`, `_next/image`, `favicon.ico`) never reach
  * this middleware because the matcher below skips them, so the page still
@@ -85,10 +95,7 @@ export async function middleware(req: NextRequest) {
   // Maintenance window: flip `MAINTENANCE_MODE=true` in the Vercel project and
   // the whole app is locked to the holding screen — every other path (pages,
   // login, and even `/backend` proxy calls) redirects back to `/maintenance`.
-  if (
-    process.env.MAINTENANCE_MODE === "true" &&
-    !bypassesMaintenance(pathname)
-  ) {
+  if (maintenanceEnabled() && !bypassesMaintenance(pathname)) {
     return NextResponse.redirect(new URL(MAINTENANCE_PATH, req.url));
   }
 

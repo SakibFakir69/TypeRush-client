@@ -267,7 +267,7 @@ The client expects the API to be reachable at `NEXT_PUBLIC_BACKEND_URL` with COR
 
 ### Maintenance mode
 
-Set `MAINTENANCE_MODE=true` in the Vercel project (Production/Preview) and redeploy. The whole app locks to `/maintenance`: every page, `/login`, `/robots.txt` and `/backend/*` requests redirect back to the holding page, so visitors cannot navigate anywhere else. Only Next's build assets (`_next/static`, `_next/image`, `favicon.ico`) still load, which is what lets the page render. Remove the variable (or set it to `false`) and redeploy to lift the window.
+Set `MAINTENANCE_MODE=true` in the Vercel project (Production/Preview) and redeploy. `true`, `1`, `yes` and `on` all count (case and surrounding whitespace are ignored). The whole app locks to `/maintenance`: every page, `/login`, `/robots.txt` and `/backend/*` requests redirect back to the holding page, so visitors cannot navigate anywhere else. Only Next's build assets (`_next/static`, `_next/image`, `favicon.ico`) still load, which is what lets the page render. Remove the variable (or set it to `false`) and redeploy to lift the window.
 
 ---
 
