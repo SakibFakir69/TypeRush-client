@@ -146,6 +146,8 @@ export type Result = {
   errors?: number;
   timeTaken?: number;
   createdAt?: string;
+  /** Practice XP actually granted for this run (0 when the daily cap is hit). */
+  xpAwarded?: number;
 };
 
 export type LeaderboardEntry = {
@@ -247,7 +249,13 @@ export const practiceApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Result"],
+      // The server wraps the row as { success, message, data }.
+      transformResponse: (res: unknown) => {
+        const data = unwrapData(res);
+        return (data && typeof data === "object" ? data : res) as Result;
+      },
+      // "Session" keeps the navbar/profile XP in sync after an award.
+      invalidatesTags: ["Result", "Session"],
     }),
 
     getLeaderboard: builder.query<LeaderboardPage, LeaderboardQuery | void>({

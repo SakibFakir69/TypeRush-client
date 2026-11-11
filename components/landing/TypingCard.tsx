@@ -79,6 +79,7 @@ export function TypingCard({
   const [submitResult] = useSubmitPracticeResultMutation();
   const [submitContest] = useSubmitContestResultMutation();
   const [saved, setSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [xpEarned, setXpEarned] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const prevLen = useRef(0);
@@ -101,6 +102,7 @@ export function TypingCard({
   const resetAll = (d?: number) => {
     prevLen.current = 0;
     setSaved("idle");
+    setXpEarned(null);
     reset(d);
     focusInput();
   };
@@ -158,8 +160,14 @@ export function TypingCard({
 
     request
       .unwrap()
-      .then(() => {
+      .then((res: unknown) => {
         setSaved("saved");
+        if (!isContest) {
+          const awarded = Number(
+            (res as { xpAwarded?: unknown } | null)?.xpAwarded
+          );
+          setXpEarned(Number.isFinite(awarded) ? Math.max(0, awarded) : null);
+        }
         toast.success(
           isContest
             ? "Sent to the contest leaderboard."
@@ -402,11 +410,34 @@ export function TypingCard({
                       Try again ({duration}s)
                     </button>
                   )}
+                  {canSubmit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetAll();
+                      }}
+                      className="rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:bg-chip"
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
                 {canSubmit && saved === "saved" && (
                   <p className="mt-1.5 text-xs font-bold text-accent">
                     ✓ Result saved to the{" "}
                     {isContest ? "contest leaderboard" : "leaderboard"}
+                  </p>
+                )}
+                {saved === "saved" && xpEarned !== null && (
+                  <p
+                    className={cn(
+                      "mt-1.5 text-xs font-bold",
+                      xpEarned > 0 ? "text-violet-400" : "text-muted"
+                    )}
+                  >
+                    {xpEarned > 0
+                      ? `+${xpEarned} XP earned`
+                      : "Daily practice XP cap reached — no XP this run."}
                   </p>
                 )}
                 {unranked && (

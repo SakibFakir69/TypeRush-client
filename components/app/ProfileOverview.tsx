@@ -79,7 +79,13 @@ export function ProfileOverview({ xp, today }: { xp: number; today: string }) {
     limit: 50,
   });
 
-  const totalXp = Math.max(0, Math.round(Number(xp) || 0));
+  // Prefer the live session value so a just-earned practice XP award shows up
+  // without waiting for a server re-render; fall back to the SSR prop.
+  const sessionXp = typeof user?.xp === "number" ? user.xp : NaN;
+  const totalXp = Math.max(
+    0,
+    Math.round(Number.isFinite(sessionXp) ? sessionXp : Number(xp) || 0)
+  );
   const { level, xpIntoLevel, xpForNextLevel } = levelFromXp(totalXp);
   const xpPct =
     xpForNextLevel > 0
