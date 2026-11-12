@@ -55,6 +55,7 @@ export const baseApi = createApi({
     "Match",
     "Invite",
     "Achievement",
+    "Progress",
   ],
   endpoints: () => ({}),
 });

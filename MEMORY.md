@@ -27,8 +27,32 @@ Living notes for future work. Update when conventions change.
 - `app/page.tsx` landing (thin composition) · `app/test/page.tsx` typing app
 - `app/(app)/` guarded member area (Sidebar+Topbar shell, session gate in
   layout): home (dashboard), practice (hub), profile, settings, leaderboard
-  (live), contests, battles + Coming Soon screens (progress, achievements).
-  No friends route. URL-stable.
+  (live), contests, battles + Coming Soon screen (progress). URL-stable.
+- **Progress**: `/progress` is a real screen — `GET /api/v1/progress/overview`
+  (lifetime totals), `/charts?range=7d|30d|90d` (one row per day: avg+max
+  WPM, avg accuracy, sessions) and `/history?page&limit&from&to` (the run
+  list). `components/app/ProgressDashboard.tsx` + `ProgressCurve` (dual-axis
+  chart with a volume strip), `ProgressHistory` (date window + page size +
+  pagination) and `ProgressUnlocks` (badge shelf). The server only applies
+  the history window when BOTH `from` and `to` are sent — the client fills in
+  the missing end. Lifetime totals fall back to the practice stats when the
+  server has no `UserStats` row yet. The `Progress` tag is invalidated by
+  every saved run.
+- **Achievements**: `/achievements` is a real screen — `GET /api/v1/achievements`
+  (catalogue + `unlockedAt` per badge) and `/api/v1/achievements/me` (own
+  unlocks). The SERVER unlocks badges: after every practice run, contest run
+  and finished battle it re-checks the user's numbers (best WPM, best
+  accuracy, runs, day streak, contests, battles) against the published
+  thresholds and returns `unlockedAchievements` in the submit response →
+  `TypingCard` toasts it. The unlock runs in its own short transaction (the
+  Neon DB is remote: ~250 ms per query), so a slow badge check never fails a
+  saved run. Empty catalogue → the page falls back to the local milestones.
+  The catalogue read ALSO re-runs the unlock check, so a badge unlocks even
+  when the run that earned it was saved elsewhere. Badge categories, tier
+  colours and the goal sentences live in `lib/achievement-meta.ts` (shared by
+  the shelf and the progress screen).
+- **Badge colours**: WPM = accent, accuracy = amber-500, errors = rose-500
+  (the dashboard curve was violet for accuracy — now amber everywhere).
 - `/test` is the PUBLIC arena: logged-in visitors redirect to `/practice`.
   Shortcuts are session-aware: S→session/test, B→battles/login,
   C→contests/test, G→session/login. Stats show "–" until typing starts.

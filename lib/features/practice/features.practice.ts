@@ -260,7 +260,8 @@ export const practiceApi = baseApi.injectEndpoints({
       },
       // "Session" keeps the navbar/profile XP in sync after an award.
       // "Achievement" refreshes the badge shelf after a new unlock.
-      invalidatesTags: ["Result", "Session", "Achievement"],
+      // "Progress" refreshes the progress curve + lifetime totals.
+      invalidatesTags: ["Result", "Session", "Achievement", "Progress"],
     }),
 
     getLeaderboard: builder.query<LeaderboardPage, LeaderboardQuery | void>({

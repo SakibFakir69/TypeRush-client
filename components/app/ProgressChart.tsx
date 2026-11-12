@@ -140,7 +140,7 @@ export function ProgressChart({ today }: { today: string }) {
           <span className="h-1.5 w-1.5 rounded-full bg-accent" /> WPM
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 rounded-full bg-violet-500" /> Accuracy
+          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Accuracy
         </span>
         {points.length > 0 && (
           <span className="ml-auto tabular-nums text-faint">
@@ -218,7 +218,7 @@ export function ProgressChart({ today }: { today: string }) {
           <polyline
             points={polyline(acc, ACC_MAX, xs)}
             fill="none"
-            stroke="#a855f7"
+            stroke="#f59e0b"
             strokeWidth="2"
             strokeLinejoin="round"
           />
@@ -252,7 +252,7 @@ export function ProgressChart({ today }: { today: string }) {
                 cx={x}
                 cy={yAt(v, ACC_MAX)}
                 r={(single ? 3 : 1.8) + (on ? 1.6 : 0)}
-                fill="#a855f7"
+                fill="#f59e0b"
                 stroke={on ? "var(--card)" : "none"}
                 strokeWidth={on ? 1 : 0}
               >
@@ -317,7 +317,7 @@ export function ProgressChart({ today }: { today: string }) {
                 {points[active].wpm} WPM
               </p>
               <p className="flex items-center gap-1.5 tabular-nums text-muted">
-                <span className="h-1.5 w-1.5 rounded-full bg-violet-500" />
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                 {points[active].accuracy}% accuracy
               </p>
               <p className="text-faint">

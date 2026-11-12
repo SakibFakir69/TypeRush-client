@@ -65,6 +65,14 @@ Built with Next.js 16 (App Router) and deployed on Vercel. The API lives in the 
 - Adaptive dual-axis progress chart (WPM + accuracy) over 7 / 30 / 90 days, with hover/tap tooltips
 - Recent runs, upcoming and joined contests
 
+**Progress**
+
+- `/progress` — the personal curve: lifetime records, a daily WPM + accuracy chart, insights and every run you have logged
+- 7 / 30 / 90-day windows, run-volume bars under the curve, hover tooltips
+- Insights: trend against the first half of the window, best day, busiest weekday, consistency score
+- Unlocks: the badges you hold and the ones one step away, with the progress towards each goal
+- Run history with a date window, page size and pagination
+
 ---
 
 ## Tech stack
@@ -202,7 +210,7 @@ $env:NEXT_PUBLIC_BACKEND_URL="http://127.0.0.1:5055"; npm run dev
 - `credentials: "include"` — cookies are sent on every request
 - `baseQueryWithReauth` retries a request once after `POST /api/v1/auth/refresh` when it receives `401`
 
-Slices live in `lib/features/*` (`features.auth.ts`, `features.user.ts`, `features.practice.ts`, `features.contest.ts`, `features.upload.ts`, `battle/features.battle.ts`). Components consume generated hooks — no `fetch` calls in components.
+Slices live in `lib/features/*` (`features.auth.ts`, `features.user.ts`, `features.practice.ts`, `features.contest.ts`, `features.achievements.ts`, `features.progress.ts`, `features.upload.ts`, `battle/features.battle.ts`). Components consume generated hooks — no `fetch` calls in components.
 
 ### Sessions and auth
 
@@ -224,6 +232,24 @@ A run is submitted only when **all** of these hold:
 - the content is not user-supplied (`unranked` is false).
 
 Contest runs submit to `POST /contests/:id/submit` instead of the practice board. Custom lengths and your own pasted text render `TypingCard` with `unranked`, which removes the submit button and makes the handler a no-op — nothing is sent, nothing is ranked. Those texts are stored only in the browser under `typerush:custom-texts`.
+
+### Achievements
+
+`/achievements` is a real screen now. `GET /api/v1/achievements` returns the whole badge catalogue with the signed-in user's unlock state (`unlockedAt` is null while a badge is locked); `GET /api/v1/achievements/me` returns only the badges that user holds.
+
+Badges unlock themselves on the server: every practice run, contest run and finished battle re-checks the user's own numbers (best WPM, best accuracy, run count, day streak, contests joined, battles played) against the published thresholds and unlocks whatever the run crossed. The submit response carries `unlockedAchievements`, so `TypingCard` can toast the new badge and show it in the result overlay. When the catalogue is empty the page falls back to the personal milestones derived from the practice stats.
+
+### Progress
+
+`/progress` is the deep view of the same numbers. It reads three endpoints, all behind the session cookie:
+
+- `GET /api/v1/progress/overview` — lifetime totals: runs, seconds typed, best and average WPM/accuracy
+- `GET /api/v1/progress/charts?range=7d|30d|90d` — one row per day (average + best WPM, average accuracy, run count)
+- `GET /api/v1/progress/history?page=&limit=&from=&to=` — the run history, newest first
+
+The screen is `components/app/ProgressDashboard.tsx` plus three panels: `ProgressCurve` (the dual-axis chart), `ProgressHistory` (the filterable table) and `ProgressUnlocks` (the badge shelf). The window filter sends both ends of the range — the server only applies the filter when `from` **and** `to` are present — and the client fills in the missing end for you.
+
+Lifetime numbers fall back to the practice stats when the server has no stats row yet (accounts that typed before the stats writer existed), so the cards are never blank for an account that actually typed something. Saving a run invalidates the `Progress` tag, so the curve and the totals refresh with the next visit.
 
 ### Leaderboards
 
@@ -301,7 +327,6 @@ Keep components consistent with the surrounding patterns: Tailwind utility class
 ## Roadmap
 
 - Battle history and per-user rating charts (matches are recorded server-side; no screen reads them yet)
-- Achievements and XP surfaces (`/achievements` is a placeholder)
 - Admin UI for contests, passages, announcements, and users (API exists; no screens yet)
 - Real-time leaderboard updates instead of poll/revalidate
 - Team/organisation dashboards for `ORG` accounts
