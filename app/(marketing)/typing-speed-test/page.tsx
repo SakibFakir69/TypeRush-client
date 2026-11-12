@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FaqSection } from "@/components/seo/FaqSection";
+import { RelatedGuides } from "@/components/seo/RelatedGuides";
+import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "Free Typing Speed Test",
   description:
     "Take a free typing speed test and measure your WPM and accuracy in 15, 30 or 60 seconds. See where you rank on the TypePotijogita leaderboard.",
   alternates: { canonical: "/typing-speed-test" },
+  openGraph: {
+    title: "Free typing speed test — measure your WPM",
+    description:
+      "Take a free typing speed test and measure your WPM and accuracy in 15, 30 or 60 seconds.",
+    url: absoluteUrl("/typing-speed-test"),
+  },
 };
 
 const STEPS = [
@@ -23,9 +33,46 @@ const STEPS = [
   },
 ];
 
+const FAQ = [
+  {
+    q: "Is the typing speed test free?",
+    a: "Yes. The test, the practice modes and the leaderboards are free. An account is only needed to save scores and join contests.",
+  },
+  {
+    q: "What is a good typing speed?",
+    a: "40 WPM is the average adult typing speed. 60 WPM is considered fast and 80–100 WPM is professional level.",
+  },
+  {
+    q: "Should I practise 15, 30 or 60 seconds?",
+    a: "Short runs measure bursts of speed; 60 seconds is closer to real sustained typing. Try all three and compare your own boards.",
+  },
+  {
+    q: "How is WPM calculated?",
+    a: "One word is five characters, including spaces. WPM = (correct characters ÷ 5) ÷ minutes elapsed.",
+  },
+];
+
 export default function TypingSpeedTestPage() {
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(appSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Home", path: "/" },
+              { name: "Typing speed test", path: "/typing-speed-test" },
+            ])
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <header>
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
           Free typing speed test
@@ -71,36 +118,9 @@ export default function TypingSpeedTestPage() {
         </p>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-extrabold">Frequently asked questions</h2>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Is the typing speed test free?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Yes. The test, the practice modes and the leaderboards are free. An
-            account is only needed to save scores and join contests.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            What is a good typing speed?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            40 WPM is the average adult typing speed. 60 WPM is considered fast
-            and 80–100 WPM is professional level.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Should I practise 15, 30 or 60 seconds?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Short runs measure bursts of speed; 60 seconds is closer to real
-            sustained typing. Try all three and compare your own boards.
-          </p>
-        </details>
-      </section>
+      <FaqSection items={FAQ} />
+
+      <RelatedGuides />
     </main>
   );
 }

@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FaqSection } from "@/components/seo/FaqSection";
+import { RelatedGuides } from "@/components/seo/RelatedGuides";
+import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "Typing Practice — Daily Drills",
   description:
     "Practise typing daily with timed passages, real quotes and your own text. Track WPM and accuracy over 7, 30 and 90 days and build a streak.",
   alternates: { canonical: "/type-practice" },
+  openGraph: {
+    title: "Typing practice — daily drills that show their work",
+    description:
+      "Practise typing daily with timed passages, real quotes and your own text, and track your WPM over 7, 30 and 90 days.",
+    url: absoluteUrl("/type-practice"),
+  },
 };
 
 const MODES = [
@@ -30,9 +40,42 @@ const HABITS = [
   "Practise a little every day — the streak counter keeps you honest.",
 ];
 
+const FAQ = [
+  {
+    q: "Do practice runs count on the leaderboard?",
+    a: "Runs at a preset length (15, 30 or 60 seconds) are ranked. Custom lengths are practice-only and never posted, so experimenting with a different duration cannot pollute a board.",
+  },
+  {
+    q: "How often should I practise?",
+    a: "Daily, even briefly. Your streak and the 90-day curve on the dashboard make consistency visible.",
+  },
+  {
+    q: "Can I practise my own text?",
+    a: "Yes — the custom mode accepts any text you paste, up to five minutes per run.",
+  },
+];
+
 export default function TypePracticePage() {
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(appSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Home", path: "/" },
+              { name: "Typing practice", path: "/type-practice" },
+            ])
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <header>
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
           Typing practice that shows its work
@@ -83,37 +126,9 @@ export default function TypePracticePage() {
         </ul>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-extrabold">Frequently asked questions</h2>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Do practice runs count on the leaderboard?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Runs at a preset length (15, 30 or 60 seconds) are ranked. Custom
-            lengths are practice-only and never posted, so experimenting with a
-            different duration cannot pollute a board.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            How often should I practise?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Daily, even briefly. Your streak and the 90-day curve on the
-            dashboard make consistency visible.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Can I practise my own text?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Yes — the custom mode accepts any text you paste, up to five minutes
-            per run.
-          </p>
-        </details>
-      </section>
+      <FaqSection items={FAQ} />
+
+      <RelatedGuides />
     </main>
   );
 }

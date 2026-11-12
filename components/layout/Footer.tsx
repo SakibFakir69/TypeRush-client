@@ -1,11 +1,47 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Zap } from "lucide-react";
 
-const COLS: Array<[string, string[]]> = [
-  ["Product", ["Practice", "Challenges", "1v1 Battle", "Leaderboard", "Contests"]],
-  ["Resources", ["Help Center", "Guides", "Blog", "API"]],
-  ["Company", ["About", "Careers", "Contact"]],
-  ["Legal", ["Privacy Policy", "Terms of Service", "Cookie Policy"]],
+/**
+ * The footer is the site's link graph: it is how a crawler (and a reader)
+ * reaches every public page. Every entry points at a real destination —
+ * a dead `href="#"` is a wasted crawl and a broken promise to the reader.
+ */
+const COLS: Array<[string, { label: string; href: string }[]]> = [
+  [
+    "Product",
+    [
+      { label: "Typing Test", href: "/test" },
+      { label: "Practice", href: "/practice" },
+      { label: "1v1 Battle", href: "/battles" },
+      { label: "Leaderboard", href: "/leaderboard" },
+      { label: "Contests", href: "/contests" },
+    ],
+  ],
+  [
+    "Learn",
+    [
+      { label: "Typing Speed Test", href: "/typing-speed-test" },
+      { label: "WPM Test", href: "/wpm-test" },
+      { label: "Practice Drills", href: "/type-practice" },
+      { label: "Your Progress", href: "/progress" },
+    ],
+  ],
+  [
+    "Company",
+    [
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+    ],
+  ],
+  [
+    "Legal",
+    [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
+      { label: "Cookie Policy", href: "/cookies" },
+    ],
+  ],
 ];
 
 function BrandIcon({ children }: { children: ReactNode }) {
@@ -80,11 +116,20 @@ function LinkedInIcon() {
   );
 }
 
+/**
+ * Social destinations. The accounts we do not own yet point at the contact
+ * page rather than at a dead `#` — drop the real handle in here when it
+ * exists and the icon becomes a real profile link.
+ */
 const SOCIALS = [
-  { Icon: XIcon, label: "TypePotijogita on X" },
-  { Icon: YouTubeIcon, label: "TypePotijogita on YouTube" },
-  { Icon: InstagramIcon, label: "TypePotijogita on Instagram" },
-  { Icon: GitHubIcon, label: "TypePotijogita on GitHub" },
+  { Icon: XIcon, label: "TypePotijogita on X", href: "/contact" },
+  { Icon: YouTubeIcon, label: "TypePotijogita on YouTube", href: "/contact" },
+  { Icon: InstagramIcon, label: "TypePotijogita on Instagram", href: "/contact" },
+  {
+    Icon: GitHubIcon,
+    label: "TypePotijogita on GitHub",
+    href: "https://github.com/SakibFakir69/TypeRush-client",
+  },
 ];
 
 const BUILDER_URL =
@@ -113,10 +158,13 @@ export function Footer() {
             </p>
             <ul className="mt-3 space-y-2 text-muted">
               {links.map((l) => (
-                <li key={l}>
-                  <a href="#" className="transition hover:text-accent">
-                    {l}
-                  </a>
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="transition hover:text-accent"
+                  >
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -127,16 +175,27 @@ export function Footer() {
             Join the community
           </p>
           <div className="mt-3 flex gap-2 text-muted">
-            {SOCIALS.map(({ Icon, label }) => (
-              <a
-                key={label}
-                href="#"
-                aria-label={label}
-                className="grid h-8 w-8 place-items-center rounded-lg border border-line transition hover:border-accent/40 hover:text-accent"
-              >
-                <Icon />
-              </a>
-            ))}
+            {SOCIALS.map(({ Icon, label, href }) => {
+              const external = href.startsWith("http");
+              const cls =
+                "grid h-8 w-8 place-items-center rounded-lg border border-line transition hover:border-accent/40 hover:text-accent";
+              return external ? (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className={cls}
+                >
+                  <Icon />
+                </a>
+              ) : (
+                <Link key={label} href={href} aria-label={label} className={cls}>
+                  <Icon />
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

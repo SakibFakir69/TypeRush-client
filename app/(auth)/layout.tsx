@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { KeyboardBackdrop } from "@/components/landing/KeyboardBackdrop";
+
+/**
+ * Login and signup are never worth a search result: they are thin forms
+ * behind a redirect, and indexing them only dilutes the pages that matter.
+ */
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 /** Focused auth shell: keyboard world behind, single centered column. */
 export default function AuthLayout({ children }: { children: ReactNode }) {

@@ -82,7 +82,18 @@ Living notes for future work. Update when conventions change.
   `/maintenance` — every other path (pages, login, `/backend` proxy calls)
   redirects back there, so visitors can't reach any other screen. Only Next's
   build assets still load. The flag lives in `middleware.ts` and needs a
-  redeploy after changing.
+  redeploy after changing. ⚠️ It also de-indexes the whole site while it is
+  on (every path redirects), so keep it off outside a real outage.
+- **SEO**: the canonical origin is `typerush-client.vercel.app`
+  (`NEXT_PUBLIC_SITE_URL` overrides it). `typerush.app` serves an OLD
+  Lovable build in Portuguese — it must never be pointed at by the sitemap,
+  robots or canonicals, and it should be 301'd here (or dropped).
+  Public, indexable pages: `/`, `/test`, `/typing-speed-test`, `/wpm-test`,
+  `/type-practice`, `/about`, `/contact`, `/privacy`, `/terms`, `/cookies`.
+  The guide pages carry FAQPage + BreadcrumbList + WebApplication schema and
+  their own generated OG card. `/leaderboard`, `/contests`, `/practice` are
+  still behind the session (307 → /login) — they cannot rank until they are
+  public, and they are deliberately absent from the sitemap.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)
@@ -115,6 +126,22 @@ Living notes for future work. Update when conventions change.
   host failures once duplicated names via alt text).
 - **Images**: next/image + remotePatterns (no `domains`, deprecated in Next 16).
 - **Route rules**: use `Link` for internal routes (lint enforced).
+- **SEO rules (do not drift)**:
+  - `lib/seo/site.ts` owns the origin (SITE_URL / absoluteUrl / ogImages).
+    `metadataBase` points at it — NEVER hard-code a domain in a page, and
+    never leave a placeholder (`YOUR-DOMAIN.com` once canonicalised the
+    whole site to a domain nobody owns).
+  - Every indexable page sets its OWN `alternates.canonical`. A canonical in
+    the root layout is inherited by every page that does not override it.
+  - `openGraph` is merged shallowly: a page that defines its own must list
+    `images: ogImages(...)` or it loses the social card.
+  - Member area (`app/(app)`) and `/login`, `/signup`, `/maintenance` are
+    `noindex` — they are behind a session.
+  - FAQ blocks render through `components/seo/FaqSection.tsx`, which emits
+    the matching FAQPage schema from the same list (Google ignores a FAQ
+    schema that does not match the visible copy).
+  - `app/sitemap.ts` lists ONLY public pages that render without an
+    account; `app/robots.ts` must point at its own sitemap.
 
 ## Auth contract (server: typerush-server, PORT=5000)
 - POST /api/v1/auth/login {email,password} → httpOnly cookies + body tokens

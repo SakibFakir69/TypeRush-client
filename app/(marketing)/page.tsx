@@ -1,30 +1,18 @@
-import { faqSchema } from "@/lib/seo/schema";
+import Home, { metadata } from "@/app/page";
 
+/**
+ * The `/` route.
+ *
+ * The landing page itself lives in `app/page.tsx` (the marketing group only
+ * holds the guide pages). This file used to be a second, thin page with its
+ * own FAQ block and schema — it never rendered, because `app/page.tsx` wins
+ * the `/` route, so the FAQ schema it carried was never published.
+ *
+ * It now simply re-exports the real landing page and its metadata, so the
+ * route can never drift apart from it again.
+ */
+export { metadata };
 
 export default function LandingPage() {
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
-
-      {/* visible FAQ section matching the schema above */}
-      <section>
-        <h2>Frequently Asked Questions</h2>
-        <details>
-          <summary>What is a good WPM typing speed?</summary>
-          <p>Average typing speed is 40 WPM. 60+ WPM is considered fast, and professional typists often reach 80-100+ WPM.</p>
-        </details>
-        <details>
-          <summary>How does TypePotijogita measure accuracy?</summary>
-          <p>TypePotijogita calculates accuracy as the percentage of correctly typed characters against total characters typed, measured in real time.</p>
-        </details>
-        <details>
-          <summary>Is TypePotijogita free to use?</summary>
-          <p>Yes, TypePotijogita is free for typing tests and practice. Account sign-in is required to save history and join contests.</p>
-        </details>
-      </section>
-    </>
-  );
+  return <Home />;
 }

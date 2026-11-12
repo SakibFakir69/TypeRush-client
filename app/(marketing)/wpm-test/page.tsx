@@ -1,11 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FaqSection } from "@/components/seo/FaqSection";
+import { RelatedGuides } from "@/components/seo/RelatedGuides";
+import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
+import { absoluteUrl } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "WPM Test — Typing Speed Benchmarks",
   description:
     "Run a free WPM test and compare your typing speed with the average typist. See typical WPM ranges, how accuracy is scored, and how to improve.",
   alternates: { canonical: "/wpm-test" },
+  openGraph: {
+    title: "WPM test — how fast do you type?",
+    description:
+      "Compare your typing speed with the average typist: typical WPM ranges, how accuracy is scored, and how to improve.",
+    url: absoluteUrl("/wpm-test"),
+  },
 };
 
 const BENCHMARKS = [
@@ -15,9 +25,42 @@ const BENCHMARKS = [
   { level: "Professional", wpm: "80 – 100+", note: "Transcription and competitive typists" },
 ];
 
+const FAQ = [
+  {
+    q: "What is a good WPM?",
+    a: "40 WPM is average, 60 WPM is fast, and above 80 WPM is professional. The number that matters most is your own trend over time.",
+  },
+  {
+    q: "Does the test include spaces and punctuation?",
+    a: "Yes. The passage is typed exactly as written, spaces and punctuation included, and every mismatch counts as an error.",
+  },
+  {
+    q: "Are short runs comparable to 60-second runs?",
+    a: "Not directly, which is why TypePotijogita keeps a separate leaderboard for each run length. Your 15-second score is ranked with other 15-second runs only.",
+  },
+];
+
 export default function WpmTestPage() {
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(appSchema).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbSchema([
+              { name: "Home", path: "/" },
+              { name: "WPM test", path: "/wpm-test" },
+            ])
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
+
       <header>
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
           WPM test: how fast do you type?
@@ -73,37 +116,9 @@ export default function WpmTestPage() {
         </p>
       </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-extrabold">Frequently asked questions</h2>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            What is a good WPM?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            40 WPM is average, 60 WPM is fast, and above 80 WPM is professional.
-            The number that matters most is your own trend over time.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Does the test include spaces and punctuation?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Yes. The passage is typed exactly as written, spaces and punctuation
-            included, and every mismatch counts as an error.
-          </p>
-        </details>
-        <details className="rounded-xl border border-line bg-card p-4">
-          <summary className="cursor-pointer text-sm font-bold">
-            Are short runs comparable to 60-second runs?
-          </summary>
-          <p className="mt-2 text-[13px] leading-6 text-muted">
-            Not directly, which is why TypePotijogita keeps a separate leaderboard for
-            each run length. Your 15-second score is ranked with other
-            15-second runs only.
-          </p>
-        </details>
-      </section>
+      <FaqSection items={FAQ} />
+
+      <RelatedGuides />
     </main>
   );
 }

@@ -1,0 +1,30 @@
+# TypePotijogita
+
+> TypePotijogita is a free online typing speed test and typing competition platform. Users measure WPM and accuracy, practise with real-time feedback, and compete in live global typing contests and leaderboards.
+
+## Core features
+- Typing speed test (15, 30, 60 and 120 second runs) with live WPM, accuracy and error counting
+- Practice mode with paragraph passages, quotes and your own pasted text (English, Bangla and Hindi)
+- 1v1 typing battles and scheduled typing contests with Elo ratings
+- Global leaderboards, one board per run length
+- Personal progress: a 7/30/90-day curve, streaks, personal bests and badges
+
+## Key pages
+- Home: https://typerush-client.vercel.app/
+- Typing test: https://typerush-client.vercel.app/test
+- Typing speed test guide: https://typerush-client.vercel.app/typing-speed-test
+- WPM test and benchmarks: https://typerush-client.vercel.app/wpm-test
+- Typing practice drills: https://typerush-client.vercel.app/type-practice
+- About: https://typerush-client.vercel.app/about
+- Contact: https://typerush-client.vercel.app/contact
+- Privacy policy: https://typerush-client.vercel.app/privacy
+- Terms of service: https://typerush-client.vercel.app/terms
+- Cookie policy: https://typerush-client.vercel.app/cookies
+
+## Scoring
+One word counts as five characters, spaces included. WPM = (correct characters ÷ 5) ÷ minutes elapsed. Accuracy is the share of typed characters that matched the passage. Runs of different lengths are ranked in separate leaderboards and are never compared with each other.
+
+## Notes
+- The typing test works without an account; an account is only needed to save results, appear on leaderboards, join contests and unlock badges.
+- Member areas (practice, battles, contests, leaderboard, progress, achievements) require a signed-in session.
+- Source code: https://github.com/SakibFakir69/TypeRush-client

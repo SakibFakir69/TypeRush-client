@@ -251,6 +251,23 @@ The screen is `components/app/ProgressDashboard.tsx` plus three panels: `Progres
 
 Lifetime numbers fall back to the practice stats when the server has no stats row yet (accounts that typed before the stats writer existed), so the cards are never blank for an account that actually typed something. Saving a run invalidates the `Progress` tag, so the curve and the totals refresh with the next visit.
 
+### SEO
+
+The site is built to be found. Everything that a crawler reads first is generated from one place, `lib/seo/site.ts`:
+
+| Piece | Where | What it does |
+| --- | --- | --- |
+| Origin | `lib/seo/site.ts` | `SITE_URL` (override with `NEXT_PUBLIC_SITE_URL`) → `metadataBase`, canonicals, `og:url`, sitemap, robots. |
+| Canonical | every indexable page | A self-referencing `alternates.canonical`. The root layout has none — a canonical there is inherited by every page that does not override it. |
+| Sitemap | `app/sitemap.ts` | Only the public pages that render without an account. Member areas redirect to `/login`, so they are deliberately absent. |
+| Robots | `app/robots.ts` | Points at its own sitemap, blocks the member areas and the `/backend` proxy. |
+| Structured data | `lib/seo/schema.ts` | `WebApplication`, `Organization`, `BreadcrumbList` and `FAQPage`. FAQ blocks go through `components/seo/FaqSection.tsx`, which renders the schema from the same list it displays — Google ignores a FAQ schema that does not match the page. |
+| Social cards | `app/opengraph-image.tsx` + one per guide | Rendered with `ImageResponse`. A page that defines its own `openGraph` must add `images: ogImages(...)`, because `openGraph` is merged shallowly. |
+| Public pages | `app/(marketing)/` | `/typing-speed-test`, `/wpm-test`, `/type-practice`, `/about`, `/contact`, `/privacy`, `/terms`, `/cookies` — each with its own copy, FAQ, canonical and internal links. |
+| 404 / manifest / llms.txt | `app/not-found.tsx`, `app/manifest.ts`, `public/llms.txt` | A 404 that links to the guides, a web manifest, and a machine-readable summary for AI crawlers. |
+
+Member pages, `/login`, `/signup` and `/maintenance` are `noindex`. Two rules keep it that way: never hard-code a domain (a placeholder `metadataBase` once canonicalised the entire site to a domain nobody owns), and never put a redirecting URL in the sitemap.
+
 ### Leaderboards
 
 Results carry a `duration` field, which is the leaderboard category. The global board (`GET /practices/results?duration=…&offset=…`) loads one category at a time with a "Load more" button. Contest boards (`GET /contests/:id/leaderboard`) collapse duplicate typists and keep the best run per person. Each contest has its own board.
