@@ -1,16 +1,25 @@
 import type { Metadata } from "next";
-import { ComingSoon } from "@/components/app/ComingSoon";
+import { AchievementBoard } from "@/components/app/AchievementBoard";
 
 export const metadata: Metadata = {
   title: "Achievements — TypePotijogita",
-  description: "Badges and milestones. Coming soon.",
+  description: "Badges and milestones — unlocked by your own runs.",
 };
 
 export default function AchievementsPage() {
   return (
-    <ComingSoon
-      title="Achievements"
-      desc="Badges, streaks, and XP are being minted. Stay with us."
-    />
+    <div className="mx-auto max-w-4xl space-y-4">
+      <div>
+        <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
+          Your <span className="text-accent">Achievements</span>
+        </h1>
+        <p className="mt-1 text-sm text-muted">
+          Badges, streaks and milestones — every one of them unlocked by your
+          own runs.
+        </p>
+      </div>
+
+      <AchievementBoard />
+    </div>
   );
 }

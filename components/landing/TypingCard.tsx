@@ -80,6 +80,7 @@ export function TypingCard({
   const [submitContest] = useSubmitContestResultMutation();
   const [saved, setSaved] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [xpEarned, setXpEarned] = useState<number | null>(null);
+  const [unlocked, setUnlocked] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const prevLen = useRef(0);
@@ -103,6 +104,7 @@ export function TypingCard({
     prevLen.current = 0;
     setSaved("idle");
     setXpEarned(null);
+    setUnlocked([]);
     reset(d);
     focusInput();
   };
@@ -173,6 +175,28 @@ export function TypingCard({
             ? "Sent to the contest leaderboard."
             : "Saved — it counts towards your progress."
         );
+
+        // Badges this run crossed — the server unlocks them with the run.
+        const names = (
+          (res as { unlockedAchievements?: unknown } | null)
+            ?.unlockedAchievements
+        );
+        if (Array.isArray(names) && names.length > 0) {
+          const unlockedNames = names
+            .map((a) =>
+              typeof (a as { name?: unknown })?.name === "string"
+                ? ((a as { name: string }).name)
+                : ""
+            )
+            .filter(Boolean);
+          if (unlockedNames.length > 0) {
+            setUnlocked(unlockedNames);
+            toast.success(`Achievement unlocked — ${unlockedNames.join(", ")}`, {
+              description: "It now sits on your badge shelf.",
+            });
+          }
+        }
+
         // Let the contest page refresh its leaderboard.
         if (contest) contest.onSubmitted?.();
       })
@@ -438,6 +462,11 @@ export function TypingCard({
                     {xpEarned > 0
                       ? `+${xpEarned} XP earned`
                       : "Daily practice XP cap reached — no XP this run."}
+                  </p>
+                )}
+                {unlocked.length > 0 && (
+                  <p className="mt-1.5 text-xs font-bold text-amber-500">
+                    ★ Unlocked: {unlocked.join(", ")}
                   </p>
                 )}
                 {unranked && (

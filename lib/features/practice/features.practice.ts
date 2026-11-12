@@ -1,6 +1,8 @@
 
 import { baseApi } from "../api/base-api";
 
+import type { Achievement } from "../achievements/features.achievements";
+
 
 export type Topic = {
   id: string;
@@ -148,6 +150,8 @@ export type Result = {
   createdAt?: string;
   /** Practice XP actually granted for this run (0 when the daily cap is hit). */
   xpAwarded?: number;
+  /** Badges this run unlocked — empty when nothing new was crossed. */
+  unlockedAchievements?: Achievement[];
 };
 
 export type LeaderboardEntry = {
@@ -255,7 +259,8 @@ export const practiceApi = baseApi.injectEndpoints({
         return (data && typeof data === "object" ? data : res) as Result;
       },
       // "Session" keeps the navbar/profile XP in sync after an award.
-      invalidatesTags: ["Result", "Session"],
+      // "Achievement" refreshes the badge shelf after a new unlock.
+      invalidatesTags: ["Result", "Session", "Achievement"],
     }),
 
     getLeaderboard: builder.query<LeaderboardPage, LeaderboardQuery | void>({

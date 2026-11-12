@@ -354,7 +354,10 @@ export const contestApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Contest", id }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Contest", id },
+        "Achievement",
+      ],
     }),
   }),
   overrideExisting: false,
