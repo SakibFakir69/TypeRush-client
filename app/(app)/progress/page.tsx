@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { ProgressDashboard } from "@/components/app/ProgressDashboard";
 
 export const metadata: Metadata = {
-  title: "Progress — TypePotijogita",
+  title: "Progress",
   description:
     "Your typing curve, lifetime numbers, unlocks and every run you have logged.",
+  alternates: { canonical: "/progress" },
 };
 
 export default function ProgressPage() {

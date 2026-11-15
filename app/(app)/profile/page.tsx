@@ -15,8 +15,9 @@ import { resolveCountry } from "@/lib/countries";
 import { getSessionUser } from "@/lib/server/session";
 
 export const metadata: Metadata = {
-  title: "Profile — TypePotijogita",
+  title: "Profile",
   description: "Your TypePotijogita member profile.",
+  alternates: { canonical: "/profile" },
   
 };
 

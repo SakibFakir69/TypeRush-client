@@ -84,10 +84,12 @@ Living notes for future work. Update when conventions change.
   build assets still load. The flag lives in `middleware.ts` and needs a
   redeploy after changing. ⚠️ It also de-indexes the whole site while it is
   on (every path redirects), so keep it off outside a real outage.
-- **SEO**: the canonical origin is `typepotijogita.com`
-  (`NEXT_PUBLIC_SITE_URL` overrides it). `typerush.app` serves an OLD
-  Lovable build in Portuguese — it must never be pointed at by the sitemap,
-  robots or canonicals, and it should be 301'd here (or dropped).
+- **SEO**: the canonical origin is `typepotijogita.com`, and in production it
+  is FIXED in `lib/seo/site.ts` — `NEXT_PUBLIC_SITE_URL` is only honoured in
+  development, so no env var or preview deploy can point the canonicals,
+  the sitemap or the social cards at another host. `typerush.app` serves an
+  OLD Lovable build in Portuguese — it must never be pointed at by the
+  sitemap, robots or canonicals, and it should be 301'd here (or dropped).
   `typerush-client.vercel.app` is only the pre-domain host — it must not be
   canonicalised either (redirect it to the real domain).
   Public, indexable pages: `/`, `/test`, `/typing-speed-test`, `/wpm-test`,
@@ -96,6 +98,18 @@ Living notes for future work. Update when conventions change.
   their own generated OG card. `/leaderboard`, `/contests`, `/practice` are
   still behind the session (307 → /login) — they cannot rank until they are
   public, and they are deliberately absent from the sitemap.
+- **Titles**: `TITLE_TEMPLATE` (`%s | TypePotijogita`) lives in
+  `lib/seo/site.ts`. ⚠️ In Next, a layout that defines a title RESETS the
+  inherited template for its whole subtree (`resolve-metadata.js` re-stashes
+  the template from the segment's own title object), so a layout with
+  children must re-declare `template: TITLE_TEMPLATE`. A client-component
+  page cannot export `metadata` at all → those titles live in a `layout.tsx`
+  next to the page (`app/(auth)/*/layout.tsx`, `app/(app)/*/layout.tsx`).
+- **JSON-LD**: one `@id` graph — `#website` (WebSite), `#application`
+  (WebApplication + SoftwareApplication), `#organization` (Organization,
+  legalName Seven Ventures Labs). No `SearchAction`: there is no internal
+  search, and pointing Google at an endpoint that does not exist is a
+  markup lie.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)
@@ -129,16 +143,22 @@ Living notes for future work. Update when conventions change.
 - **Images**: next/image + remotePatterns (no `domains`, deprecated in Next 16).
 - **Route rules**: use `Link` for internal routes (lint enforced).
 - **SEO rules (do not drift)**:
-  - `lib/seo/site.ts` owns the origin (SITE_URL / absoluteUrl / ogImages).
-    `metadataBase` points at it — NEVER hard-code a domain in a page, and
-    never leave a placeholder (`YOUR-DOMAIN.com` once canonicalised the
-    whole site to a domain nobody owns).
+  - `lib/seo/site.ts` owns the origin (SITE_URL / absoluteUrl / ogImages /
+    TITLE_TEMPLATE). `metadataBase` points at it — NEVER hard-code a domain
+    in a page, and never leave a placeholder (`YOUR-DOMAIN.com` once
+    canonicalised the whole site to a domain nobody owns). In production
+    the origin is fixed to `typepotijogita.com`.
   - Every indexable page sets its OWN `alternates.canonical`. A canonical in
     the root layout is inherited by every page that does not override it.
+  - Every route has its own `title` + `description` (a shared root default
+    means duplicated metadata across a dozen routes). Client pages get them
+    from a `layout.tsx` beside the page.
   - `openGraph` is merged shallowly: a page that defines its own must list
-    `images: ogImages(...)` or it loses the social card.
-  - Member area (`app/(app)`) and `/login`, `/signup`, `/maintenance` are
-    `noindex` — they are behind a session.
+    `images: ogImages(...)` or it loses the social card. The root layout
+    sets NO `openGraph.url` — each indexable page sets its own.
+  - Member area (`app/(app)`) and `/login`, `/signup`, `/auth/callback`,
+    `/maintenance` are `noindex` — they are behind a session or are
+    hand-off screens.
   - FAQ blocks render through `components/seo/FaqSection.tsx`, which emits
     the matching FAQPage schema from the same list (Google ignores a FAQ
     schema that does not match the visible copy).

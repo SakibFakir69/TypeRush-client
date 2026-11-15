@@ -3,7 +3,7 @@ import Link from "next/link";
 import { RefreshCw, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Maintenance — TypePotijogita",
+  title: "Maintenance",
   description: "TypePotijogita is temporarily under maintenance.",
   robots: { index: false, follow: false },
 };

@@ -7,7 +7,7 @@ import { ThemedToaster } from "@/components/ui/ThemedToaster";
 import { MotionProvider } from "@/components/ui/MotionProvider";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
-import { SITE_URL } from "@/lib/seo/site";
+import { SITE_URL, TITLE_TEMPLATE } from "@/lib/seo/site";
 import "./globals.css";
 
 const ubuntu = Ubuntu({
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
   title: {
     default: "TypePotijogita — Free Online Typing Test & Competition",
-    template: "%s | TypePotijogita",
+    template: TITLE_TEMPLATE,
   },
 
   description:
@@ -55,12 +55,14 @@ export const metadata: Metadata = {
 
   openGraph: {
     type: "website",
-    url: SITE_URL,
     siteName: "TypePotijogita",
     title: "TypePotijogita — Practice. Compete. Improve.",
     description:
       "Test your typing speed, improve your accuracy, and compete with typists worldwide.",
     locale: "en_US",
+    // No `url` here on purpose: it would be inherited by every page that
+    // does not override `openGraph`, and a shared link to /login would then
+    // claim to be the homepage. Each indexable page sets its own.
     // The image itself comes from `app/opengraph-image.tsx`, which Next
     // renders into the right absolute URL for this site.
   },

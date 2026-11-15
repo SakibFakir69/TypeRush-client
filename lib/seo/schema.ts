@@ -43,10 +43,19 @@ export function breadcrumbSchema(
   };
 }
 
-/** The application itself: a free typing test people can use right away. */
+/**
+ * The application itself: a free typing test people can use right away.
+ *
+ * `WebApplication` is the precise schema.org type (a subtype of
+ * `SoftwareApplication`), and both are declared so the entity is eligible
+ * for either validator. Google still wants an `aggregateRating` or a
+ * `review` before it shows an app rich result — that has to come from real
+ * users, never from a number we write ourselves.
+ */
 export const appSchema = {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": ["WebApplication", "SoftwareApplication"],
+  "@id": `${SITE_URL}/#application`,
   name: SITE_NAME,
   alternateName: "TypeRush typing test",
   url: SITE_URL,
@@ -56,23 +65,71 @@ export const appSchema = {
   description:
     "Free online typing speed test with live WPM and accuracy, daily practice, typing contests and global leaderboards.",
   featureList: [
-    "Typing speed test in 15, 30 and 60 seconds",
+    "Typing speed test in 15, 30, 60 and 120 seconds",
     "Live WPM, accuracy and error tracking",
     "Practice mode with paragraphs, quotes and your own text",
     "1v1 typing battles and typing contests",
     "Global leaderboards and a personal progress curve",
   ],
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  publisher: { "@id": `${SITE_URL}/#organization` },
 };
 
-/** The publisher behind the site — used for the logo/author entity. */
+/**
+ * The publisher behind the site — used for the logo/author entity.
+ *
+ * TypePotijogita is the product; Seven Ventures Labs is the company behind
+ * it (see the footer). Both live in one Organization entity, linked with
+ * `legalName`, so search engines can attribute the site to a real entity.
+ */
 export const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
+  legalName: "Seven Ventures Labs",
+  alternateName: "Seven Venture Labs",
   url: SITE_URL,
-  logo: `${SITE_URL}/opengraph-image`,
-  sameAs: ["https://github.com/SakibFakir69/TypeRush-client"],
+  description:
+    "TypePotijogita is a free typing speed test, practice arena and competition platform built by Seven Ventures Labs.",
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}/opengraph-image`,
+    width: 1200,
+    height: 630,
+  },
+  sameAs: [
+    "https://github.com/SakibFakir69/TypeRush-client",
+    "https://www.linkedin.com/company/seven-venture-labs/",
+  ],
+  contactPoint: {
+    "@type": "ContactPoint",
+    contactType: "customer support",
+    email: "hello@typepotijogita.com",
+    availableLanguage: ["English"],
+  },
+};
+
+/**
+ * The site itself.
+ *
+ * `WebSite` is the root entity of the page: it names the site, points at
+ * the production origin and links to its publisher. There is deliberately
+ * NO `potentialAction`/`SearchAction` — the site has no internal search
+ * page, and pointing Google at an endpoint that does not exist would be a
+ * markup lie.
+ */
+export const webSiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: SITE_NAME,
+  alternateName: "TypeRush typing test",
+  url: SITE_URL,
+  description:
+    "Free online typing speed test, daily typing practice, 1v1 typing battles, typing contests and global leaderboards.",
+  inLanguage: "en",
+  publisher: { "@id": `${SITE_URL}/#organization` },
 };
 
 /** The landing page's own questions (rendered by `FaqSection`). */

@@ -11,10 +11,18 @@ import { absoluteUrl } from "@/lib/seo/site";
  *    request — telling Google that every page changed on every build makes
  *    it re-crawl the whole site for nothing.
  *
- * Member areas (/practice, /battles, /contests, /progress, …) are NOT
- * listed: they answer with a redirect to /login, and a sitemap should only
- * ever point at pages that can be read without an account. They come back
- * here once the public leaderboard and contest list exist.
+ * A sitemap must only contain URLs that answer with their own content. The
+ * member area (`/practice`, `/battles`, `/leaderboard`, `/contests`,
+ * `/progress`, `/home`, `/history`, `/profile`, `/settings`,
+ * `/achievements`) is behind a session: it answers with a 307 to
+ * `/login?next=…` and carries `robots: noindex, follow: false`, so listing
+ * it would only produce "Submitted URL redirected" errors in Search
+ * Console. They come back here as soon as the public leaderboard and the
+ * public contest list exist.
+ *
+ * The auth screens (`/login`, `/signup`, `/forgot-password`,
+ * `/reset-password`, `/verify-otp`, `/verify-signup`, `/auth/callback`)
+ * are noindex by design and are never listed.
  */
 
 /** The guides and tools that are meant to be found in a search engine. */

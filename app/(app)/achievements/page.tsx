@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { AchievementBoard } from "@/components/app/AchievementBoard";
 
 export const metadata: Metadata = {
-  title: "Achievements — TypePotijogita",
-  description: "Badges and milestones — unlocked by your own runs.",
+  title: "Achievements",
+  description: "Badges and milestones - unlocked by your own runs.",
+  alternates: { canonical: "/achievements" },
 };
 
 export default function AchievementsPage() {

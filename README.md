@@ -257,16 +257,17 @@ The site is built to be found. Everything that a crawler reads first is generate
 
 | Piece | Where | What it does |
 | --- | --- | --- |
-| Origin | `lib/seo/site.ts` | `SITE_URL` (override with `NEXT_PUBLIC_SITE_URL`) → `metadataBase`, canonicals, `og:url`, sitemap, robots. |
+| Origin | `lib/seo/site.ts` | `SITE_URL` → `metadataBase`, canonicals, `og:url`, sitemap, robots. In production it is **fixed** to `https://typepotijogita.com`; `NEXT_PUBLIC_SITE_URL` is only honoured while developing, so a stray env var (or a preview deploy) can never point the canonicals at another host. |
 | Canonical | every indexable page | A self-referencing `alternates.canonical`. The root layout has none — a canonical there is inherited by every page that does not override it. |
+| Titles | every route | A unique `title` + `description`. The suffix `%s \| TypePotijogita` comes from `TITLE_TEMPLATE` in `lib/seo/site.ts`. ⚠️ A layout that defines a title **resets** the inherited template for everything below it, so a layout with children must re-declare `template: TITLE_TEMPLATE`. A client-component page cannot export metadata at all — those titles live in a `layout.tsx` next to the page. |
 | Sitemap | `app/sitemap.ts` | Only the public pages that render without an account. Member areas redirect to `/login`, so they are deliberately absent. |
 | Robots | `app/robots.ts` | Points at its own sitemap, blocks the member areas and the `/backend` proxy. |
-| Structured data | `lib/seo/schema.ts` | `WebApplication`, `Organization`, `BreadcrumbList` and `FAQPage`. FAQ blocks go through `components/seo/FaqSection.tsx`, which renders the schema from the same list it displays — Google ignores a FAQ schema that does not match the page. |
-| Social cards | `app/opengraph-image.tsx` + one per guide | Rendered with `ImageResponse`. A page that defines its own `openGraph` must add `images: ogImages(...)`, because `openGraph` is merged shallowly. |
+| Structured data | `lib/seo/schema.ts` | `WebSite`, `WebApplication`/`SoftwareApplication`, `Organization` (Seven Ventures Labs), `BreadcrumbList` and `FAQPage`, linked by `@id` (`#website`, `#application`, `#organization`). FAQ blocks go through `components/seo/FaqSection.tsx`, which renders the schema from the same list it displays — Google ignores a FAQ schema that does not match the page. |
+| Social cards | `app/opengraph-image.tsx` + one per guide | Rendered with `ImageResponse`. A page that defines its own `openGraph` must add `images: ogImages(...)`, because `openGraph` is merged shallowly. The root layout sets no `openGraph.url` — every indexable page sets its own, so a shared link never claims to be another page. |
 | Public pages | `app/(marketing)/` | `/typing-speed-test`, `/wpm-test`, `/type-practice`, `/about`, `/contact`, `/privacy`, `/terms`, `/cookies` — each with its own copy, FAQ, canonical and internal links. |
 | 404 / manifest / llms.txt | `app/not-found.tsx`, `app/manifest.ts`, `public/llms.txt` | A 404 that links to the guides, a web manifest, and a machine-readable summary for AI crawlers. |
 
-Member pages, `/login`, `/signup` and `/maintenance` are `noindex`. Two rules keep it that way: never hard-code a domain (a placeholder `metadataBase` once canonicalised the entire site to a domain nobody owns), and never put a redirecting URL in the sitemap.
+Member pages, `/login`, `/signup`, `/auth/callback` and `/maintenance` are `noindex`. Two rules keep it that way: never hard-code a domain (a placeholder `metadataBase` once canonicalised the entire site to a domain nobody owns), and never put a redirecting URL in the sitemap.
 
 ### Leaderboards
 

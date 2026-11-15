@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContestDetail } from "@/components/app/ContestDetail";
 
 export const metadata: Metadata = {
-  title: "Contest — TypePotijogita",
+  title: "Contest",
   description: "Contest details, participants and entry.",
 };
 

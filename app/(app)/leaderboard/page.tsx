@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/primitives";
 import { LiveBoard } from "@/components/app/LiveBoard";
 
 export const metadata: Metadata = {
-  title: "Leaderboard — TypePotijogita",
+  title: "Leaderboard",
   description: "Live ranks shaped by submitted test results.",
+  alternates: { canonical: "/leaderboard" },
 };
 
 export default function LeaderboardPage() {

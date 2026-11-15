@@ -19,6 +19,7 @@ import {
   LANDING_FAQ,
   appSchema,
   organizationSchema,
+  webSiteSchema,
 } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/site";
 
@@ -46,7 +47,14 @@ export default function Home() {
     <div id="top" className="relative min-h-screen text-ink antialiased">
       {/* The structured data for the landing page. The FAQPage schema is
           rendered by <FaqSection> itself, so the markup always matches the
-          questions shown on the page. */}
+          questions shown on the page. The three site-level entities share
+          one @id graph: WebSite -> Organization -> WebApplication. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(webSiteSchema).replace(/</g, "\\u003c"),
+        }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

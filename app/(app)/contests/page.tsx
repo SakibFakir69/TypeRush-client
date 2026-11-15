@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/primitives";
 import { ContestBoard } from "@/components/app/ContestBoard";
 
 export const metadata: Metadata = {
-  title: "Contests — TypePotijogita",
+  title: "Contests",
   description: "Weekly and monthly typing contests. Join a race and climb the board.",
+  alternates: { canonical: "/contests" },
 };
 
 export default function ContestsPage() {
