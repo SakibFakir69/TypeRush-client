@@ -84,9 +84,9 @@ export default function TermsPage() {
         Questions go to{" "}
         <a
           className="text-accent underline"
-          href="mailto:hello@typerush.app"
+          href="mailto:hello@typepotijogita.com"
         >
-          hello@typerush.app
+          hello@typepotijogita.com
         </a>
         .
       </p>

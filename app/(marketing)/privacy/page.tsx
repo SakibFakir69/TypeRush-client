@@ -108,9 +108,9 @@ export default function PrivacyPage() {
         Questions about any of this go to{" "}
         <a
           className="text-accent underline"
-          href="mailto:hello@typerush.app"
+          href="mailto:hello@typepotijogita.com"
         >
-          hello@typerush.app
+          hello@typepotijogita.com
         </a>
         .
       </p>

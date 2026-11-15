@@ -5,11 +5,11 @@
  * file, the JSON-LD and the Open Graph image — is built from `SITE_URL`, so
  * moving the domain is a one-line change (set `NEXT_PUBLIC_SITE_URL`).
  *
- * The default is the production Vercel host; the admin app lives on a
+ * The default is the production domain; the admin app lives on a
  * different domain and must never be canonicalised here.
  */
 const raw = (
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://typerush-client.vercel.app"
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://typepotijogita.com"
 ).replace(/\/+$/, "");
 
 export const SITE_URL = raw;
@@ -17,7 +17,7 @@ export const SITE_URL = raw;
 /** The brand name used in titles, schema and the manifest. */
 export const SITE_NAME = "TypePotijogita";
 
-/** `absoluteUrl("/progress")` → `https://typerush-client.vercel.app/progress`. */
+/** `absoluteUrl("/progress")` → `https://typepotijogita.com/progress`. */
 export function absoluteUrl(path: string): string {
   if (!path) return SITE_URL;
   return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`;

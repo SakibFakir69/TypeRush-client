@@ -84,10 +84,12 @@ Living notes for future work. Update when conventions change.
   build assets still load. The flag lives in `middleware.ts` and needs a
   redeploy after changing. ⚠️ It also de-indexes the whole site while it is
   on (every path redirects), so keep it off outside a real outage.
-- **SEO**: the canonical origin is `typerush-client.vercel.app`
+- **SEO**: the canonical origin is `typepotijogita.com`
   (`NEXT_PUBLIC_SITE_URL` overrides it). `typerush.app` serves an OLD
   Lovable build in Portuguese — it must never be pointed at by the sitemap,
   robots or canonicals, and it should be 301'd here (or dropped).
+  `typerush-client.vercel.app` is only the pre-domain host — it must not be
+  canonicalised either (redirect it to the real domain).
   Public, indexable pages: `/`, `/test`, `/typing-speed-test`, `/wpm-test`,
   `/type-practice`, `/about`, `/contact`, `/privacy`, `/terms`, `/cookies`.
   The guide pages carry FAQPage + BreadcrumbList + WebApplication schema and

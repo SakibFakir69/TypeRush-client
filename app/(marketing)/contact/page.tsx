@@ -26,9 +26,9 @@ export default function ContactPage() {
         Write to{" "}
         <a
           className="text-accent underline"
-          href="mailto:hello@typerush.app"
+          href="mailto:hello@typepotijogita.com"
         >
-          hello@typerush.app
+          hello@typepotijogita.com
         </a>
         . We read everything, and bug reports with a browser and a screen
         recording usually get fixed first.
