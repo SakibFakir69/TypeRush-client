@@ -54,10 +54,16 @@ export default function CookiesPage() {
         (the guides and this site&apos;s home page). Those ads are served by
         Google AdSense, and Google may use cookies to pick and measure them —
         for example the <strong>IDE</strong>, <strong>DSID</strong>,{" "}
-        <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies. They
-        are only ever set <strong>after you accept</strong> ads: nothing is
-        requested from Google before you answer, and you can change your
-        answer at any time below.
+        <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies.
+      </p>
+      <p>
+        <strong>In the European Economic Area, the United Kingdom,
+        Switzerland, Brazil and South Korea</strong>, we ask you first: the
+        banner appears before anything loads, and no request is made to
+        Google until you accept. <strong>Everywhere else</strong> — including
+        the United States, India and Bangladesh — no such consent is
+        required, so the ads simply load and the typing test works exactly
+        the same.
       </p>
       <p>
         Ads never appear on a typing screen. The test, the practice arena and
@@ -79,7 +85,7 @@ export default function CookiesPage() {
         <div className="flex flex-wrap items-center gap-3">
           <CookieChoicesButton />
           <span className="text-[12px] text-faint">
-            Opens the same choice you saw the first time.
+            Opt out of ads, or change your mind later.
           </span>
         </div>
       ) : null}

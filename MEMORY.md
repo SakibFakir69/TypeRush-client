@@ -116,14 +116,20 @@ Living notes for future work. Update when conventions change.
   `/type-practice`), so Google never touches a typing surface and auto ads
   stay confined to those pages. Three rules: an ad NEVER goes on a typing
   surface (`/test`, `/practice/session`, `/battles` — accidental clicks =
-  policy strike), NOTHING loads before consent, and auto ads stay off
-  unless deliberately enabled in the dashboard. The loader is injected by
-  hand in `components/ads/AdScript.tsx`, NOT with `next/script` — that
-  component collects its scripts during the server render, so a script
-  rendered only *after* consent is never injected. The consent provider
-  resolves the stored answer on a rAF **and** a timeout: rAF never fires
-  in a hidden tab, so the timeout is what keeps a background tab from
-  sitting with an unresolved consent state.
+  policy strike), NOTHING loads before consent where consent is required,
+  and auto ads stay off unless deliberately enabled in the dashboard.
+  **Consent is geo-aware**: `CONSENT_COUNTRIES` (EEA/UK/CH/BR/KR) is where
+  the banner is required; everywhere else the ads load immediately with no
+  banner and no skip. The middleware reads `x-vercel-ip-country` and writes
+  the `tp-ad-consent` cookie — a cookie, NOT a header read in the layout,
+  which would turn every prerendered page dynamic. An explicit user choice
+  always wins; an unknown country is treated as "ask".
+  The loader is injected by hand in `components/ads/AdScript.tsx`, NOT with
+  `next/script` — that component collects its scripts during the server
+  render, so a script rendered only *after* consent is never injected. The
+  consent provider resolves the stored answer on a rAF **and** a timeout:
+  rAF never fires in a hidden tab, so the timeout is what keeps a
+  background tab from sitting with an unresolved consent state.
   `app/ads.txt/route.ts` generates ads.txt from the same env var.
   One unit per page, 4 placements: `/` + the 3 guides.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so

@@ -85,12 +85,19 @@ export default function PrivacyPage() {
         measure them, and may share information with its partners. Those ads
         are contextual: they are chosen for the page you are reading, not
         from a profile of you. Ads never appear on the typing test, the
-        practice arena or a battle, and nothing is requested from Google
-        before you accept. You can change your mind at any time from the{" "}
+        practice arena or a battle. You can change your mind at any time from
+        the{" "}
         <a className="text-accent underline" href="/cookies">
           cookie policy
         </a>
         .
+      </p>
+      <p>
+        In the European Economic Area, the United Kingdom, Switzerland,
+        Brazil and South Korea we ask for your consent before loading
+        anything from Google. In every other country that consent is not
+        required, so the ads load directly — the typing test itself stays
+        free and ad-free either way.
       </p>
 
       <h2>How long we keep it</h2>

@@ -45,6 +45,41 @@ export const AD_ROUTES = [
   "/type-practice",
 ] as const;
 
+/**
+ * The countries where ad consent has to be asked for before anything
+ * loads: the EU/EEA, the UK, Switzerland, Brazil (LGPD) and South Korea
+ * (PIPA).
+ *
+ * Everywhere else — the US, India, Bangladesh, Canada, most of Asia and
+ * Africa — no consent gate is required for ad cookies, so those visitors
+ * get the ads straight away with no banner and no "skip". That is the
+ * difference between a banner on every page and ads that simply show up.
+ */
+export const CONSENT_COUNTRIES = new Set([
+  // EU
+  "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR",
+  "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO",
+  "SE", "SI", "SK",
+  // EEA + others
+  "IS", "LI", "NO", "GB", "CH", "BR", "KR",
+]);
+
+/**
+ * Does this country have to ask for consent first?
+ *
+ * An unknown country is treated as "ask" — the safe default, and the
+ * reason the banner still shows in local development (Vercel only sends
+ * the country header in production).
+ */
+export function countryNeedsConsent(country: string | undefined | null) {
+  const code = (country ?? "").trim().toUpperCase();
+  if (!code) return true;
+  return CONSENT_COUNTRIES.has(code);
+}
+
+/** The cookie the middleware writes with the jurisdiction flag. */
+export const CONSENT_COOKIE = "tp-ad-consent";
+
 /** Is this path one of the routes that may carry an ad? */
 export function isAdRoute(pathname: string): boolean {
   return AD_ROUTES.some(

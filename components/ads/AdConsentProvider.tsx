@@ -10,7 +10,12 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
-import { ADSENSE_CLIENT, ADSENSE_CMP, isAdRoute } from "@/lib/ads";
+import {
+  ADSENSE_CLIENT,
+  ADSENSE_CMP,
+  CONSENT_COOKIE,
+  isAdRoute,
+} from "@/lib/ads";
 
 /**
  * Advertising consent.
@@ -60,6 +65,32 @@ function readStored(): AdConsent {
   return "unknown";
 }
 
+/**
+ * The jurisdiction flag the middleware wrote: "required" where consent has
+ * to be asked for, "auto" where it does not.
+ *
+ * Where it is not required, the ads simply load — no banner, no "skip" —
+ * and the visitor can still opt out from the cookie policy at any time.
+ */
+function readJurisdiction(): "required" | "auto" {
+  const match = document.cookie.match(
+    new RegExp(`(?:^|;\\s*)${CONSENT_COOKIE}=([^;]+)`)
+  );
+  return match?.[1] === "auto" ? "auto" : "required";
+}
+
+/**
+ * The answer we act on.
+ *
+ * An explicit choice always wins. Without one: where consent is required
+ * we ask, and where it is not we go ahead.
+ */
+function resolveConsent(): AdConsent {
+  const stored = readStored();
+  if (stored !== "unknown") return stored;
+  return readJurisdiction() === "auto" ? "granted" : "unknown";
+}
+
 export function AdConsentProvider({ children }: { children: ReactNode }) {
   const [consent, setConsent] = useState<AdConsent>("unknown");
   const [answered, setAnswered] = useState(false);
@@ -80,9 +111,9 @@ export function AdConsentProvider({ children }: { children: ReactNode }) {
     const apply = () => {
       if (done) return;
       done = true;
-      const stored = readStored();
-      previous.current = stored;
-      setConsent(stored);
+      const resolved = resolveConsent();
+      previous.current = resolved;
+      setConsent(resolved);
       setAnswered(true);
     };
     const frame = requestAnimationFrame(apply);
@@ -92,7 +123,6 @@ export function AdConsentProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(timer);
     };
   }, []);
-
   const grant = useCallback(() => {
     setConsent("granted");
     setForced(false);
@@ -114,9 +144,10 @@ export function AdConsentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reopen = useCallback(() => {
-    // The stored answer is kept until the visitor picks again, so a
-    // "cancel" can put it back exactly as it was.
-    previous.current = readStored();
+    // The previous answer is kept until the visitor picks again, so a
+    // "cancel" can put it back exactly as it was — including the automatic
+    // "granted" that applies where no consent is required.
+    previous.current = resolveConsent();
     setForced(true);
     setConsent("unknown");
   }, []);

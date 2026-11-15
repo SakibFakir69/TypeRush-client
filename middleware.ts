@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { backendUrl } from "@/lib/backend-url";
+import { CONSENT_COOKIE, countryNeedsConsent } from "@/lib/ads";
 
 const PROTECTED_PATHS = [
   "/home",
@@ -92,6 +93,35 @@ async function refreshSession(refreshToken: string): Promise<RefreshResult> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  /**
+   * The jurisdiction flag for advertising consent.
+   *
+   * Vercel tells us the visitor's country (`x-vercel-ip-country`). Where
+   * consent has to be asked for (EEA, UK, CH, BR, KR) the visitor sees a
+   * banner before anything loads. Everywhere else the banner is not
+   * required, so those visitors simply get the ads — no gate, no skip.
+   *
+   * It is written as a cookie rather than read from a header so the
+   * client can see it without making the whole app dynamic (a header read
+   * in the root layout would turn every prerendered page into a
+   * server-rendered one).
+   */
+  const needsConsent = countryNeedsConsent(
+    req.headers.get("x-vercel-ip-country")
+  );
+  const withJurisdiction = (response: NextResponse) => {
+    response.cookies.set(
+      CONSENT_COOKIE,
+      needsConsent ? "required" : "auto",
+      {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 180,
+        sameSite: "lax",
+      }
+    );
+    return response;
+  };
+
   // Maintenance window: flip `MAINTENANCE_MODE=true` in the Vercel project and
   // the whole app is locked to the holding screen — every other path (pages,
   // login, and even `/backend` proxy calls) redirects back to `/maintenance`.
@@ -103,7 +133,7 @@ export async function middleware(req: NextRequest) {
     (p) => pathname === p || pathname.startsWith(`${p}/`)
   );
   if (!isProtected) {
-    return NextResponse.next();
+    return withJurisdiction(NextResponse.next());
   }
 
   const accessToken = req.cookies.get("accessToken")?.value;
@@ -138,7 +168,7 @@ export async function middleware(req: NextRequest) {
         response.headers.append("set-cookie", cookie);
       }
 
-      return response;
+      return withJurisdiction(response);
     }
   }
 
@@ -155,7 +185,7 @@ export async function middleware(req: NextRequest) {
     response.cookies.delete("refreshToken");
   }
 
-  return response;
+  return withJurisdiction(response);
 }
 
 export const config = {

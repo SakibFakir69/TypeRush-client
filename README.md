@@ -292,6 +292,15 @@ Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already 
 
 **Consent** — the banner appears on the ad routes only and can be reopened from the cookie policy on any page. The choice is stored in `localStorage`, and the loader is never injected before it. `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's Funding Choices CMP instead (TCF-certified, free, and the recommended path in the EEA).
 
+**Who has to be asked** — `CONSENT_COUNTRIES` in `lib/ads.ts` (EEA, UK, CH, BR, KR) is the only place consent is required by law. The middleware reads Vercel's `x-vercel-ip-country` and writes a `tp-ad-consent` cookie:
+
+| Visitor | Banner | Ads |
+| --- | --- | --- |
+| EEA / UK / CH / BR / KR | Shown before anything loads | Only after they accept |
+| Everywhere else (US, IN, BD, CA, …) | Not shown | Load immediately — no gate, no skip |
+
+An explicit choice always wins: a visitor who opts out from the cookie policy keeps the ads off wherever they are. An unknown country is treated as "ask".
+
 **`ads.txt`** is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id in the file can never drift from the script.
 
 **Placements** — one unit per page, four in total: the landing page (`home`, below the hero) and the three guides (`typing-speed-test`, `wpm-test`, `type-practice`, in-content after the first section). `lib/ads.ts` owns the map.
