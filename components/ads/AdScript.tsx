@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { ADSENSE_CLIENT, ADSENSE_CMP } from "@/lib/ads";
+import { usePathname } from "next/navigation";
+import { ADSENSE_CLIENT, ADSENSE_CMP, isAdRoute } from "@/lib/ads";
 import { useAdConsent } from "./AdConsentProvider";
 
 const ID = "adsense-loader";
@@ -15,13 +16,21 @@ const ID = "adsense-loader";
  * the script once the visitor has accepted never gets it injected. A
  * plain `<script>` element is also exactly what AdSense's own snippet
  * does, and it is idempotent — the loader is added once and never twice.
+ *
+ * It is also injected ONLY on the ad routes. That keeps Google's code
+ * away from the typing surfaces entirely (no request at all on `/test`,
+ * `/practice/session` or `/battles`) and it confines AdSense's auto ads
+ * to the same four pages.
  */
 export function AdScript() {
   const { consent } = useAdConsent();
+  const pathname = usePathname();
 
   const googleOwnsConsent = ADSENSE_CMP === "google";
   const mayLoad =
-    Boolean(ADSENSE_CLIENT) && (googleOwnsConsent || consent === "granted");
+    Boolean(ADSENSE_CLIENT) &&
+    (googleOwnsConsent || consent === "granted") &&
+    isAdRoute(pathname);
 
   useEffect(() => {
     if (!mayLoad) return;

@@ -30,12 +30,40 @@ export const ADSENSE_CMP = (
 ).trim();
 
 /**
+ * The routes that may carry an ad.
+ *
+ * The AdSense loader is only injected on these routes, so Google's code
+ * never even reaches the browser on a typing surface — `/test`,
+ * `/practice/session` and `/battles` make no request to Google at all.
+ * This also constrains AdSense *auto ads* (which are injected by the
+ * loader wherever it runs) to the same four pages.
+ */
+export const AD_ROUTES = [
+  "/",
+  "/typing-speed-test",
+  "/wpm-test",
+  "/type-practice",
+] as const;
+
+/** Is this path one of the routes that may carry an ad? */
+export function isAdRoute(pathname: string): boolean {
+  return AD_ROUTES.some(
+    (route) => route === "/" ? pathname === "/" : pathname.startsWith(route)
+  );
+}
+
+/**
  * The ad units, keyed by where they are rendered.
  *
  * Replace every `REPLACE_WITH_SLOT_ID` with the unit id from the AdSense
  * dashboard (AdSense → Ad units → the `ca-pub-...` slot id, the digits
  * only). A slot still holding the placeholder is not rendered at all, so a
  * half-configured account cannot show a broken unit.
+ *
+ * Without any slot id the site still works: the loader is loaded on the
+ * ad routes and AdSense's own auto ads (if they are switched on in the
+ * dashboard) fill those pages. The units below are the precise,
+ * hand-placed version of the same thing.
  */
 export const AD_SLOTS = {
   /** Landing page, below the hero. */

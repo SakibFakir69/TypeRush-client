@@ -5,10 +5,12 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { ADSENSE_CLIENT, ADSENSE_CMP } from "@/lib/ads";
+import { usePathname } from "next/navigation";
+import { ADSENSE_CLIENT, ADSENSE_CMP, isAdRoute } from "@/lib/ads";
 
 /**
  * Advertising consent.
@@ -23,6 +25,10 @@ import { ADSENSE_CLIENT, ADSENSE_CMP } from "@/lib/ads";
  * recommended path in the EEA: it is TCF-certified, it is free, and it
  * blocks the ad requests itself. When it is enabled our own banner steps
  * aside and lets Google draw it.
+ *
+ * The banner is only shown on the routes that may carry an ad, so a
+ * visitor who never reaches one is never asked — unless they open it
+ * deliberately from the cookie policy, which always works.
  */
 
 const KEY = "typerush-ads-consent";
@@ -57,21 +63,39 @@ function readStored(): AdConsent {
 export function AdConsentProvider({ children }: { children: ReactNode }) {
   const [consent, setConsent] = useState<AdConsent>("unknown");
   const [answered, setAnswered] = useState(false);
+  const [forced, setForced] = useState(false);
+  const previous = useRef<AdConsent>("unknown");
 
   useEffect(() => {
     // The same shape as `lib/theme.tsx`: the read happens after the paint,
     // so the stored answer never differs between the server render and the
     // first client render (a returning visitor never sees the banner
     // flash), and no state is set synchronously in the effect.
-    const frame = requestAnimationFrame(() => {
-      setConsent(readStored());
+    //
+    // The timeout is a fallback for a hidden tab: `requestAnimationFrame`
+    // does not fire there, and a tab that is never focused would sit
+    // without a resolved consent state (and therefore without ads) until
+    // it is opened.
+    let done = false;
+    const apply = () => {
+      if (done) return;
+      done = true;
+      const stored = readStored();
+      previous.current = stored;
+      setConsent(stored);
       setAnswered(true);
-    });
-    return () => cancelAnimationFrame(frame);
+    };
+    const frame = requestAnimationFrame(apply);
+    const timer = window.setTimeout(apply, 100);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
   }, []);
 
   const grant = useCallback(() => {
     setConsent("granted");
+    setForced(false);
     try {
       window.localStorage.setItem(KEY, "granted");
     } catch {
@@ -81,6 +105,7 @@ export function AdConsentProvider({ children }: { children: ReactNode }) {
 
   const deny = useCallback(() => {
     setConsent("denied");
+    setForced(false);
     try {
       window.localStorage.setItem(KEY, "denied");
     } catch {
@@ -89,18 +114,22 @@ export function AdConsentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reopen = useCallback(() => {
+    // The stored answer is kept until the visitor picks again, so a
+    // "cancel" can put it back exactly as it was.
+    previous.current = readStored();
+    setForced(true);
     setConsent("unknown");
-    try {
-      window.localStorage.removeItem(KEY);
-    } catch {
-      /* ignore */
-    }
+  }, []);
+
+  const cancel = useCallback(() => {
+    setForced(false);
+    setConsent(previous.current);
   }, []);
 
   return (
     <AdConsentContext.Provider value={{ consent, grant, deny, reopen }}>
       {children}
-      {answered && <ConsentBanner />}
+      {answered ? <ConsentBanner forced={forced} onCancel={cancel} /> : null}
     </AdConsentContext.Provider>
   );
 }
@@ -116,13 +145,23 @@ export function useAdConsent() {
  * map: a banner that a stray key press dismisses (or accepts) is a
  * consent bug, and the site has a lot of typing.
  */
-function ConsentBanner() {
+function ConsentBanner({
+  forced,
+  onCancel,
+}: {
+  forced: boolean;
+  onCancel: () => void;
+}) {
   const { consent, grant, deny } = useAdConsent();
+  const pathname = usePathname();
 
   // Nothing to consent to when no ad client is configured, and nothing to
   // do when Google owns the consent UI.
   if (!ADSENSE_CLIENT || ADSENSE_CMP === "google") return null;
   if (consent !== "unknown") return null;
+  // Only the routes that may carry an ad — unless the visitor asked to
+  // change their mind from the cookie policy.
+  if (!forced && !isAdRoute(pathname)) return null;
 
   return (
     <div
@@ -137,6 +176,15 @@ function ConsentBanner() {
           off — the typing test works either way.
         </p>
         <div className="flex shrink-0 gap-2">
+          {forced ? (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:bg-chip"
+            >
+              Cancel
+            </button>
+          ) : null}
           <button
             type="button"
             onClick={deny}
