@@ -32,6 +32,7 @@ const COLS: Array<[string, { label: string; href: string }[]]> = [
     [
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
+      { label: "Advertise", href: "/advertise" },
     ],
   ],
   [

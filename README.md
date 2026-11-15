@@ -177,6 +177,8 @@ The API repo must be running on that origin, with its database migrated and seed
 | `NEXT_PUBLIC_BACKEND_URL` | Production | Client + server | Full origin of the Express API, no trailing slash (e.g. `https://typerush-server.onrender.com`). |
 | `API_URL` | No | Server only | Optional fallback used by server-side helpers when the public variable is absent. |
 | `MAINTENANCE_MODE` | No | Edge middleware | `true` locks the app to `/maintenance`; every other path redirects back there. |
+| `NEXT_PUBLIC_ADSENSE_CLIENT` | No | Client + server | AdSense publisher id (`ca-pub-…`). Unset = no ads at all: no script, no markup, no cookie, no banner. |
+| `NEXT_PUBLIC_ADSENSE_CMP` | No | Client | `google` hands the consent UI to Google's Funding Choices CMP (TCF-certified, free — the recommended path in the EEA). Empty = our own banner. |
 
 `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` appear in older local `.env` files but are **not used by this app** — uploads are handled by the API. Do not add them to Vercel.
 
@@ -268,6 +270,27 @@ The site is built to be found. Everything that a crawler reads first is generate
 | 404 / manifest / llms.txt | `app/not-found.tsx`, `app/manifest.ts`, `public/llms.txt` | A 404 that links to the guides, a web manifest, and a machine-readable summary for AI crawlers. |
 
 Member pages, `/login`, `/signup`, `/auth/callback` and `/maintenance` are `noindex`. Two rules keep it that way: never hard-code a domain (a placeholder `metadataBase` once canonicalised the entire site to a domain nobody owns), and never put a redirecting URL in the sitemap.
+
+### Advertising
+
+Ads keep the site free. The whole feature is **inert until it is configured**: no publisher id means no script, no markup, no cookie and no banner — the site behaves exactly as it does without it.
+
+**Turning it on**
+
+1. Apply for AdSense and get the publisher id (`ca-pub-…`).
+2. Set `NEXT_PUBLIC_ADSENSE_CLIENT` in the Vercel project (Production + Preview) and redeploy.
+3. Create one responsive display unit per placement in the AdSense dashboard and paste its slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` is not rendered at all).
+4. `public/ads.txt` is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id can never drift between the file and the script.
+
+**Three rules that are not negotiable**
+
+- **An ad never appears on a typing surface.** `/test`, `/practice/session` and `/battles` are timed, keyboard-driven screens: an ad next to the text is an accidental click, and accidental clicks are the fastest way to get a policy strike. Ads only go on the reading pages.
+- **Nothing loads before consent.** The AdSense loader is injected by hand (`components/ads/AdScript.tsx`) only after the visitor accepts, so a rejected visitor never makes a request to Google at all. `next/script` cannot be used here: it collects its scripts during the server render, so a component that only renders the script *after* consent never gets it injected.
+- **Auto ads stay off.** AdSense auto ads place units wherever they want, including next to the typing text.
+
+**Placements** — one unit per page, four in total: the landing page (`home`, below the hero) and the three guides (`typing-speed-test`, `wpm-test`, `type-practice`, in-content after the first section). `lib/ads.ts` owns the map.
+
+`/advertise` is the rate card for direct sponsors and affiliates — that path needs far less traffic than the ad network, and it is the one that realistically reaches $1,000/month.
 
 ### Leaderboards
 

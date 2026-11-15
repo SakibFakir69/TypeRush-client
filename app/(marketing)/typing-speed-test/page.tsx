@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FaqSection } from "@/components/seo/FaqSection";
 import { RelatedGuides } from "@/components/seo/RelatedGuides";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/site";
 
@@ -107,6 +108,11 @@ export default function TypingSpeedTestPage() {
           </div>
         ))}
       </section>
+
+      {/* In-content unit, after the first screen of copy. The best
+          position on a reading page — and still nowhere near a typing
+          surface. */}
+      <AdSlot slot="typing-speed-test" />
 
       <section className="space-y-3">
         <h2 className="text-xl font-extrabold">How WPM is calculated</h2>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/seo/InfoPage";
+import { CookieChoicesButton } from "@/components/ads/CookieChoicesButton";
+import { ADSENSE_CLIENT } from "@/lib/ads";
 import { absoluteUrl, ogImages } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -20,7 +22,7 @@ export default function CookiesPage() {
     <InfoPage
       title="Cookie Policy"
       intro="A short list: the cookies we set, what they do, and how long they live."
-      updated="Last updated: 12 November 2026"
+      updated="Last updated: 15 November 2026"
     >
       <h2>Cookies we set</h2>
       <ul>
@@ -46,11 +48,21 @@ export default function CookiesPage() {
         Clearing your browser storage removes them.
       </p>
 
-      <h2>No advertising cookies</h2>
+      <h2>Advertising cookies</h2>
       <p>
-        We do not run advertising trackers, and we do not sell or share your
-        browsing data. The analytics we keep are first-party, aggregate page
-        counts — they never identify you.
+        We keep the typing test free by showing ads on the reading pages
+        (the guides and this site&apos;s home page). Those ads are served by
+        Google AdSense, and Google may use cookies to pick and measure them —
+        for example the <strong>IDE</strong>, <strong>DSID</strong>,{" "}
+        <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies. They
+        are only ever set <strong>after you accept</strong> ads: nothing is
+        requested from Google before you answer, and you can change your
+        answer at any time below.
+      </p>
+      <p>
+        Ads never appear on a typing screen. The test, the practice arena and
+        the battles are always ad-free, because an ad that moves while you are
+        typing is an accident waiting to happen.
       </p>
 
       <h2>Turning them off</h2>
@@ -62,6 +74,15 @@ export default function CookiesPage() {
         </a>{" "}
         for what each one is used for.
       </p>
+
+      {ADSENSE_CLIENT ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <CookieChoicesButton />
+          <span className="text-[12px] text-faint">
+            Opens the same choice you saw the first time.
+          </span>
+        </div>
+      ) : null}
     </InfoPage>
   );
 }

@@ -1,0 +1,68 @@
+/**
+ * Ad configuration.
+ *
+ * Three rules, and they are not negotiable:
+ *
+ *  1. **An ad never touches a typing surface.** `/test`, `/practice/session`
+ *     and `/battles` are timed, keyboard-driven screens. An ad next to the
+ *     text is an accidental click, and accidental clicks are the fastest
+ *     way to get an AdSense policy strike (and the fastest way to lose a
+ *     typist forever). Ads only ever go on the reading pages.
+ *  2. **Nothing loads before consent.** The loader is injected only after
+ *     the visitor accepts, so a rejected visitor never makes a request to
+ *     Google at all.
+ *  3. **The feature is inert until it is configured.** No client id and no
+ *     real slot id means no markup, no script, no cookie. The site behaves
+ *     exactly as it does today.
+ */
+
+/** The AdSense publisher id (`ca-pub-...`). Set it in the environment. */
+export const ADSENSE_CLIENT = (
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? ""
+).trim();
+
+/**
+ * `"google"` hands the consent UI to Google's Funding Choices CMP (the
+ * free, TCF-certified one). Leave it empty to use our own banner.
+ */
+export const ADSENSE_CMP = (
+  process.env.NEXT_PUBLIC_ADSENSE_CMP ?? ""
+).trim();
+
+/**
+ * The ad units, keyed by where they are rendered.
+ *
+ * Replace every `REPLACE_WITH_SLOT_ID` with the unit id from the AdSense
+ * dashboard (AdSense → Ad units → the `ca-pub-...` slot id, the digits
+ * only). A slot still holding the placeholder is not rendered at all, so a
+ * half-configured account cannot show a broken unit.
+ */
+export const AD_SLOTS = {
+  /** Landing page, below the hero. */
+  home: "REPLACE_WITH_SLOT_ID",
+  /** /typing-speed-test, after the first section. */
+  "typing-speed-test": "REPLACE_WITH_SLOT_ID",
+  /** /wpm-test, after the first section. */
+  "wpm-test": "REPLACE_WITH_SLOT_ID",
+  /** /type-practice, after the first section. */
+  "type-practice": "REPLACE_WITH_SLOT_ID",
+} as const;
+
+export type AdSlotKey = keyof typeof AD_SLOTS;
+
+/** A slot id that was never filled in. */
+export function isPlaceholderSlot(slot: string) {
+  return slot.startsWith("REPLACE_WITH");
+}
+
+/** The real slot id for a placement, or null when it is not configured. */
+export function slotId(key: AdSlotKey): string | null {
+  const id = AD_SLOTS[key];
+  if (!id || isPlaceholderSlot(id)) return null;
+  return id;
+}
+
+/** Ads render only when a publisher id and a real slot id are present. */
+export function adsEnabled(key: AdSlotKey): boolean {
+  return Boolean(ADSENSE_CLIENT) && slotId(key) !== null;
+}

@@ -110,6 +110,16 @@ Living notes for future work. Update when conventions change.
   legalName Seven Ventures Labs). No `SearchAction`: there is no internal
   search, and pointing Google at an endpoint that does not exist is a
   markup lie.
+- **Ads**: `lib/ads.ts` owns the publisher id + the slot map; the feature is
+  INERT until `NEXT_PUBLIC_ADSENSE_CLIENT` is set (no script, no markup, no
+  cookie, no banner). Three rules: an ad NEVER goes on a typing surface
+  (`/test`, `/practice/session`, `/battles` — accidental clicks = policy
+  strike), NOTHING loads before consent, and auto ads stay off. The loader
+  is injected by hand in `components/ads/AdScript.tsx`, NOT with
+  `next/script` — that component collects its scripts during the server
+  render, so a script rendered only *after* consent is never injected.
+  `app/ads.txt/route.ts` generates ads.txt from the same env var.
+  One unit per page, 4 placements: `/` + the 3 guides.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

@@ -21,7 +21,7 @@ export default function PrivacyPage() {
     <InfoPage
       title="Privacy Policy"
       intro="What we store, why we store it, and how to get rid of it."
-      updated="Last updated: 12 November 2026"
+      updated="Last updated: 15 November 2026"
     >
       <h2>The short version</h2>
       <p>
@@ -29,7 +29,8 @@ export default function PrivacyPage() {
         about you. If you create an account we keep your email address, your
         typing results and the badges you unlocked, because that is what makes
         your progress curve and your leaderboard row work. We do not sell your
-        data and we do not run third-party advertising trackers.
+        data. We show ads on the reading pages to keep the site free, and we
+        only let the ad provider set anything after you agree to it.
       </p>
 
       <h2>What we store</h2>
@@ -75,6 +76,21 @@ export default function PrivacyPage() {
         password resets, the image host that stores avatars, and the
         infrastructure host that runs the API. Each of them receives only what
         it needs to do its job.
+      </p>
+
+      <h2>Advertising</h2>
+      <p>
+        We use Google AdSense to show ads on the reading pages. If you accept
+        ads, Google may use cookies and similar technologies to select and
+        measure them, and may share information with its partners. Those ads
+        are contextual: they are chosen for the page you are reading, not
+        from a profile of you. Ads never appear on the typing test, the
+        practice arena or a battle, and nothing is requested from Google
+        before you accept. You can change your mind at any time from the{" "}
+        <a className="text-accent underline" href="/cookies">
+          cookie policy
+        </a>
+        .
       </p>
 
       <h2>How long we keep it</h2>

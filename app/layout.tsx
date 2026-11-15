@@ -7,6 +7,8 @@ import { ThemedToaster } from "@/components/ui/ThemedToaster";
 import { MotionProvider } from "@/components/ui/MotionProvider";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { AdConsentProvider } from "@/components/ads/AdConsentProvider";
+import { AdScript } from "@/components/ads/AdScript";
 import { SITE_URL, TITLE_TEMPLATE } from "@/lib/seo/site";
 import "./globals.css";
 
@@ -94,13 +96,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${ubuntu.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <StoreProvider>
-            <AudioUnlock />
-            <MotionProvider>{children}</MotionProvider>
-            <ThemedToaster />
-          </StoreProvider>
-        </ThemeProvider>
+        <AdConsentProvider>
+          <ThemeProvider>
+            <StoreProvider>
+              <AudioUnlock />
+              <MotionProvider>{children}</MotionProvider>
+              <ThemedToaster />
+            </StoreProvider>
+          </ThemeProvider>
+          {/* The only request this site makes to Google, and only after the
+              visitor accepted ads. It lives INSIDE the consent provider —
+              outside it, it would only ever see the default context and
+              would never load. Inert until NEXT_PUBLIC_ADSENSE_CLIENT is
+              set. */}
+          <AdScript/>
+        </AdConsentProvider>
         <Analytics/>
         <SpeedInsights/>
       </body>

@@ -36,6 +36,7 @@ const PUBLIC_PAGES: {
   { path: "/typing-speed-test", changeFrequency: "monthly", priority: 0.9 },
   { path: "/wpm-test", changeFrequency: "monthly", priority: 0.9 },
   { path: "/type-practice", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/advertise", changeFrequency: "monthly", priority: 0.3 },
   { path: "/about", changeFrequency: "yearly", priority: 0.4 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.3 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.2 },

@@ -13,6 +13,7 @@ import { TeamsSection } from "@/components/landing/TeamsSection";
 import { CtaBanner } from "@/components/landing/CtaBanner";
 import { KeyboardBackdrop } from "@/components/landing/KeyboardBackdrop";
 import { FaqSection } from "@/components/seo/FaqSection";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScrollJourney } from "@/components/ui/ScrollJourney";
 import {
@@ -85,6 +86,12 @@ export default function Home() {
         <Reveal>
           <ValueProps />
         </Reveal>
+
+        {/* The only ad on the landing page, below the hero. Never above
+            the fold, never next to the demo — a reader who is about to
+            start typing must not have an ad move under the cursor. */}
+        <AdSlot slot="home" />
+
         <Reveal>
           <PracticeSection />
         </Reveal>
