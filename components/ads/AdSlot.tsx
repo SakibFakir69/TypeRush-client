@@ -65,7 +65,7 @@ export function AdSlot({
       </p>
       {mayShow ? (
         <ins
-          className="adsbygoogle block"
+          className="adsbygoogle block min-h-[100px] sm:min-h-[250px]"
           style={{ display: "block" }}
           data-ad-client={ADSENSE_CLIENT}
           data-ad-slot={id ?? ""}
@@ -73,7 +73,7 @@ export function AdSlot({
           data-full-width-responsive="true"
         />
       ) : (
-        <div className="min-h-[90px] w-full" aria-hidden="true" />
+        <div className="min-h-[100px] w-full sm:min-h-[250px]" aria-hidden="true" />
       )}
     </aside>
   );
