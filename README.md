@@ -273,20 +273,26 @@ Member pages, `/login`, `/signup`, `/auth/callback` and `/maintenance` are `noin
 
 ### Advertising
 
-Ads keep the site free. The whole feature is **inert until it is configured**: no publisher id means no script, no markup, no cookie and no banner — the site behaves exactly as it does without it.
+Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already set in the Vercel project for Production and Preview.
 
-**Turning it on**
+**Where the loader runs** — only on the four ad routes in `AD_ROUTES` (`lib/ads.ts`): `/`, `/typing-speed-test`, `/wpm-test`, `/type-practice`. Google's code never reaches the browser on a typing surface, and AdSense's auto ads (which the loader injects wherever it runs) are confined to the same four pages.
 
-1. Apply for AdSense and get the publisher id (`ca-pub-…`).
-2. Set `NEXT_PUBLIC_ADSENSE_CLIENT` in the Vercel project (Production + Preview) and redeploy.
-3. Create one responsive display unit per placement in the AdSense dashboard and paste its slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` is not rendered at all).
-4. `public/ads.txt` is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id can never drift between the file and the script.
+**Two ways to fill the pages with ads** — pick one:
+
+1. **Manual units (recommended).** In AdSense → Ad units, create one responsive display ad per placement, then paste the slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` renders nothing). Each unit then appears in exactly the place the code puts it.
+2. **Auto ads.** Switch them on in the AdSense dashboard. The loader is already loaded on the ad routes, so Google fills those four pages itself. Nothing changes in the code.
+
+**Turning it off** — remove `NEXT_PUBLIC_ADSENSE_CLIENT` from the Vercel project and redeploy: no script, no markup, no cookie, no banner.
 
 **Three rules that are not negotiable**
 
 - **An ad never appears on a typing surface.** `/test`, `/practice/session` and `/battles` are timed, keyboard-driven screens: an ad next to the text is an accidental click, and accidental clicks are the fastest way to get a policy strike. Ads only go on the reading pages.
 - **Nothing loads before consent.** The AdSense loader is injected by hand (`components/ads/AdScript.tsx`) only after the visitor accepts, so a rejected visitor never makes a request to Google at all. `next/script` cannot be used here: it collects its scripts during the server render, so a component that only renders the script *after* consent never gets it injected.
-- **Auto ads stay off.** AdSense auto ads place units wherever they want, including next to the typing text.
+- **Auto ads stay off unless you want them.** AdSense auto ads place units wherever they want; the route scoping above is what keeps them off the typing pages.
+
+**Consent** — the banner appears on the ad routes only and can be reopened from the cookie policy on any page. The choice is stored in `localStorage`, and the loader is never injected before it. `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's Funding Choices CMP instead (TCF-certified, free, and the recommended path in the EEA).
+
+**`ads.txt`** is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id in the file can never drift from the script.
 
 **Placements** — one unit per page, four in total: the landing page (`home`, below the hero) and the three guides (`typing-speed-test`, `wpm-test`, `type-practice`, in-content after the first section). `lib/ads.ts` owns the map.
 
