@@ -74,7 +74,10 @@ export default function CookiesPage() {
       <p>
         Ads never appear on a typing screen. The test, the practice arena and
         the battles are always ad-free, because an ad that moves while you are
-        typing is an accident waiting to happen.
+        typing is an accident waiting to happen. Signed-in pages can show one
+        ad in a right-hand column on wide screens — the practice hub, the
+        battle lobby and the contest list — and that column is hidden on
+        narrow screens and never on a race screen.
       </p>
 
       <h2>Turning them off</h2>

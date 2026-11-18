@@ -17,6 +17,7 @@ import {
   CONSENT_COOKIE,
   adsterraEnabled,
   isAdRoute,
+  isMemberAdRoute,
 } from "@/lib/ads";
 
 /**
@@ -202,7 +203,7 @@ function ConsentBanner({
   if (consent !== "unknown") return null;
   // Only the routes that may carry an ad — unless the visitor asked to
   // change their mind from the cookie policy.
-  if (!forced && !isAdRoute(pathname)) return null;
+  if (!forced && !isAdRoute(pathname) && !isMemberAdRoute(pathname)) return null;
 
   return (
     <div

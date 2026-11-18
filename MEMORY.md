@@ -141,6 +141,12 @@ Living notes for future work. Update when conventions change.
   middleware flagged the country "auto" (`thirdPartyAdConsent()`), so it
   stays off in the EEA/UK. `NEXT_PUBLIC_ADSTERRA_PUBLISHER` adds its ads.txt
   line; ads never go on `/test`, `/practice/session`, `/battles`.
+- **Member rail**: `components/ads/AdRail.tsx` renders in `AppShell` (right
+  column, `2xl`+ only, sticky) on the three LOBBY hubs - `/practice`,
+  `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
+  `/practice/session`, `/battles/<id>`, `/battles/invite` and
+  `/contests/<id>` never inherit it). One `AD_SLOTS.rail` unit, inert until
+  that slot id is set. The consent banner also shows on those three routes.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

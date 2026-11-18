@@ -298,6 +298,8 @@ Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already 
 
 **Placements** — one unit per page, four in total: the landing page (`home`, below the hero) and the three guides (`typing-speed-test`, `wpm-test`, `type-practice`, in-content after the first section). `lib/ads.ts` owns the map.
 
+**The member rail** — `components/ads/AdRail.tsx`, mounted by `AppShell`, one 300-wide unit in a sticky right column on `/practice`, `/battles` and `/contests` (exact match, so `/practice/session`, `/battles/<id>`, `/battles/invite` and `/contests/<id>` never get one). It only renders at ≥1536px and only once `AD_SLOTS.rail` holds a real unit id: no id, no column.
+
 **Second network — Adsterra** — `components/ads/AdsterraSlot.tsx` (`AdsterraNative`, `AdsterraBanner`), keys in `lib/ads.ts`. Two calm formats only: a native widget on the three guides (under the AdSense unit) and a 728×90 on `/` above the footer, mounted only at ≥768px — inside an `srcdoc` iframe, because Adsterra's banner script uses `document.write` and would otherwise wipe the page on a client-side route. No popunder, social bar or interstitial. Adsterra is **not** a Google CMP vendor, so it loads only after our own banner was accepted, or where the middleware flagged the country "auto" (`thirdPartyAdConsent()`) — in the EEA/UK it stays off. Set `NEXT_PUBLIC_ADSTERRA_PUBLISHER` to emit its `ads.txt` line.
 
 `/advertise` is the rate card for direct sponsors and affiliates — that path needs far less traffic than the ad network, and it is the one that realistically reaches $1,000/month.

@@ -86,6 +86,8 @@ export default function PrivacyPage() {
         are chosen for the page you are reading, not from a profile of you.
         A second partner, Adsterra, fills a native widget or a small banner
         on the same pages, and is loaded only after you accept the ad banner.
+        Signed-in pages (the practice hub, the battle lobby and the contest
+        list) can also show one ad in a right-hand column on wide screens.
         Ads never appear on the typing test, the practice arena or a battle.
         You can change your mind at any time from the{" "}
         <a className="text-accent underline" href="/cookies">

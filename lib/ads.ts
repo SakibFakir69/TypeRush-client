@@ -88,6 +88,20 @@ export function isAdRoute(pathname: string): boolean {
 }
 
 /**
+ * The member pages that carry the right-rail unit.
+ *
+ * These are the LOBBY screens only — the practice hub, the battle queue and
+ * the contest list. They match exactly, on purpose: `/practice/session`,
+ * `/battles/<id>`, `/battles/invite` and `/contests/<id>` are typing
+ * surfaces and must never inherit a rail from a prefix match.
+ */
+export const MEMBER_AD_ROUTES = ["/practice", "/battles", "/contests"] as const;
+
+export function isMemberAdRoute(pathname: string): boolean {
+  return (MEMBER_AD_ROUTES as readonly string[]).includes(pathname);
+}
+
+/**
  * The ad units, keyed by where they are rendered.
  *
  * Replace every `REPLACE_WITH_SLOT_ID` with the unit id from the AdSense
@@ -109,6 +123,8 @@ export const AD_SLOTS = {
   "wpm-test": "REPLACE_WITH_SLOT_ID",
   /** /type-practice, after the first section. */
   "type-practice": "REPLACE_WITH_SLOT_ID",
+  /** The right rail of the member hubs (practice, battles, contests). */
+  rail: "REPLACE_WITH_SLOT_ID",
 } as const;
 
 export type AdSlotKey = keyof typeof AD_SLOTS;
