@@ -13,7 +13,9 @@ import { usePathname } from "next/navigation";
 import {
   ADSENSE_CLIENT,
   ADSENSE_CMP,
+  AD_CONSENT_KEY,
   CONSENT_COOKIE,
+  adsterraEnabled,
   isAdRoute,
 } from "@/lib/ads";
 
@@ -36,7 +38,7 @@ import {
  * deliberately from the cookie policy, which always works.
  */
 
-const KEY = "typerush-ads-consent";
+const KEY = AD_CONSENT_KEY;
 
 export type AdConsent = "unknown" | "granted" | "denied";
 
@@ -86,6 +88,10 @@ function readJurisdiction(): "required" | "auto" {
  * we ask, and where it is not we go ahead.
  */
 function resolveConsent(): AdConsent {
+  // Google's CMP owns the consent UI (and the blocking), so nothing here
+  // has to hold anything back.
+  if (ADSENSE_CMP === "google") return "granted";
+
   const stored = readStored();
   if (stored !== "unknown") return stored;
   return readJurisdiction() === "auto" ? "granted" : "unknown";
@@ -186,9 +192,13 @@ function ConsentBanner({
   const { consent, grant, deny } = useAdConsent();
   const pathname = usePathname();
 
-  // Nothing to consent to when no ad client is configured, and nothing to
-  // do when Google owns the consent UI.
-  if (!ADSENSE_CLIENT || ADSENSE_CMP === "google") return null;
+  // Nothing to consent to when no ad network is configured, and nothing to
+  // do when Google owns the consent UI (Google's CMP only speaks for Google;
+  // Adsterra then stays off in the countries that require consent).
+  if (!ADSENSE_CLIENT && !adsterraEnabled("native") && !adsterraEnabled("banner")) {
+    return null;
+  }
+  if (ADSENSE_CMP === "google") return null;
   if (consent !== "unknown") return null;
   // Only the routes that may carry an ad — unless the visitor asked to
   // change their mind from the cookie policy.
@@ -202,9 +212,10 @@ function ConsentBanner({
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] leading-6 text-muted">
-          We use Google AdSense to show ads and keep this site free. Google
-          may use cookies to personalise them. You can accept, or keep ads
-          off — the typing test works either way.
+          We use Google AdSense to show ads and keep this site free, and
+          Adsterra for the extra units. Google and Adsterra may use cookies
+          to personalise them. You can accept, or keep ads off — the typing
+          test works either way.
         </p>
         <div className="flex shrink-0 gap-2">
           {forced ? (

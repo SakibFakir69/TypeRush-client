@@ -8,7 +8,7 @@ import { MotionProvider } from "@/components/ui/MotionProvider";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { AdConsentProvider } from "@/components/ads/AdConsentProvider";
-import { AdScript } from "@/components/ads/AdScript";
+import { ADSENSE_CLIENT } from "@/lib/ads";
 import { SITE_URL, TITLE_TEMPLATE } from "@/lib/seo/site";
 import "./globals.css";
 
@@ -104,15 +104,35 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <ThemedToaster />
             </StoreProvider>
           </ThemeProvider>
-          {/* The only request this site makes to Google, and only after the
-              visitor accepted ads. It lives INSIDE the consent provider —
-              outside it, it would only ever see the default context and
-              would never load. Inert until NEXT_PUBLIC_ADSENSE_CLIENT is
-              set. */}
-          <AdScript/>
         </AdConsentProvider>
         <Analytics/>
         <SpeedInsights/>
+        {/*
+          The AdSense snippet, exactly as Google asks for it: a real
+          <script> tag in the <head>, server-rendered, on every page.
+
+          Two things are load-bearing here:
+
+          - It has to be a REAL script tag in the initial HTML. The
+            AdSense crawler reads the page source and never sees a script
+            that is injected by hand after the visitor answered a consent
+            banner — that is what made the site fail verification with
+            "Couldn't verify your site". `next/script` is no good either:
+            with `beforeInteractive` it only emits a <link rel="preload">,
+            which the crawler does not accept. React hoists a plain
+            <script async src> into the <head> and renders it server-side.
+          - Consent is Google's job: their CMP (Funding Choices, or the
+            European Regulations message they serve by default) blocks the
+            ad request until the visitor has answered. The ad UNITS still
+            only exist on the four ad routes.
+        */}
+        {ADSENSE_CLIENT ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
       </body>
     </html>
   );

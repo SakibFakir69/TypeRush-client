@@ -80,13 +80,14 @@ export default function PrivacyPage() {
 
       <h2>Advertising</h2>
       <p>
-        We use Google AdSense to show ads on the reading pages. If you accept
-        ads, Google may use cookies and similar technologies to select and
-        measure them, and may share information with its partners. Those ads
-        are contextual: they are chosen for the page you are reading, not
-        from a profile of you. Ads never appear on the typing test, the
-        practice arena or a battle. You can change your mind at any time from
-        the{" "}
+        We use Google AdSense to show ads on the reading pages. Google may use
+        cookies and similar technologies to select and measure them, and may
+        share information with its partners. Those ads are contextual: they
+        are chosen for the page you are reading, not from a profile of you.
+        A second partner, Adsterra, fills a native widget or a small banner
+        on the same pages, and is loaded only after you accept the ad banner.
+        Ads never appear on the typing test, the practice arena or a battle.
+        You can change your mind at any time from the{" "}
         <a className="text-accent underline" href="/cookies">
           cookie policy
         </a>
@@ -94,10 +95,10 @@ export default function PrivacyPage() {
       </p>
       <p>
         In the European Economic Area, the United Kingdom, Switzerland,
-        Brazil and South Korea we ask for your consent before loading
-        anything from Google. In every other country that consent is not
-        required, so the ads load directly — the typing test itself stays
-        free and ad-free either way.
+        Brazil and South Korea, Google&apos;s consent message is shown before
+        any ad is requested, and no ad is served until you have answered it.
+        In every other country that consent is not required, so the ads load
+        directly — the typing test itself stays free and ad-free either way.
       </p>
 
       <h2>How long we keep it</h2>

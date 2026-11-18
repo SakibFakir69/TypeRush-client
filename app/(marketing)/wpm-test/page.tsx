@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FaqSection } from "@/components/seo/FaqSection";
 import { RelatedGuides } from "@/components/seo/RelatedGuides";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { AdsterraNative } from "@/components/ads/AdsterraSlot";
 import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/site";
 
@@ -109,6 +110,9 @@ export default function WpmTestPage() {
 
       {/* In-content unit, after the first screen of copy. */}
       <AdSlot slot="wpm-test" />
+
+      {/* Adsterra native widget — second unit, below the AdSense one. */}
+      <AdsterraNative />
 
       <section className="space-y-3">
         <h2 className="text-xl font-extrabold">Why accuracy matters as much as speed</h2>

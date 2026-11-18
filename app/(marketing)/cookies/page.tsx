@@ -57,13 +57,19 @@ export default function CookiesPage() {
         <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies.
       </p>
       <p>
+        The extra units on those pages are served by Adsterra, our second ad
+        partner. Adsterra only ever appears as a native widget or a standard
+        banner — never a pop-up, a pop-under or a full-page interstitial.
+      </p>
+      <p>
         <strong>In the European Economic Area, the United Kingdom,
-        Switzerland, Brazil and South Korea</strong>, we ask you first: the
-        banner appears before anything loads, and no request is made to
-        Google until you accept. <strong>Everywhere else</strong> — including
+        Switzerland, Brazil and South Korea</strong>, Google shows its own
+        consent message before any ad is requested, and no ad is served until
+        you have answered it. <strong>Everywhere else</strong> — including
         the United States, India and Bangladesh — no such consent is
         required, so the ads simply load and the typing test works exactly
-        the same.
+        the same. Adsterra is not covered by Google&apos;s message, so in
+        those countries it does not load at all.
       </p>
       <p>
         Ads never appear on a typing screen. The test, the practice arena and

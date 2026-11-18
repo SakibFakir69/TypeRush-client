@@ -282,28 +282,23 @@ Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already 
 1. **Manual units (recommended).** In AdSense → Ad units, create one responsive display ad per placement, then paste the slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` renders nothing). Each unit then appears in exactly the place the code puts it.
 2. **Auto ads.** Switch them on in the AdSense dashboard. The loader is already loaded on the ad routes, so Google fills those four pages itself. Nothing changes in the code.
 
+**The AdSense snippet** — `app/layout.tsx` renders the exact Google snippet as a real `<script async src>` in the `<head>`, server-rendered, on every page. This is not negotiable: the AdSense crawler reads the page source, and a script that is injected by hand after a consent banner is invisible to it ("Couldn't verify your site"). `next/script` is no good either — with `beforeInteractive` it only emits a `<link rel="preload">`, which the crawler does not accept. React hoists a plain `<script async src>` into the head and renders it server-side ✅.
+
+**Who has to be asked** — `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's CMP (Funding Choices, or the European Regulations message Google serves by default), which blocks the ad request until the visitor has answered. The ad **units** still only exist on the four ad routes.
+
 **Turning it off** — remove `NEXT_PUBLIC_ADSENSE_CLIENT` from the Vercel project and redeploy: no script, no markup, no cookie, no banner.
 
 **Three rules that are not negotiable**
 
 - **An ad never appears on a typing surface.** `/test`, `/practice/session` and `/battles` are timed, keyboard-driven screens: an ad next to the text is an accidental click, and accidental clicks are the fastest way to get a policy strike. Ads only go on the reading pages.
-- **Nothing loads before consent.** The AdSense loader is injected by hand (`components/ads/AdScript.tsx`) only after the visitor accepts, so a rejected visitor never makes a request to Google at all. `next/script` cannot be used here: it collects its scripts during the server render, so a component that only renders the script *after* consent never gets it injected.
-- **Auto ads stay off unless you want them.** AdSense auto ads place units wherever they want; the route scoping above is what keeps them off the typing pages.
-
-**Consent** — the banner appears on the ad routes only and can be reopened from the cookie policy on any page. The choice is stored in `localStorage`, and the loader is never injected before it. `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's Funding Choices CMP instead (TCF-certified, free, and the recommended path in the EEA).
-
-**Who has to be asked** — `CONSENT_COUNTRIES` in `lib/ads.ts` (EEA, UK, CH, BR, KR) is the only place consent is required by law. The middleware reads Vercel's `x-vercel-ip-country` and writes a `tp-ad-consent` cookie:
-
-| Visitor | Banner | Ads |
-| --- | --- | --- |
-| EEA / UK / CH / BR / KR | Shown before anything loads | Only after they accept |
-| Everywhere else (US, IN, BD, CA, …) | Not shown | Load immediately — no gate, no skip |
-
-An explicit choice always wins: a visitor who opts out from the cookie policy keeps the ads off wherever they are. An unknown country is treated as "ask".
+- **The snippet has to be in the HTML.** Server-rendered, in the head, on every page — that is what the crawler checks.
+- **Auto ads stay off unless you want them.** AdSense auto ads place units wherever they want; turn off the vignette and in-content, and add URL exclusions for `/test` and `/battles` if you keep them on.
 
 **`ads.txt`** is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id in the file can never drift from the script.
 
 **Placements** — one unit per page, four in total: the landing page (`home`, below the hero) and the three guides (`typing-speed-test`, `wpm-test`, `type-practice`, in-content after the first section). `lib/ads.ts` owns the map.
+
+**Second network — Adsterra** — `components/ads/AdsterraSlot.tsx` (`AdsterraNative`, `AdsterraBanner`), keys in `lib/ads.ts`. Two calm formats only: a native widget on the three guides (under the AdSense unit) and a 728×90 on `/` above the footer, mounted only at ≥768px — inside an `srcdoc` iframe, because Adsterra's banner script uses `document.write` and would otherwise wipe the page on a client-side route. No popunder, social bar or interstitial. Adsterra is **not** a Google CMP vendor, so it loads only after our own banner was accepted, or where the middleware flagged the country "auto" (`thirdPartyAdConsent()`) — in the EEA/UK it stays off. Set `NEXT_PUBLIC_ADSTERRA_PUBLISHER` to emit its `ads.txt` line.
 
 `/advertise` is the rate card for direct sponsors and affiliates — that path needs far less traffic than the ad network, and it is the one that realistically reaches $1,000/month.
 

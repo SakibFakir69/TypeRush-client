@@ -2,7 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/cn";
-import { ADSENSE_CLIENT, adsEnabled, slotId, type AdSlotKey } from "@/lib/ads";
+import {
+  ADSENSE_CLIENT,
+  ADSENSE_CMP,
+  adsEnabled,
+  slotId,
+  type AdSlotKey,
+} from "@/lib/ads";
 import { useAdConsent } from "./AdConsentProvider";
 
 declare global {
@@ -33,7 +39,11 @@ export function AdSlot({
 
   const id = slotId(slot);
   const enabled = adsEnabled(slot);
-  const mayShow = enabled && consent === "granted";
+  // With Google's CMP the consent decision is Google's, and the CMP is the
+  // thing that blocks the ad request — so the unit itself is always
+  // rendered. Without it, the unit waits for the visitor's answer.
+  const mayShow =
+    enabled && (ADSENSE_CMP === "google" || consent === "granted");
 
   useEffect(() => {
     if (!mayShow || pushed.current) return;

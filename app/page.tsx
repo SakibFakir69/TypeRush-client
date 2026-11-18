@@ -14,6 +14,7 @@ import { CtaBanner } from "@/components/landing/CtaBanner";
 import { KeyboardBackdrop } from "@/components/landing/KeyboardBackdrop";
 import { FaqSection } from "@/components/seo/FaqSection";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { AdsterraBanner } from "@/components/ads/AdsterraSlot";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScrollJourney } from "@/components/ui/ScrollJourney";
 import {
@@ -118,6 +119,10 @@ export default function Home() {
         <Reveal>
           <CtaBanner />
         </Reveal>
+
+        {/* Adsterra 728×90 — desktop only, the last thing before the
+            footer. Never above the fold, never near the demo. */}
+        <AdsterraBanner />
       </main>
       <Footer />
     </div>

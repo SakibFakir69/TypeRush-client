@@ -110,28 +110,37 @@ Living notes for future work. Update when conventions change.
   legalName Seven Ventures Labs). No `SearchAction`: there is no internal
   search, and pointing Google at an endpoint that does not exist is a
   markup lie.
-- **Ads**: `lib/ads.ts` owns the publisher id (`ca-pub-6208140455870067`,
-  set in Vercel for Production + Preview) and the slot map. The loader
-  runs ONLY on the four `AD_ROUTES` (`/`, `/typing-speed-test`, `/wpm-test`,
-  `/type-practice`), so Google never touches a typing surface and auto ads
-  stay confined to those pages. Three rules: an ad NEVER goes on a typing
-  surface (`/test`, `/practice/session`, `/battles` — accidental clicks =
-  policy strike), NOTHING loads before consent where consent is required,
-  and auto ads stay off unless deliberately enabled in the dashboard.
-  **Consent is geo-aware**: `CONSENT_COUNTRIES` (EEA/UK/CH/BR/KR) is where
-  the banner is required; everywhere else the ads load immediately with no
-  banner and no skip. The middleware reads `x-vercel-ip-country` and writes
-  the `tp-ad-consent` cookie — a cookie, NOT a header read in the layout,
-  which would turn every prerendered page dynamic. An explicit user choice
-  always wins; an unknown country is treated as "ask".
-  The loader is injected by hand in `components/ads/AdScript.tsx`, NOT with
-  `next/script` — that component collects its scripts during the server
-  render, so a script rendered only *after* consent is never injected. The
-  consent provider resolves the stored answer on a rAF **and** a timeout:
-  rAF never fires in a hidden tab, so the timeout is what keeps a
-  background tab from sitting with an unresolved consent state.
+- **Ads**: the publisher id (`ca-pub-6208140455870067`) is set in Vercel
+  (Production + Preview). The AdSense snippet is rendered in
+  `app/layout.tsx` as a plain `<script async src>` — React hoists it into
+  the `<head>` and it is SERVER-RENDERED on every page. This is
+  load-bearing: the AdSense crawler reads the page source and never sees
+  an injected-after-consent script ("Couldn't verify your site"), and
+  `next/script` does not work either — `beforeInteractive` only emits a
+  `<link rel="preload">`. The ad UNITS still only exist on the four
+  `AD_ROUTES` (`/`, `/typing-speed-test`, `/wpm-test`, `/type-practice`).
+  Consent is Google's: `NEXT_PUBLIC_ADSENSE_CMP=google` → their CMP
+  blocks the ad request until the visitor answers; the cookie policy's
+  "change cookie choices" button calls `googlefc.showRevocationMessage()`.
+  Three rules: an ad NEVER goes on a typing surface (`/test`,
+  `/practice/session`, `/battles` — accidental clicks = policy strike),
+  the snippet is always in the HTML, and auto ads stay off unless
+  deliberately enabled in the dashboard.
   `app/ads.txt/route.ts` generates ads.txt from the same env var.
   One unit per page, 4 placements: `/` + the 3 guides.
+- **Ads — Adsterra (second network)**: `components/ads/AdsterraSlot.tsx`
+  (`AdsterraNative`, `AdsterraBanner`) + the keys in `lib/ads.ts`. Only the
+  two calm formats: a **native widget** on the 3 guide pages (under the
+  AdSense unit) and a **728×90** on `/` above the footer, mounted only at
+  ≥768px (it is inside an `srcdoc` iframe because Adsterra's banner script
+  uses `document.write`). No popunder / social bar / interstitial — on
+  purpose. The native loader is a sibling `<script>` inserted before the
+  `container-<key>` div and removed on unmount so a client-side return
+  re-runs it. Adsterra is **not** a Google CMP vendor: with
+  `ADSENSE_CMP=google` it loads only when our own banner was accepted or the
+  middleware flagged the country "auto" (`thirdPartyAdConsent()`), so it
+  stays off in the EEA/UK. `NEXT_PUBLIC_ADSTERRA_PUBLISHER` adds its ads.txt
+  line; ads never go on `/test`, `/practice/session`, `/battles`.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

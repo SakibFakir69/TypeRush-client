@@ -8,7 +8,7 @@
  * that loads the ad script — so the publisher id can never drift between
  * the two. Set it in the environment and redeploy; the file follows.
  */
-import { ADSENSE_CLIENT } from "@/lib/ads";
+import { ADSENSE_CLIENT, ADSTERRA_PUBLISHER } from "@/lib/ads";
 
 export const dynamic = "force-static";
 
@@ -33,7 +33,16 @@ export function GET() {
         "",
       ].join("\n");
 
-  return new Response(body, {
+  // Adsterra is the second network. Its line is only emitted once the
+  // publisher id is configured — copy the line from
+  // Adsterra → Sites → ads.txt into NEXT_PUBLIC_ADSTERRA_PUBLISHER.
+  // A wrong or missing line does not break the site, but Adsterra will not
+  // serve reliably without it.
+  const adsterra = /^\d+$/.test(ADSTERRA_PUBLISHER)
+    ? `adsterra.com, ${ADSTERRA_PUBLISHER}, DIRECT\n`
+    : "";
+
+  return new Response(body + adsterra, {
     headers: {
       "content-type": "text/plain; charset=utf-8",
       "cache-control": "public, max-age=3600",
