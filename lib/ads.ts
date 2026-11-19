@@ -1,54 +1,26 @@
 /**
- * Ad configuration.
+ * Ad configuration — Adsterra only.
  *
- * Three rules, and they are not negotiable:
+ * Two rules, and they are not negotiable:
  *
  *  1. **An ad never touches a typing surface.** `/test`, `/practice/session`
- *     and `/battles` are timed, keyboard-driven screens. An ad next to the
- *     text is an accidental click, and accidental clicks are the fastest
- *     way to get an AdSense policy strike (and the fastest way to lose a
- *     typist forever). Ads only ever go on the reading pages.
- *  2. **Nothing loads before consent.** The loader is injected only after
- *     the visitor accepts, so a rejected visitor never makes a request to
- *     Google at all.
- *  3. **The feature is inert until it is configured.** No client id and no
- *     real slot id means no markup, no script, no cookie. The site behaves
- *     exactly as it does today.
+ *     and the live battle/contest screens are timed, keyboard-driven
+ *     screens. An ad beside the text is an accidental click. Units only
+ *     exist on the landing page and the member lobby screens
+ *     (`MEMBER_AD_ROUTES`).
+ *  2. **An ad never interrupts.** Only Adsterra's native widget and a fixed
+ *     728×90 banner are used — never a popunder, a social bar or an
+ *     interstitial. Ads are on by default for everyone; a visitor can turn
+ *     them off from the cookie policy and that choice is remembered.
  */
 
-/** The AdSense publisher id (`ca-pub-...`). Set it in the environment. */
-export const ADSENSE_CLIENT = (
-  process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? ""
-).trim();
-
 /**
- * `"google"` hands the consent UI to Google's Funding Choices CMP (the
- * free, TCF-certified one). Leave it empty to use our own banner.
- */
-export const ADSENSE_CMP = (
-  process.env.NEXT_PUBLIC_ADSENSE_CMP ?? ""
-).trim();
-
-/**
- * The public routes that may carry an ad.
+ * The countries where ad consent would normally be asked for: the
+ * EU/EEA, the UK, Switzerland, Brazil (LGPD) and South Korea (PIPA).
  *
- * The three guide pages are deliberately ad-free: they are the pages a
- * visitor lands on from search right before they start a test, and a unit
- * there was chasing a click that was never going to be a sale. Only the
- * landing page keeps a public unit, plus the member lobbies (see
- * `MEMBER_AD_ROUTES`).
- */
-export const AD_ROUTES = ["/"] as const;
-
-/**
- * The countries where ad consent has to be asked for before anything
- * loads: the EU/EEA, the UK, Switzerland, Brazil (LGPD) and South Korea
- * (PIPA).
- *
- * Everywhere else — the US, India, Bangladesh, Canada, most of Asia and
- * Africa — no consent gate is required for ad cookies, so those visitors
- * get the ads straight away with no banner and no "skip". That is the
- * difference between a banner on every page and ads that simply show up.
+ * The flag is still written by the middleware so the jurisdiction is
+ * known to the client, but ads no longer wait for an answer — there is no
+ * consent wall anywhere.
  */
 export const CONSENT_COUNTRIES = new Set([
   // EU
@@ -60,11 +32,11 @@ export const CONSENT_COUNTRIES = new Set([
 ]);
 
 /**
- * Does this country have to ask for consent first?
+ * Does this country fall in the "consent required" bucket?
  *
- * An unknown country is treated as "ask" — the safe default, and the
- * reason the banner still shows in local development (Vercel only sends
- * the country header in production).
+ * An unknown country is treated as "required" — the safe default, and the
+ * reason the flag is still set in local development (Vercel only sends the
+ * country header in production).
  */
 export function countryNeedsConsent(country: string | undefined | null) {
   const code = (country ?? "").trim().toUpperCase();
@@ -74,13 +46,6 @@ export function countryNeedsConsent(country: string | undefined | null) {
 
 /** The cookie the middleware writes with the jurisdiction flag. */
 export const CONSENT_COOKIE = "tp-ad-consent";
-
-/** Is this path one of the routes that may carry an ad? */
-export function isAdRoute(pathname: string): boolean {
-  return AD_ROUTES.some(
-    (route) => route === "/" ? pathname === "/" : pathname.startsWith(route)
-  );
-}
 
 /**
  * The member pages that carry the right-rail unit.
@@ -96,80 +61,13 @@ export function isMemberAdRoute(pathname: string): boolean {
   return (MEMBER_AD_ROUTES as readonly string[]).includes(pathname);
 }
 
-/**
- * The ad units, keyed by where they are rendered.
- *
- * Replace every `REPLACE_WITH_SLOT_ID` with the unit id from the AdSense
- * dashboard (AdSense → Ad units → the `ca-pub-...` slot id, the digits
- * only). A slot still holding the placeholder is not rendered at all, so a
- * half-configured account cannot show a broken unit.
- *
- * Without any slot id the site still works: the loader is loaded on the
- * ad routes and AdSense's own auto ads (if they are switched on in the
- * dashboard) fill those pages. The units below are the precise,
- * hand-placed version of the same thing.
- */
-/**
- * A slot id from the environment, or the placeholder.
- *
- * The ids are `NEXT_PUBLIC_*` because they are not secret — the browser
- * sends them with every ad request. Keeping them in the environment means
- * a new unit can be switched on in Vercel without touching the code.
- */
-function slotFromEnv(value: string | undefined) {
-  const id = (value ?? "").trim();
-  return id || "REPLACE_WITH_SLOT_ID";
-}
-
-export const AD_SLOTS = {
-  /** Landing page, below the hero. */
-  home: slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME),
-  /** /typing-speed-test, after the first section. */
-  "typing-speed-test": slotFromEnv(
-    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TYPING_SPEED_TEST
-  ),
-  /** /wpm-test, after the first section. */
-  "wpm-test": slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_WPM_TEST),
-  /** /type-practice, after the first section. */
-  "type-practice": slotFromEnv(
-    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TYPE_PRACTICE
-  ),
-  /** The right rail of the member hubs (practice, battles, contests). */
-  rail: slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_RAIL),
-} as const;
-
-export type AdSlotKey = keyof typeof AD_SLOTS;
-
-/** A slot id that was never filled in. */
-export function isPlaceholderSlot(slot: string) {
-  return slot.startsWith("REPLACE_WITH");
-}
-
-/** The real slot id for a placement, or null when it is not configured. */
-export function slotId(key: AdSlotKey): string | null {
-  const id = AD_SLOTS[key];
-  if (!id || isPlaceholderSlot(id)) return null;
-  return id;
-}
-
-/** Ads render only when a publisher id and a real slot id are present. */
-export function adsEnabled(key: AdSlotKey): boolean {
-  return Boolean(ADSENSE_CLIENT) && slotId(key) !== null;
-}
-
 /* ------------------------------------------------------------------------ *
- * Adsterra (second network)
+ * Adsterra
  *
- * AdSense is the primary: it is approved, it is stable and it pays the
- * bills where the traffic is tier-1. Adsterra is the fallback for the
- * traffic AdSense underpays (South Asia, South-East Asia) — but only its
- * two calm formats, never popunder / social bar / interstitial.
- *
- * Same rule as AdSense, and it is not negotiable: an Adsterra unit never
- * touches a typing surface (`/test`, `/practice/session`, `/battles`) and
- * never loads before the visitor said yes. Adsterra is not a Google
- * vendor, so Google's own CMP does not answer for it — see
- * `thirdPartyAdConsent()`.
+ * Only the two calm formats are implemented: a native widget that sits in
+ * the copy and a fixed 728×90 banner. The loud Adsterra formats (popunder,
+ * social bar, interstitial) are deliberately absent — they are hostile on a
+ * site people come to for a precise, timed activity.
  * ------------------------------------------------------------------------ */
 
 /** The native-banner slot key Adsterra handed out for this site. */
@@ -226,7 +124,7 @@ export const AD_CONSENT_KEY = "typerush-ads-consent";
 
 export type StoredAdConsent = "unknown" | "granted" | "denied";
 
-/** The answer the visitor gave to OUR banner, if any. */
+/** The answer the visitor gave to our dialog, if any. */
 export function storedAdConsent(): StoredAdConsent {
   if (typeof window === "undefined") return "unknown";
   try {
@@ -248,15 +146,11 @@ export function adConsentJurisdiction(): "required" | "auto" {
 }
 
 /**
- * May a network that is NOT covered by Google's CMP load anything?
+ * Did the visitor explicitly accept our own dialog?
  *
- * Google's Funding Choices consent is TCF-scoped: it covers Google's own
- * vendors, not Adsterra. So with `NEXT_PUBLIC_ADSENSE_CMP=google` the
- * provider resolves to "granted" for everyone, and Adsterra must not read
- * that as permission. It loads only when the visitor accepted OUR banner,
- * or where no consent is required at all (the middleware's "auto"
- * jurisdiction). In the EEA/UK that means Adsterra simply stays off, which
- * is the safe direction to be wrong in.
+ * Ads no longer wait for this — they are on by default. It is kept for the
+ * cookie-policy path, where an answer has to survive the reload, and it is
+ * the only signal that can distinguish "never asked" from "clicked yes".
  */
 export function thirdPartyAdConsent(): boolean {
   if (typeof window === "undefined") return false;

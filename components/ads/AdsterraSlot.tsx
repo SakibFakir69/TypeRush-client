@@ -9,7 +9,6 @@ import {
   ADSTERRA_NATIVE_CONTAINER_ID,
   ADSTERRA_NATIVE_SRC,
   adsterraEnabled,
-  thirdPartyAdConsent,
   type AdsterraKind,
 } from "@/lib/ads";
 import { useAdConsent } from "./AdConsentProvider";
@@ -20,34 +19,40 @@ import { useAdConsent } from "./AdConsentProvider";
  * Two formats only, and both are calm by design: a native widget that sits
  * in the copy, and a fixed 728×90 banner. The loud Adsterra formats
  * (popunder, social bar, interstitial) are deliberately not implemented —
- * they are hostile on a site people come to for a precise, timed activity,
- * and a popunder firing under an AdSense unit is an AdSense policy risk.
+ * they are hostile on a site people come to for a precise, timed activity.
  *
- * Rules, same as `AdSlot`:
+ * Rules:
  *
  *  1. Never on a typing surface. These components are only mounted on the
- *     four ad routes, and nothing here runs on `/test`, `/practice/session`
- *     or `/battles`.
- *  2. Nothing loads before consent. No key means no markup, and no consent
- *     means no script, no iframe, no request to `bauval.org`.
- *  3. The box keeps its height whether the ad fills it or not, so accepting
- *     consent does not shove the article down the page.
+ *     landing page and the member lobbies, and nothing here runs on `/test`,
+ *     `/practice/session` or a live battle/contest.
+ *  2. No consent wall. Ads load for everyone, first visit included. A
+ *     visitor who explicitly turned them off from the cookie policy gets no
+ *     markup at all.
+ *  3. The box keeps its height while the ad loads, so nothing jumps.
  */
 
-/** The native loader appends into this div — it must exist before the script runs. */
+/**
+ * The native loader replaces `#container-<key>` with the creative, so React
+ * must never own that node — a re-render would have nothing to reconcile.
+ * The host div below is React's; everything inside it is created by the
+ * effect and thrown away on unmount.
+ */
 function NativeUnit() {
-  const container = useRef<HTMLDivElement>(null);
+  const host = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const host = container.current;
-    if (!host) return;
+    const node = host.current;
+    if (!node) return;
 
-    // A client-side return to the page mounts a fresh div, but the script
-    // from the last visit is still in the document and has already run —
-    // it would never adopt the new container. Drop the old one first.
-    document
-      .querySelectorAll("script[data-adsterra-native]")
-      .forEach((node) => node.remove());
+    // A client-side return mounts a fresh host, but the previous loader
+    // script may still be in the document and has already run — it would
+    // never adopt the new container. Start from a clean subtree.
+    node.innerHTML = "";
+
+    const container = document.createElement("div");
+    container.id = ADSTERRA_NATIVE_CONTAINER_ID;
+    container.style.width = "100%";
 
     const script = document.createElement("script");
     script.async = true;
@@ -56,21 +61,17 @@ function NativeUnit() {
     script.src = ADSTERRA_NATIVE_SRC;
 
     // Same order as Adsterra's snippet: the loader, then the container it
-    // fills. Inserted as a sibling so React never sees it.
-    host.parentNode?.insertBefore(script, host);
+    // fills.
+    node.appendChild(script);
+    node.appendChild(container);
 
     return () => {
       script.remove();
+      node.innerHTML = "";
     };
   }, []);
 
-  return (
-    <div
-      id={ADSTERRA_NATIVE_CONTAINER_ID}
-      ref={container}
-      className="w-full"
-    />
-  );
+  return <div ref={host} className="w-full" />;
 }
 
 const WIDE_QUERY = "(min-width: 768px)";
@@ -142,18 +143,17 @@ export function AdsterraSlot({
   label?: string;
 }) {
   const { consent } = useAdConsent();
-  const enabled = adsterraEnabled(kind);
-
-  // Adsterra is not a Google CMP vendor, so Google's answer does not cover
-  // it. It loads when the visitor explicitly accepted our dialog, or where
-  // no consent is required at all — never on a guessed "yes".
-  const mayShow = consent === "granted" && thirdPartyAdConsent();
 
   // Nothing configured: render nothing at all, not an empty box.
-  if (!enabled) return null;
+  if (!adsterraEnabled(kind)) return null;
 
   // A visitor who said no gets no gap either.
   if (consent === "denied") return null;
+
+  // "unknown" lasts one frame while the stored answer is read; reserve the
+  // box but do not start the network request until the answer is in. That is
+  // what makes a stored "denied" actually prevent the request.
+  const ready = consent === "granted";
 
   return (
     <aside
@@ -173,13 +173,13 @@ export function AdsterraSlot({
             : "min-h-[90px]"
         )}
       >
-        {mayShow ? kind === "native" ? <NativeUnit /> : <BannerUnit /> : null}
+        {ready ? (kind === "native" ? <NativeUnit /> : <BannerUnit />) : null}
       </div>
     </aside>
   );
 }
 
-/** Native widget — responsive, so it is the one that runs on the guides. */
+/** Native widget — responsive, the one used on the landing page and the rail. */
 export function AdsterraNative({ className }: { className?: string }) {
   return <AdsterraSlot kind="native" className={className} />;
 }

@@ -110,51 +110,38 @@ Living notes for future work. Update when conventions change.
   legalName Seven Ventures Labs). No `SearchAction`: there is no internal
   search, and pointing Google at an endpoint that does not exist is a
   markup lie.
-- **Ads**: the publisher id (`ca-pub-6208140455870067`) is set in Vercel
-  (Production + Preview). The AdSense snippet is rendered in
-  `app/layout.tsx` as a plain `<script async src>` — React hoists it into
-  the `<head>` and it is SERVER-RENDERED on every page. This is
-  load-bearing: the AdSense crawler reads the page source and never sees
-  an injected-after-consent script ("Couldn't verify your site"), and
-  `next/script` does not work either — `beforeInteractive` only emits a
-  `<link rel="preload">`. The ad UNITS live on `/` (public) and the three
-  member lobbies (`/practice`, `/battles`, `/contests`). The three guide
-  pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are
-  deliberately ad-free — visitors land there from search and start a test.
-  Consent is Google's: `NEXT_PUBLIC_ADSENSE_CMP=google` → their CMP
-  blocks the ad request until the visitor answers; the cookie policy's
-  "change cookie choices" button calls `googlefc.showRevocationMessage()`.
+- **Ads**: Adsterra is the only ad network. No AdSense: no loader, no auto
+  ads, no CMP, no `adsbygoogle` anywhere in the tree. Keys live in
+  `lib/ads.ts`. Two placements: `/` (native widget below the hero + the
+  728×90 above the footer) and the member rail. The three guide pages
+  (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are deliberately
+  ad-free — visitors land there from search and start a test.
 - **No consent wall**: `resolveConsent()` returns "granted" when nobody has
   answered, so ads show for everyone without an accept click. Our dialog
   only renders when `forced` (opened from the cookie policy); a stored
-  "denied" keeps ads off. Adsterra checks `thirdPartyAdConsent()` (own
-  answer or the middleware's "auto" country) and stays off in the EEA/UK
-  until someone accepts on purpose.
+  "denied" keeps ads off and removes the rail column too. The middleware
+  still writes the `tp-ad-consent` jurisdiction flag but nothing gates on
+  it any more.
   Three rules: an ad NEVER goes on a typing surface (`/test`,
-  `/practice/session`, `/battles` — accidental clicks = policy strike),
-  the snippet is always in the HTML, and auto ads stay off unless
-  deliberately enabled in the dashboard.
-  `app/ads.txt/route.ts` generates ads.txt from the same env var.
-  Two placements in use: `/` (home) + the member rail.
-- **Ads — Adsterra (second network)**: `components/ads/AdsterraSlot.tsx`
-  (`AdsterraNative`, `AdsterraBanner`) + the keys in `lib/ads.ts`. One calm
-  format in use: a **728×90** on `/` above the footer, mounted only at
-  ≥768px (it is inside an `srcdoc` iframe because Adsterra's banner script
-  uses `document.write`). No popunder / social bar / interstitial — on
-  purpose. The native loader is a sibling `<script>` inserted before the
-  `container-<key>` div and removed on unmount so a client-side return
-  re-runs it; `AdsterraNative` is kept for a future reading page. Adsterra is **not** a Google CMP vendor: with
-  `ADSENSE_CMP=google` it loads only when our own banner was accepted or the
-  middleware flagged the country "auto" (`thirdPartyAdConsent()`), so it
-  stays off in the EEA/UK. `NEXT_PUBLIC_ADSTERRA_PUBLISHER` adds its ads.txt
-  line; ads never go on `/test`, `/practice/session`, `/battles`.
+  `/practice/session`, live battles/contests — accidental clicks), only the
+  two calm formats (native + 728×90, never a popunder/social
+  bar/interstitial), and every unit reserves its height so nothing jumps.
+  `app/ads.txt/route.ts` emits only the Adsterra line, from
+  `NEXT_PUBLIC_ADSTERRA_PUBLISHER`.
+- **Ads — Adsterra**: `components/ads/AdsterraSlot.tsx`
+  (`AdsterraNative`, `AdsterraBanner`). The banner mounts only at ≥768px
+  inside an `srcdoc` iframe, because Adsterra's script uses
+  `document.write`. The native loader must NEVER live in React's tree: the
+  loader replaces `container-<key>`, so `NativeUnit` owns only a host div
+  via ref and creates the container + script imperatively, clearing
+  `host.innerHTML` on cleanup so a client-side return re-runs it.
 - **Member rail**: `components/ads/AdRail.tsx` renders in `AppShell` (right
   column, `min-[1740px]` and up, sticky) on the three LOBBY hubs - `/practice`,
   `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
   `/practice/session`, `/battles/<id>`, `/battles/invite` and
-  `/contests/<id>` never inherit it). One `AD_SLOTS.rail` unit, inert until
-  that slot id is set (`NEXT_PUBLIC_ADSENSE_SLOT_RAIL` or the literal in
-  `lib/ads.ts`).
+  `/contests/<id>` never inherit it). `AppShell` widens to 1740px by the
+  same 300px so the rail uses empty margin, and drops the column (and the
+  width) for a visitor who opted out.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

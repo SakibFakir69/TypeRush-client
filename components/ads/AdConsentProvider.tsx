@@ -10,8 +10,6 @@ import {
   type ReactNode,
 } from "react";
 import {
-  ADSENSE_CLIENT,
-  ADSENSE_CMP,
   AD_CONSENT_KEY,
   adsterraEnabled,
 } from "@/lib/ads";
@@ -25,10 +23,6 @@ import {
  * The answer still matters — a visitor who turns ads off from the cookie
  * policy stays opted out (localStorage), and the dialog is available at
  * any time from that page. It never appears on its own.
- *
- * Google's Funding Choices CMP (`NEXT_PUBLIC_ADSENSE_CMP=google`) remains
- * the recommended path in the EEA: it is TCF-certified, it is free, and it
- * blocks the ad requests itself where the law requires an answer.
  */
 
 const KEY = AD_CONSENT_KEY;
@@ -68,10 +62,6 @@ function readStored(): AdConsent {
  * "denied" keeps them off until the visitor turns them back on.
  */
 function resolveConsent(): AdConsent {
-  // Google's CMP owns the consent UI (and the blocking), so nothing here
-  // has to hold anything back.
-  if (ADSENSE_CMP === "google") return "granted";
-
   const stored = readStored();
   if (stored !== "unknown") return stored;
   return "granted";
@@ -172,13 +162,10 @@ function ConsentBanner({
 }) {
   const { consent, grant, deny } = useAdConsent();
 
-  // Nothing to consent to when no ad network is configured, and nothing to
-  // do when Google owns the consent UI (Google's CMP only speaks for Google;
-  // Adsterra then stays off in the countries that require consent).
-  if (!ADSENSE_CLIENT && !adsterraEnabled("native") && !adsterraEnabled("banner")) {
+  // Nothing to consent to when no ad network is configured.
+  if (!adsterraEnabled("native") && !adsterraEnabled("banner")) {
     return null;
   }
-  if (ADSENSE_CMP === "google") return null;
   if (consent !== "unknown") return null;
   // Never a gate: the dialog exists only when the visitor asked for it.
   if (!forced) return null;
@@ -191,10 +178,9 @@ function ConsentBanner({
     >
       <div className="mx-auto flex max-w-4xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] leading-6 text-muted">
-          We use Google AdSense to show ads and keep this site free, and
-          Adsterra for the extra units. Google and Adsterra may use cookies
-          to personalise them. Ads are on by default — turn them off here
-          whenever you like, the typing test works either way.
+          We show ads from Adsterra to keep this site free. Adsterra may use
+          cookies to personalise them. Ads are on by default — turn them off
+          here whenever you like, the typing test works either way.
         </p>
         <div className="flex shrink-0 gap-2">
           {forced ? (

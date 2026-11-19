@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { APP_NAV, Sidebar } from "@/components/app/Sidebar";
 import { Topbar } from "@/components/app/Topbar";
 import { AdRail } from "@/components/ads/AdRail";
-import { isMemberAdRoute, adsEnabled } from "@/lib/ads";
+import { useAdConsent } from "@/components/ads/AdConsentProvider";
+import { adsterraEnabled, isMemberAdRoute } from "@/lib/ads";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/cn";
 
@@ -23,12 +24,17 @@ export function AppShell({
   // The gate already fetched the session; subscribing here keeps the navbar
   // name/photo in sync when the profile (or avatar) is edited.
   const { user } = useAuth();
+  const { consent } = useAdConsent();
   const pathname = usePathname();
 
-  // The lobby pages gain a 300px right column at 2xl. Widen the shell by the
-  // same 300px there, so the rail takes space that was empty margin instead
-  // of squeezing the page the visitor came for.
-  const withRail = isMemberAdRoute(pathname) && adsEnabled("rail");
+  // The lobby pages gain a 300px right column at 1740px and up. Widen the
+  // shell by the same 300px there, so the rail takes space that was empty
+  // margin instead of squeezing the page the visitor came for. A visitor who
+  // turned ads off gets the normal width too — no empty gutter.
+  const withRail =
+    isMemberAdRoute(pathname) &&
+    adsterraEnabled("native") &&
+    consent !== "denied";
 
   const liveName =
     (typeof user?.name === "string" && user.name.trim()) ||

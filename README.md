@@ -177,8 +177,7 @@ The API repo must be running on that origin, with its database migrated and seed
 | `NEXT_PUBLIC_BACKEND_URL` | Production | Client + server | Full origin of the Express API, no trailing slash (e.g. `https://typerush-server.onrender.com`). |
 | `API_URL` | No | Server only | Optional fallback used by server-side helpers when the public variable is absent. |
 | `MAINTENANCE_MODE` | No | Edge middleware | `true` locks the app to `/maintenance`; every other path redirects back there. |
-| `NEXT_PUBLIC_ADSENSE_CLIENT` | No | Client + server | AdSense publisher id (`ca-pub-…`). Unset = no ads at all: no script, no markup, no cookie, no banner. |
-| `NEXT_PUBLIC_ADSENSE_CMP` | No | Client | `google` hands the consent UI to Google's Funding Choices CMP (TCF-certified, free — the recommended path in the EEA). Empty = our own banner. |
+| `NEXT_PUBLIC_ADSTERRA_PUBLISHER` | No | Build | Adsterra publisher id for `ads.txt`. Unset = the line is omitted and the file only carries a comment. |
 
 `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` appear in older local `.env` files but are **not used by this app** — uploads are handled by the API. Do not add them to Vercel.
 
@@ -273,36 +272,25 @@ Member pages, `/login`, `/signup`, `/auth/callback` and `/maintenance` are `noin
 
 ### Advertising
 
-Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already set in the Vercel project for Production and Preview.
+Ads keep the site free. **Adsterra is the only network** — there is no Google AdSense, no auto ads and no consent wall.
 
-**Where the loader runs** — the AdSense loader is server-rendered in the root layout, so Google's code reaches every page. The **units** are placed only on `/` (public) and the three member lobbies (`/practice`, `/battles`, `/contests`). The three guide pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are deliberately ad-free: they are the pages a visitor lands on from search just before starting a test.
+**Where the units are** — the landing page (`/`: one native widget below the hero, plus a 728×90 above the footer) and the three member lobbies (`/practice`, `/battles`, `/contests`: one native widget in a sticky right column). The three guide pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are deliberately ad-free: they are the pages a visitor lands on from search just before starting a test.
 
-**Two ways to fill the pages with ads** — pick one:
+**The formats** — `components/ads/AdsterraSlot.tsx`: `AdsterraNative` (the responsive widget) and `AdsterraBanner` (the fixed 728×90). Nothing else: no popunder, no social bar, no interstitial. The banner mounts only at ≥768px and lives inside a same-origin `srcdoc` iframe, because Adsterra's banner script uses `document.write` and would wipe the page if injected into the live document on a client-side route.
 
-1. **Manual units (recommended).** In AdSense → Ad units, create one responsive display ad per placement, then paste the slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` renders nothing). Each unit then appears in exactly the place the code puts it. The ids can also come from the environment — `NEXT_PUBLIC_ADSENSE_SLOT_HOME`, `..._TYPING_SPEED_TEST`, `..._WPM_TEST`, `..._TYPE_PRACTICE`, `..._RAIL` — so a unit can be switched on in Vercel without a code change.
-2. **Auto ads.** Switch them on in the AdSense dashboard. The loader is already loaded on the ad routes, so Google fills those four pages itself. Nothing changes in the code.
+**The member rail** — `components/ads/AdRail.tsx`, mounted by `AppShell`, one 300-wide native unit in a sticky right column on `/practice`, `/battles` and `/contests` (exact match, so `/practice/session`, `/battles/<id>`, `/battles/invite` and `/contests/<id>` never get one). It only renders at ≥1740px, and `AppShell` widens by the same 300px there so the rail takes empty margin instead of the page's width.
 
-**The AdSense snippet** — `app/layout.tsx` renders the exact Google snippet as a real `<script async src>` in the `<head>`, server-rendered, on every page. This is not negotiable: the AdSense crawler reads the page source, and a script that is injected by hand after a consent banner is invisible to it ("Couldn't verify your site"). `next/script` is no good either — with `beforeInteractive` it only emits a `<link rel="preload">`, which the crawler does not accept. React hoists a plain `<script async src>` into the head and renders it server-side ✅.
+**No consent wall** — ads load for everyone on the first visit; our dialog never opens by itself. A visitor can turn ads off from `/cookies` (stored in `localStorage` under `typerush-ads-consent`); that opt-out removes the markup, the rail column and its gutter. The middleware still writes the `tp-ad-consent` jurisdiction flag, but nothing gates on it any more.
 
-**Who has to be asked** — `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's CMP (Funding Choices, or the European Regulations message Google serves by default), which blocks the ad request until the visitor has answered. The ad **units** still only exist on the four ad routes.
-
-**No consent wall** — our own dialog never opens by itself: ads load by default for everyone, and the dialog is only ever opened from the cookie policy, where a visitor can opt out (the choice is stored in `localStorage`). Adsterra, which is not a Google vendor, respects that opt-out plus the jurisdiction flag: it stays off in the EEA/UK until someone accepts explicitly.
-
-**Turning it off** — remove `NEXT_PUBLIC_ADSENSE_CLIENT` from the Vercel project and redeploy: no script, no markup, no cookie, no banner.
+**Turning it off** — empty the keys in `lib/ads.ts`: `adsterraEnabled()` then returns false and every unit renders nothing at all — no empty box, no script, no iframe.
 
 **Three rules that are not negotiable**
 
-- **An ad never appears on a typing surface.** `/test`, `/practice/session` and `/battles` are timed, keyboard-driven screens: an ad next to the text is an accidental click, and accidental clicks are the fastest way to get a policy strike. Ads only go on the reading pages.
-- **The snippet has to be in the HTML.** Server-rendered, in the head, on every page — that is what the crawler checks.
-- **Auto ads stay off unless you want them.** AdSense auto ads place units wherever they want; turn off the vignette and in-content, and add URL exclusions for `/test` and `/battles` if you keep them on.
+- **An ad never appears on a typing surface.** `/test`, `/practice/session` and the live battle/contest screens are timed, keyboard-driven: an ad beside the text is an accidental click. Ads only go on the landing page and the lobby screens.
+- **Only calm formats.** A native widget and a fixed 728×90 — never a popunder, a social bar, a vignette or an interstitial.
+- **Nothing moves under the cursor.** Every unit reserves its height and the banner is fixed-size, so a slow fill never shifts the page.
 
-**`ads.txt`** is generated from the same variable (`app/ads.txt/route.ts`), so the publisher id in the file can never drift from the script.
-
-**Placements** — two units in total: the landing page (`home`, below the hero) and the member rail (`rail`). `lib/ads.ts` owns the map; the three guide pages are ad-free.
-
-**The member rail** — `components/ads/AdRail.tsx`, mounted by `AppShell`, one 300-wide unit in a sticky right column on `/practice`, `/battles` and `/contests` (exact match, so `/practice/session`, `/battles/<id>`, `/battles/invite` and `/contests/<id>` never get one). It only renders at ≥1740px and only once `AD_SLOTS.rail` holds a real unit id: no id, no column.
-
-**Second network — Adsterra** — `components/ads/AdsterraSlot.tsx` (`AdsterraBanner`, plus `AdsterraNative` kept for a future reading page), keys in `lib/ads.ts`. One calm format in use: a 728×90 on `/` above the footer, mounted only at ≥768px — inside an `srcdoc` iframe, because Adsterra's banner script uses `document.write` and would otherwise wipe the page on a client-side route. No popunder, social bar or interstitial. Adsterra is **not** a Google CMP vendor, so it loads only after our own banner was accepted, or where the middleware flagged the country "auto" (`thirdPartyAdConsent()`) — in the EEA/UK it stays off. Set `NEXT_PUBLIC_ADSTERRA_PUBLISHER` to emit its `ads.txt` line.
+**`ads.txt`** — `app/ads.txt/route.ts` emits the Adsterra line from `NEXT_PUBLIC_ADSTERRA_PUBLISHER`. Copy the line from Adsterra → Sites → ads.txt into that variable and redeploy; an empty value leaves a comment instead.
 
 `/advertise` is the rate card for direct sponsors and affiliates — that path needs far less traffic than the ad network, and it is the one that realistically reaches $1,000/month.
 

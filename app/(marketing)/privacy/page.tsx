@@ -29,8 +29,8 @@ export default function PrivacyPage() {
         about you. If you create an account we keep your email address, your
         typing results and the badges you unlocked, because that is what makes
         your progress curve and your leaderboard row work. We do not sell your
-        data. We show ads on the reading pages to keep the site free, and we
-        only let the ad provider set anything after you agree to it.
+        data. We show ads on the home page and in the signed-in lobbies to keep
+        the site free.
       </p>
 
       <h2>What we store</h2>
@@ -80,32 +80,24 @@ export default function PrivacyPage() {
 
       <h2>Advertising</h2>
       <p>
-        We use Google AdSense to show ads on the home page and in the
-        signed-in lobbies (practice, battles and contests). Google may use
-        cookies and similar technologies to select and measure them, and may
-        share information with its partners. Those ads are contextual: they
-        are chosen for the page you are reading, not from a profile of you.
-        A second partner, Adsterra, serves the 728×90 banner on the home page,
-        and is loaded only after you accept the ad banner.
-        Signed-in pages (the practice hub, the battle lobby and the contest
-        list) can also show one ad in a right-hand column on wide screens.
-        Ads never appear on the typing test, the practice arena or a battle.
-        You can change your mind at any time from the{" "}
+        We use Adsterra to show ads on the home page and in the signed-in
+        lobbies (practice, battles and contests). Adsterra may use cookies and
+        similar technologies to select and measure them. The units are a
+        native widget and a standard banner — never a pop-up, a pop-under or a
+        full-page interstitial. Signed-in pages (the practice hub, the battle
+        lobby and the contest list) can also show one ad in a right-hand
+        column on wide screens. Ads never appear on the typing test, the
+        practice arena or a battle. You can change your mind at any time from
+        the{" "}
         <a className="text-accent underline" href="/cookies">
           cookie policy
         </a>
         .
       </p>
       <p>
-        In the European Economic Area, the United Kingdom, Switzerland,
-        Brazil and South Korea, Google&apos;s consent message is shown before
-        any ad is requested, and no ad is served until you have answered it.
-        In every other country that consent is not required, so the ads load
-        directly — the typing test itself stays free and ad-free either way.
-      </p>
-      <p>
         There is no consent wall on this site: ads load by default, and you
-        can switch them off at any time from the cookie policy.
+        can switch them off at any time from the cookie policy. The typing
+        test itself stays free and ad-free either way.
       </p>
 
       <h2>How long we keep it</h2>

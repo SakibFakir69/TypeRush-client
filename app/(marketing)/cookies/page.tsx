@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/seo/InfoPage";
 import { CookieChoicesButton } from "@/components/ads/CookieChoicesButton";
-import { ADSENSE_CLIENT } from "@/lib/ads";
 import { absoluteUrl, ogImages } from "@/lib/seo/site";
 
 export const metadata: Metadata = {
@@ -52,31 +51,15 @@ export default function CookiesPage() {
       <p>
         We keep the typing test free by showing ads on the home page and in
         the signed-in lobbies (practice, battles and contests). Those ads are
-        served by
-        Google AdSense, and Google may use cookies to pick and measure them —
-        for example the <strong>IDE</strong>, <strong>DSID</strong>,{" "}
-        <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies.
+        served by <strong>Adsterra</strong>, which may use cookies to select
+        and measure them. The units are a native widget and a standard
+        banner — never a pop-up, a pop-under or a full-page interstitial.
       </p>
       <p>
-        The 728×90 banner on the home page is served by Adsterra, our second
-        ad partner. It only ever appears as a standard banner — never a
-        pop-up, a pop-under or a full-page interstitial.
-      </p>
-      <p>
-        <strong>In the European Economic Area, the United Kingdom,
-        Switzerland, Brazil and South Korea</strong>, Google shows its own
-        consent message before any ad is requested, and no ad is served until
-        you have answered it. <strong>Everywhere else</strong> — including
-        the United States, India and Bangladesh — no such consent is
-        required, so the ads simply load and the typing test works exactly
-        the same. Adsterra is not covered by Google&apos;s message, so in
-        those countries it does not load at all.
-      </p>
-      <p>
-        We never block the site behind a consent wall. Ads load by default
-        and the typing test always works; if you would rather not see them,
-        turn them off from this page and the choice is remembered in your
-        browser.
+        Ads are on by default and there is no consent wall: the typing test
+        works whether or not you look at an ad. If you would rather not see
+        them, turn them off below and the choice is remembered in your
+        browser. You can change your mind at any time from this page.
       </p>
       <p>
         Ads never appear on a typing screen. The test, the practice arena and
@@ -97,14 +80,12 @@ export default function CookiesPage() {
         for what each one is used for.
       </p>
 
-      {ADSENSE_CLIENT ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <CookieChoicesButton />
-          <span className="text-[12px] text-faint">
-            Opt out of ads, or change your mind later.
-          </span>
-        </div>
-      ) : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <CookieChoicesButton />
+        <span className="text-[12px] text-faint">
+          Opt out of ads, or change your mind later.
+        </span>
+      </div>
     </InfoPage>
   );
 }
