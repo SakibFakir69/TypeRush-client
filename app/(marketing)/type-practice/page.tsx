@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FaqSection } from "@/components/seo/FaqSection";
 import { RelatedGuides } from "@/components/seo/RelatedGuides";
-import { AdSlot } from "@/components/ads/AdSlot";
-import { AdsterraNative } from "@/components/ads/AdsterraSlot";
 import { appSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { absoluteUrl } from "@/lib/seo/site";
 
@@ -112,12 +110,6 @@ export default function TypePracticePage() {
           </div>
         ))}
       </section>
-
-      {/* In-content unit, after the first screen of copy. */}
-      <AdSlot slot="type-practice" />
-
-      {/* Adsterra native widget — second unit, below the AdSense one. */}
-      <AdsterraNative />
 
       <section className="space-y-3">
         <h2 className="text-xl font-extrabold">Habits that actually move WPM</h2>

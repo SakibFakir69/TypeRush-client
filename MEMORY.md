@@ -117,8 +117,10 @@ Living notes for future work. Update when conventions change.
   load-bearing: the AdSense crawler reads the page source and never sees
   an injected-after-consent script ("Couldn't verify your site"), and
   `next/script` does not work either — `beforeInteractive` only emits a
-  `<link rel="preload">`. The ad UNITS still only exist on the four
-  `AD_ROUTES` (`/`, `/typing-speed-test`, `/wpm-test`, `/type-practice`).
+  `<link rel="preload">`. The ad UNITS live on `/` (public) and the three
+  member lobbies (`/practice`, `/battles`, `/contests`). The three guide
+  pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are
+  deliberately ad-free — visitors land there from search and start a test.
   Consent is Google's: `NEXT_PUBLIC_ADSENSE_CMP=google` → their CMP
   blocks the ad request until the visitor answers; the cookie policy's
   "change cookie choices" button calls `googlefc.showRevocationMessage()`.
@@ -133,22 +135,21 @@ Living notes for future work. Update when conventions change.
   the snippet is always in the HTML, and auto ads stay off unless
   deliberately enabled in the dashboard.
   `app/ads.txt/route.ts` generates ads.txt from the same env var.
-  One unit per page, 4 placements: `/` + the 3 guides.
+  Two placements in use: `/` (home) + the member rail.
 - **Ads — Adsterra (second network)**: `components/ads/AdsterraSlot.tsx`
-  (`AdsterraNative`, `AdsterraBanner`) + the keys in `lib/ads.ts`. Only the
-  two calm formats: a **native widget** on the 3 guide pages (under the
-  AdSense unit) and a **728×90** on `/` above the footer, mounted only at
+  (`AdsterraNative`, `AdsterraBanner`) + the keys in `lib/ads.ts`. One calm
+  format in use: a **728×90** on `/` above the footer, mounted only at
   ≥768px (it is inside an `srcdoc` iframe because Adsterra's banner script
   uses `document.write`). No popunder / social bar / interstitial — on
   purpose. The native loader is a sibling `<script>` inserted before the
   `container-<key>` div and removed on unmount so a client-side return
-  re-runs it. Adsterra is **not** a Google CMP vendor: with
+  re-runs it; `AdsterraNative` is kept for a future reading page. Adsterra is **not** a Google CMP vendor: with
   `ADSENSE_CMP=google` it loads only when our own banner was accepted or the
   middleware flagged the country "auto" (`thirdPartyAdConsent()`), so it
   stays off in the EEA/UK. `NEXT_PUBLIC_ADSTERRA_PUBLISHER` adds its ads.txt
   line; ads never go on `/test`, `/practice/session`, `/battles`.
 - **Member rail**: `components/ads/AdRail.tsx` renders in `AppShell` (right
-  column, `2xl`+ only, sticky) on the three LOBBY hubs - `/practice`,
+  column, `min-[1740px]` and up, sticky) on the three LOBBY hubs - `/practice`,
   `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
   `/practice/session`, `/battles/<id>`, `/battles/invite` and
   `/contests/<id>` never inherit it). One `AD_SLOTS.rail` unit, inert until

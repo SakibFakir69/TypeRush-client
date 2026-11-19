@@ -80,12 +80,13 @@ export default function PrivacyPage() {
 
       <h2>Advertising</h2>
       <p>
-        We use Google AdSense to show ads on the reading pages. Google may use
+        We use Google AdSense to show ads on the home page and in the
+        signed-in lobbies (practice, battles and contests). Google may use
         cookies and similar technologies to select and measure them, and may
         share information with its partners. Those ads are contextual: they
         are chosen for the page you are reading, not from a profile of you.
-        A second partner, Adsterra, fills a native widget or a small banner
-        on the same pages, and is loaded only after you accept the ad banner.
+        A second partner, Adsterra, serves the 728×90 banner on the home page,
+        and is loaded only after you accept the ad banner.
         Signed-in pages (the practice hub, the battle lobby and the contest
         list) can also show one ad in a right-hand column on wide screens.
         Ads never appear on the typing test, the practice arena or a battle.

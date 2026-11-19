@@ -30,20 +30,15 @@ export const ADSENSE_CMP = (
 ).trim();
 
 /**
- * The routes that may carry an ad.
+ * The public routes that may carry an ad.
  *
- * The AdSense loader is only injected on these routes, so Google's code
- * never even reaches the browser on a typing surface — `/test`,
- * `/practice/session` and `/battles` make no request to Google at all.
- * This also constrains AdSense *auto ads* (which are injected by the
- * loader wherever it runs) to the same four pages.
+ * The three guide pages are deliberately ad-free: they are the pages a
+ * visitor lands on from search right before they start a test, and a unit
+ * there was chasing a click that was never going to be a sale. Only the
+ * landing page keeps a public unit, plus the member lobbies (see
+ * `MEMBER_AD_ROUTES`).
  */
-export const AD_ROUTES = [
-  "/",
-  "/typing-speed-test",
-  "/wpm-test",
-  "/type-practice",
-] as const;
+export const AD_ROUTES = ["/"] as const;
 
 /**
  * The countries where ad consent has to be asked for before anything

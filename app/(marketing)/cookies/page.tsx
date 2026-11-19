@@ -50,16 +50,17 @@ export default function CookiesPage() {
 
       <h2>Advertising cookies</h2>
       <p>
-        We keep the typing test free by showing ads on the reading pages
-        (the guides and this site&apos;s home page). Those ads are served by
+        We keep the typing test free by showing ads on the home page and in
+        the signed-in lobbies (practice, battles and contests). Those ads are
+        served by
         Google AdSense, and Google may use cookies to pick and measure them —
         for example the <strong>IDE</strong>, <strong>DSID</strong>,{" "}
         <strong>test_cookie</strong> and <strong>_gcl_au</strong> cookies.
       </p>
       <p>
-        The extra units on those pages are served by Adsterra, our second ad
-        partner. Adsterra only ever appears as a native widget or a standard
-        banner — never a pop-up, a pop-under or a full-page interstitial.
+        The 728×90 banner on the home page is served by Adsterra, our second
+        ad partner. It only ever appears as a standard banner — never a
+        pop-up, a pop-under or a full-page interstitial.
       </p>
       <p>
         <strong>In the European Economic Area, the United Kingdom,
