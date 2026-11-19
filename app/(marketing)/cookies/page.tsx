@@ -72,6 +72,12 @@ export default function CookiesPage() {
         those countries it does not load at all.
       </p>
       <p>
+        We never block the site behind a consent wall. Ads load by default
+        and the typing test always works; if you would rather not see them,
+        turn them off from this page and the choice is remembered in your
+        browser.
+      </p>
+      <p>
         Ads never appear on a typing screen. The test, the practice arena and
         the battles are always ad-free, because an ad that moves while you are
         typing is an accident waiting to happen. Signed-in pages can show one

@@ -9,34 +9,26 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { usePathname } from "next/navigation";
 import {
   ADSENSE_CLIENT,
   ADSENSE_CMP,
   AD_CONSENT_KEY,
-  CONSENT_COOKIE,
   adsterraEnabled,
-  isAdRoute,
-  isMemberAdRoute,
 } from "@/lib/ads";
 
 /**
  * Advertising consent.
  *
- * The visitor picks first, the ad script loads second. Nothing that talks
- * to Google is requested before the answer is "granted", which is what
- * GDPR/UK GDPR (and the US state laws) actually require — a banner that
- * only *says* "we use cookies" while the requests already happened is not
- * consent.
+ * Ads are ON by default: nothing asks the visitor to "accept" before the
+ * site works, and no ad wall stands between them and the typing test.
  *
- * Google's Funding Choices CMP (`NEXT_PUBLIC_ADSENSE_CMP=google`) is the
- * recommended path in the EEA: it is TCF-certified, it is free, and it
- * blocks the ad requests itself. When it is enabled our own banner steps
- * aside and lets Google draw it.
+ * The answer still matters — a visitor who turns ads off from the cookie
+ * policy stays opted out (localStorage), and the dialog is available at
+ * any time from that page. It never appears on its own.
  *
- * The banner is only shown on the routes that may carry an ad, so a
- * visitor who never reaches one is never asked — unless they open it
- * deliberately from the cookie policy, which always works.
+ * Google's Funding Choices CMP (`NEXT_PUBLIC_ADSENSE_CMP=google`) remains
+ * the recommended path in the EEA: it is TCF-certified, it is free, and it
+ * blocks the ad requests itself where the law requires an answer.
  */
 
 const KEY = AD_CONSENT_KEY;
@@ -69,24 +61,11 @@ function readStored(): AdConsent {
 }
 
 /**
- * The jurisdiction flag the middleware wrote: "required" where consent has
- * to be asked for, "auto" where it does not.
- *
- * Where it is not required, the ads simply load — no banner, no "skip" —
- * and the visitor can still opt out from the cookie policy at any time.
- */
-function readJurisdiction(): "required" | "auto" {
-  const match = document.cookie.match(
-    new RegExp(`(?:^|;\\s*)${CONSENT_COOKIE}=([^;]+)`)
-  );
-  return match?.[1] === "auto" ? "auto" : "required";
-}
-
-/**
  * The answer we act on.
  *
- * An explicit choice always wins. Without one: where consent is required
- * we ask, and where it is not we go ahead.
+ * Ads are ON by default — nobody has to click "accept" to see the site
+ * with its ads. An explicit choice (from the cookie policy) always wins:
+ * "denied" keeps them off until the visitor turns them back on.
  */
 function resolveConsent(): AdConsent {
   // Google's CMP owns the consent UI (and the blocking), so nothing here
@@ -95,7 +74,7 @@ function resolveConsent(): AdConsent {
 
   const stored = readStored();
   if (stored !== "unknown") return stored;
-  return readJurisdiction() === "auto" ? "granted" : "unknown";
+  return "granted";
 }
 
 export function AdConsentProvider({ children }: { children: ReactNode }) {
@@ -177,11 +156,12 @@ export function useAdConsent() {
 }
 
 /**
- * The banner itself.
+ * The cookie-choices dialog.
  *
- * Deliberately keyboard-friendly but NOT wired into the site's shortcut
- * map: a banner that a stray key press dismisses (or accepts) is a
- * consent bug, and the site has a lot of typing.
+ * It only ever opens on purpose — from the cookie policy — never on its
+ * own. Deliberately keyboard-friendly but NOT wired into the site's
+ * shortcut map: a dialog that a stray key press dismisses (or accepts) is
+ * a consent bug, and the site has a lot of typing.
  */
 function ConsentBanner({
   forced,
@@ -191,7 +171,6 @@ function ConsentBanner({
   onCancel: () => void;
 }) {
   const { consent, grant, deny } = useAdConsent();
-  const pathname = usePathname();
 
   // Nothing to consent to when no ad network is configured, and nothing to
   // do when Google owns the consent UI (Google's CMP only speaks for Google;
@@ -201,9 +180,8 @@ function ConsentBanner({
   }
   if (ADSENSE_CMP === "google") return null;
   if (consent !== "unknown") return null;
-  // Only the routes that may carry an ad — unless the visitor asked to
-  // change their mind from the cookie policy.
-  if (!forced && !isAdRoute(pathname) && !isMemberAdRoute(pathname)) return null;
+  // Never a gate: the dialog exists only when the visitor asked for it.
+  if (!forced) return null;
 
   return (
     <div
@@ -215,8 +193,8 @@ function ConsentBanner({
         <p className="text-[13px] leading-6 text-muted">
           We use Google AdSense to show ads and keep this site free, and
           Adsterra for the extra units. Google and Adsterra may use cookies
-          to personalise them. You can accept, or keep ads off — the typing
-          test works either way.
+          to personalise them. Ads are on by default — turn them off here
+          whenever you like, the typing test works either way.
         </p>
         <div className="flex shrink-0 gap-2">
           {forced ? (

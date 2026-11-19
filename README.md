@@ -279,12 +279,14 @@ Ads keep the site free. The publisher id (`ca-pub-6208140455870067`) is already 
 
 **Two ways to fill the pages with ads** — pick one:
 
-1. **Manual units (recommended).** In AdSense → Ad units, create one responsive display ad per placement, then paste the slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` renders nothing). Each unit then appears in exactly the place the code puts it.
+1. **Manual units (recommended).** In AdSense → Ad units, create one responsive display ad per placement, then paste the slot id into `AD_SLOTS` in `lib/ads.ts` (a slot still holding `REPLACE_WITH_SLOT_ID` renders nothing). Each unit then appears in exactly the place the code puts it. The ids can also come from the environment — `NEXT_PUBLIC_ADSENSE_SLOT_HOME`, `..._TYPING_SPEED_TEST`, `..._WPM_TEST`, `..._TYPE_PRACTICE`, `..._RAIL` — so a unit can be switched on in Vercel without a code change.
 2. **Auto ads.** Switch them on in the AdSense dashboard. The loader is already loaded on the ad routes, so Google fills those four pages itself. Nothing changes in the code.
 
 **The AdSense snippet** — `app/layout.tsx` renders the exact Google snippet as a real `<script async src>` in the `<head>`, server-rendered, on every page. This is not negotiable: the AdSense crawler reads the page source, and a script that is injected by hand after a consent banner is invisible to it ("Couldn't verify your site"). `next/script` is no good either — with `beforeInteractive` it only emits a `<link rel="preload">`, which the crawler does not accept. React hoists a plain `<script async src>` into the head and renders it server-side ✅.
 
 **Who has to be asked** — `NEXT_PUBLIC_ADSENSE_CMP=google` hands the consent UI to Google's CMP (Funding Choices, or the European Regulations message Google serves by default), which blocks the ad request until the visitor has answered. The ad **units** still only exist on the four ad routes.
+
+**No consent wall** — our own dialog never opens by itself: ads load by default for everyone, and the dialog is only ever opened from the cookie policy, where a visitor can opt out (the choice is stored in `localStorage`). Adsterra, which is not a Google vendor, respects that opt-out plus the jurisdiction flag: it stays off in the EEA/UK until someone accepts explicitly.
 
 **Turning it off** — remove `NEXT_PUBLIC_ADSENSE_CLIENT` from the Vercel project and redeploy: no script, no markup, no cookie, no banner.
 

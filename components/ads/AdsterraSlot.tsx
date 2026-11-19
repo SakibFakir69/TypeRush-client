@@ -3,7 +3,6 @@
 import { useEffect, useRef, useSyncExternalStore } from "react";
 import { cn } from "@/lib/cn";
 import {
-  ADSENSE_CMP,
   ADSTERRA_BANNER_KEY,
   ADSTERRA_BANNER_SIZE,
   ADSTERRA_BANNER_SRC,
@@ -145,11 +144,10 @@ export function AdsterraSlot({
   const { consent } = useAdConsent();
   const enabled = adsterraEnabled(kind);
 
-  // Google's CMP does not answer for Adsterra, so its "granted" only counts
-  // when our own banner (or the "no consent required" jurisdiction) did.
-  const mayShow =
-    consent === "granted" &&
-    (ADSENSE_CMP === "google" ? thirdPartyAdConsent() : true);
+  // Adsterra is not a Google CMP vendor, so Google's answer does not cover
+  // it. It loads when the visitor explicitly accepted our dialog, or where
+  // no consent is required at all — never on a guessed "yes".
+  const mayShow = consent === "granted" && thirdPartyAdConsent();
 
   // Nothing configured: render nothing at all, not an empty box.
   if (!enabled) return null;

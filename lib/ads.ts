@@ -114,17 +114,33 @@ export function isMemberAdRoute(pathname: string): boolean {
  * dashboard) fill those pages. The units below are the precise,
  * hand-placed version of the same thing.
  */
+/**
+ * A slot id from the environment, or the placeholder.
+ *
+ * The ids are `NEXT_PUBLIC_*` because they are not secret — the browser
+ * sends them with every ad request. Keeping them in the environment means
+ * a new unit can be switched on in Vercel without touching the code.
+ */
+function slotFromEnv(value: string | undefined) {
+  const id = (value ?? "").trim();
+  return id || "REPLACE_WITH_SLOT_ID";
+}
+
 export const AD_SLOTS = {
   /** Landing page, below the hero. */
-  home: "REPLACE_WITH_SLOT_ID",
+  home: slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME),
   /** /typing-speed-test, after the first section. */
-  "typing-speed-test": "REPLACE_WITH_SLOT_ID",
+  "typing-speed-test": slotFromEnv(
+    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TYPING_SPEED_TEST
+  ),
   /** /wpm-test, after the first section. */
-  "wpm-test": "REPLACE_WITH_SLOT_ID",
+  "wpm-test": slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_WPM_TEST),
   /** /type-practice, after the first section. */
-  "type-practice": "REPLACE_WITH_SLOT_ID",
+  "type-practice": slotFromEnv(
+    process.env.NEXT_PUBLIC_ADSENSE_SLOT_TYPE_PRACTICE
+  ),
   /** The right rail of the member hubs (practice, battles, contests). */
-  rail: "REPLACE_WITH_SLOT_ID",
+  rail: slotFromEnv(process.env.NEXT_PUBLIC_ADSENSE_SLOT_RAIL),
 } as const;
 
 export type AdSlotKey = keyof typeof AD_SLOTS;

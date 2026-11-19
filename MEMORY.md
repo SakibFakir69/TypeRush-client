@@ -122,6 +122,12 @@ Living notes for future work. Update when conventions change.
   Consent is Google's: `NEXT_PUBLIC_ADSENSE_CMP=google` → their CMP
   blocks the ad request until the visitor answers; the cookie policy's
   "change cookie choices" button calls `googlefc.showRevocationMessage()`.
+- **No consent wall**: `resolveConsent()` returns "granted" when nobody has
+  answered, so ads show for everyone without an accept click. Our dialog
+  only renders when `forced` (opened from the cookie policy); a stored
+  "denied" keeps ads off. Adsterra checks `thirdPartyAdConsent()` (own
+  answer or the middleware's "auto" country) and stays off in the EEA/UK
+  until someone accepts on purpose.
   Three rules: an ad NEVER goes on a typing surface (`/test`,
   `/practice/session`, `/battles` — accidental clicks = policy strike),
   the snippet is always in the HTML, and auto ads stay off unless
@@ -146,7 +152,8 @@ Living notes for future work. Update when conventions change.
   `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
   `/practice/session`, `/battles/<id>`, `/battles/invite` and
   `/contests/<id>` never inherit it). One `AD_SLOTS.rail` unit, inert until
-  that slot id is set. The consent banner also shows on those three routes.
+  that slot id is set (`NEXT_PUBLIC_ADSENSE_SLOT_RAIL` or the literal in
+  `lib/ads.ts`).
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

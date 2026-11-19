@@ -102,6 +102,10 @@ export default function PrivacyPage() {
         In every other country that consent is not required, so the ads load
         directly — the typing test itself stays free and ad-free either way.
       </p>
+      <p>
+        There is no consent wall on this site: ads load by default, and you
+        can switch them off at any time from the cookie policy.
+      </p>
 
       <h2>How long we keep it</h2>
       <p>
