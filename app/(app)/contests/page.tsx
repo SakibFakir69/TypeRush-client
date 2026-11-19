@@ -22,13 +22,12 @@ export default function ContestsPage() {
         </p>
       </div>
 
-      {/* Adsterra native, below the intro. The 1280px+ lobby rail carries
-          the unit instead, so the page never has two. */}
-      <AdsterraNative className="min-[1280px]:hidden" />
-
       <Card className="p-4 sm:p-5">
         <ContestBoard />
       </Card>
+
+      {/* Adsterra native at the page bottom — the only unit on this lobby. */}
+      <AdsterraNative />
     </div>
   );
 }

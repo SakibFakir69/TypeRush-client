@@ -48,14 +48,15 @@ export function countryNeedsConsent(country: string | undefined | null) {
 export const CONSENT_COOKIE = "tp-ad-consent";
 
 /**
- * The member pages that carry the right-rail unit.
+ * The member pages that carry an ad unit.
  *
- * These are the LOBBY screens only — the practice hub, the battle queue and
- * the contest list. They match exactly, on purpose: `/practice/session`,
- * `/battles/<id>`, `/battles/invite` and `/contests/<id>` are typing
- * surfaces and must never inherit a rail from a prefix match.
+ * These are the LOBBY screens only — the battle queue and the contest list.
+ * `/practice` is deliberately ad-free. They match exactly, on purpose:
+ * `/practice/session`, `/battles/<id>`, `/battles/invite` and
+ * `/contests/<id>` are typing surfaces and must never inherit an ad from a
+ * prefix match.
  */
-export const MEMBER_AD_ROUTES = ["/practice", "/battles", "/contests"] as const;
+export const MEMBER_AD_ROUTES = ["/battles", "/contests"] as const;
 
 export function isMemberAdRoute(pathname: string): boolean {
   return (MEMBER_AD_ROUTES as readonly string[]).includes(pathname);

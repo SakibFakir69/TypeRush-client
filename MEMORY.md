@@ -113,13 +113,15 @@ Living notes for future work. Update when conventions change.
 - **Ads**: Adsterra is the only ad network. No AdSense: no loader, no auto
   ads, no CMP, no `adsbygoogle` anywhere in the tree. Keys live in
   `lib/ads.ts`. Two placements: `/` (native widget below the hero + the
-  728×90 above the footer) and the member rail. The three guide pages
+  728×90 above the footer) and the bottom of two member lobbies
+  (`/battles`, `/contests`: one native widget as the last block).
+  `/practice` is ad-free. The three guide pages
   (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are deliberately
   ad-free — visitors land there from search and start a test.
 - **No consent wall**: `resolveConsent()` returns "granted" when nobody has
   answered, so ads show for everyone without an accept click. Our dialog
   only renders when `forced` (opened from the cookie policy); a stored
-  "denied" keeps ads off and removes the rail column too. The middleware
+  "denied" keeps ads off (no markup, no reserved box). The middleware
   still writes the `tp-ad-consent` jurisdiction flag but nothing gates on
   it any more.
   Three rules: an ad NEVER goes on a typing surface (`/test`,
@@ -135,16 +137,11 @@ Living notes for future work. Update when conventions change.
   loader replaces `container-<key>`, so `NativeUnit` owns only a host div
   via ref and creates the container + script imperatively, clearing
   `host.innerHTML` on cleanup so a client-side return re-runs it.
-- **Member rail**: `components/ads/AdRail.tsx` renders in `AppShell` (right
-  column, `min-[1280px]` and up, sticky) on the three LOBBY hubs - `/practice`,
-  `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
-  `/practice/session`, `/battles/<id>`, `/battles/invite` and
-  `/contests/<id>` never inherit it). From 1280 to 1739 it takes its 300px
-  from the page; at 1740px and up `AppShell` widens by the same 300px so the
-  rail uses empty margin. It drops the column (and the width) for a visitor
-  who opted out. Below 1280px the three lobby pages render the native unit
-  in-content under the intro (`min-[1280px]:hidden`) so the page still
-  carries one ad, never two.
+- **Lobby ad placement**: `/battles` and `/contests` end with one
+  `AdsterraNative` as the last block — no side rail, no second unit, so each
+  page has exactly one ad at every width. `/practice` carries none. The old
+  rail component (`components/ads/AdRail.tsx`) is parked in the repo but not
+  mounted; `MEMBER_AD_ROUTES` is now `["/battles", "/contests"]`.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

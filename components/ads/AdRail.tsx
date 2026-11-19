@@ -6,8 +6,12 @@ import { AdsterraNative } from "./AdsterraSlot";
 import { useAdConsent } from "./AdConsentProvider";
 
 /**
- * The right-rail unit for the member hubs: `/practice`, `/battles` and
- * `/contests` — the lobby screens, never the race.
+ * PARKED — not mounted anywhere. The member lobbies now carry a single
+ * Adsterra unit at the page bottom (`/battles`, `/contests`; `/practice` is
+ * ad-free), so `AppShell` no longer renders a side column.
+ *
+ * The right-rail layout is kept for later reuse: the member hubs
+ * (`/battles`, `/contests`) — the lobby screens, never the race.
  *
  * User-friendliness first:
  *
@@ -15,7 +19,7 @@ import { useAdConsent } from "./AdConsentProvider";
  *    layouts in the member area need every pixel, and a cramped page is
  *    worse than no ad. From 1280px to 1739px it takes its 300px from the
  *    page; at 1740px and up the shell widens so it uses empty margin.
- *  - **Exactly the three lobbies.** The match is exact, so `/battles/<id>`,
+ *  - **Exactly the lobby hubs.** The match is exact, so `/battles/<id>`,
  *    `/battles/invite`, `/practice/session` and `/contests/<id>` never get
  *    an ad — those are timed typing screens.
  *  - **One calm format.** The Adsterra native widget, never a popunder or

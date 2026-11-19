@@ -274,13 +274,13 @@ Member pages, `/login`, `/signup`, `/auth/callback` and `/maintenance` are `noin
 
 Ads keep the site free. **Adsterra is the only network** — there is no Google AdSense, no auto ads and no consent wall.
 
-**Where the units are** — the landing page (`/`: one native widget below the hero, plus a 728×90 above the footer) and the three member lobbies (`/practice`, `/battles`, `/contests`: one native widget in a sticky right column). The three guide pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`) are deliberately ad-free: they are the pages a visitor lands on from search just before starting a test.
+**Where the units are** — the landing page (`/`: one native widget below the hero, plus a 728×90 above the footer) and two member lobbies (`/battles`, `/contests`: one native widget at the **bottom of the page**). `/practice` is ad-free, as are the three guide pages (`/typing-speed-test`, `/wpm-test`, `/type-practice`): they are the pages a visitor lands on from search just before starting a test.
 
 **The formats** — `components/ads/AdsterraSlot.tsx`: `AdsterraNative` (the responsive widget) and `AdsterraBanner` (the fixed 728×90). Nothing else: no popunder, no social bar, no interstitial. The banner mounts only at ≥768px and lives inside a same-origin `srcdoc` iframe, because Adsterra's banner script uses `document.write` and would wipe the page if injected into the live document on a client-side route.
 
-**The member rail** — `components/ads/AdRail.tsx`, mounted by `AppShell`, one 300-wide native unit in a sticky right column on `/practice`, `/battles` and `/contests` (exact match, so `/practice/session`, `/battles/<id>`, `/battles/invite` and `/contests/<id>` never get one). It renders from **1280px** up: between 1280 and 1739 it takes its 300px from the page, and at ≥1740 `AppShell` widens so the rail uses empty margin. Below 1280px the same three pages render the native unit in-content, right under the intro (`min-[1280px]:hidden`), so each page still carries exactly one ad — never two.
+**The lobby unit** — `/battles` and `/contests` render one `AdsterraNative` as the last block on the page. That is the only placement: no side rail, no second unit, so each lobby carries exactly one ad at every width, phone included. `components/ads/AdRail.tsx` is kept in the repo but is no longer mounted by `AppShell`. `/practice` renders no ad at all.
 
-**No consent wall** — ads load for everyone on the first visit; our dialog never opens by itself. A visitor can turn ads off from `/cookies` (stored in `localStorage` under `typerush-ads-consent`); that opt-out removes the markup, the rail column and its gutter. The middleware still writes the `tp-ad-consent` jurisdiction flag, but nothing gates on it any more.
+**No consent wall** — ads load for everyone on the first visit; our dialog never opens by itself. A visitor can turn ads off from `/cookies` (stored in `localStorage` under `typerush-ads-consent`); that opt-out removes the markup and the reserved box. The middleware still writes the `tp-ad-consent` jurisdiction flag, but nothing gates on it any more.
 
 **Turning it off** — empty the keys in `lib/ads.ts`: `adsterraEnabled()` then returns false and every unit renders nothing at all — no empty box, no script, no iframe.
 
