@@ -141,7 +141,9 @@ Living notes for future work. Update when conventions change.
   `/practice/session`, `/battles/<id>`, `/battles/invite` and
   `/contests/<id>` never inherit it). `AppShell` widens to 1740px by the
   same 300px so the rail uses empty margin, and drops the column (and the
-  width) for a visitor who opted out.
+  width) for a visitor who opted out. Below 1740px the three lobby pages
+  render the native unit in-content under the intro
+  (`min-[1740px]:hidden`) so the page still carries one ad, never two.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

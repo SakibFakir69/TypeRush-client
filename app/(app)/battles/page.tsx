@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/primitives";
+import { AdsterraNative } from "@/components/ads/AdsterraSlot";
 import { useAuth } from "@/lib/auth";
 import { getAblyClient } from "@/lib/ably";
 import { getApiError } from "@/helper/error-helper";
@@ -164,6 +165,10 @@ export default function BattlesPage() {
           wins; accuracy breaks a tie.
         </p>
       </div>
+
+      {/* Adsterra native, below the intro. The 1740px+ lobby rail carries
+          the unit instead, so the page never has two. */}
+      <AdsterraNative className="min-[1740px]:hidden" />
 
       <Card className="overflow-hidden p-0">
         <div className="grid gap-0 sm:grid-cols-[1fr_auto_1fr]">

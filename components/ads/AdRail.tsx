@@ -33,7 +33,7 @@ export function AdRail() {
   return (
     <div className="hidden w-[300px] shrink-0 border-l border-line px-4 py-5 min-[1740px]:block">
       <div className="sticky top-20">
-        <AdsterraNative className="my-0" />
+        <AdsterraNative />
       </div>
     </div>
   );

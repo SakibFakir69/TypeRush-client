@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Card } from "@/components/ui/primitives";
+import { AdsterraNative } from "@/components/ads/AdsterraSlot";
 import { ContestBoard } from "@/components/app/ContestBoard";
 
 export const metadata: Metadata = {
@@ -20,6 +21,11 @@ export default function ContestsPage() {
           clock starts.
         </p>
       </div>
+
+      {/* Adsterra native, below the intro. The 1740px+ lobby rail carries
+          the unit instead, so the page never has two. */}
+      <AdsterraNative className="min-[1740px]:hidden" />
+
       <Card className="p-4 sm:p-5">
         <ContestBoard />
       </Card>

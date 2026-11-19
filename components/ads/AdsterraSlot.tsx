@@ -157,7 +157,7 @@ export function AdsterraSlot({
 
   return (
     <aside
-      className={cn("my-8 overflow-hidden", className)}
+      className={cn("overflow-hidden", className)}
       aria-label={label}
       data-ad-network="adsterra"
       data-ad-kind={kind}
