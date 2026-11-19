@@ -27,9 +27,9 @@ export function AppShell({
   const { consent } = useAdConsent();
   const pathname = usePathname();
 
-  // The lobby pages gain a 300px right column at 1740px and up. Widen the
-  // shell by the same 300px there, so the rail takes space that was empty
-  // margin instead of squeezing the page the visitor came for. A visitor who
+  // The lobby pages gain a 300px right column from 1280px up. Below 1740px
+  // it takes that width from the page; at 1740px and up the shell widens by
+  // the same 300px so the rail uses empty margin instead. A visitor who
   // turned ads off gets the normal width too — no empty gutter.
   const withRail =
     isMemberAdRoute(pathname) &&

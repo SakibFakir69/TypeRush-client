@@ -11,9 +11,10 @@ import { useAdConsent } from "./AdConsentProvider";
  *
  * User-friendliness first:
  *
- *  - **Wide screens only.** Below 1740px the rail is not rendered at all;
- *    the layouts in the member area need every pixel, and a cramped page is
- *    worse than no ad.
+ *  - **Desktop only.** Below 1280px the rail is not rendered at all; the
+ *    layouts in the member area need every pixel, and a cramped page is
+ *    worse than no ad. From 1280px to 1739px it takes its 300px from the
+ *    page; at 1740px and up the shell widens so it uses empty margin.
  *  - **Exactly the three lobbies.** The match is exact, so `/battles/<id>`,
  *    `/battles/invite`, `/practice/session` and `/contests/<id>` never get
  *    an ad — those are timed typing screens.
@@ -31,7 +32,7 @@ export function AdRail() {
   if (consent === "denied") return null;
 
   return (
-    <div className="hidden w-[300px] shrink-0 border-l border-line px-4 py-5 min-[1740px]:block">
+    <div className="hidden w-[300px] shrink-0 border-l border-line px-4 py-5 min-[1280px]:block">
       <div className="sticky top-20">
         <AdsterraNative />
       </div>

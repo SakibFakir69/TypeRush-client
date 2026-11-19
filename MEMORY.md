@@ -136,14 +136,15 @@ Living notes for future work. Update when conventions change.
   via ref and creates the container + script imperatively, clearing
   `host.innerHTML` on cleanup so a client-side return re-runs it.
 - **Member rail**: `components/ads/AdRail.tsx` renders in `AppShell` (right
-  column, `min-[1740px]` and up, sticky) on the three LOBBY hubs - `/practice`,
+  column, `min-[1280px]` and up, sticky) on the three LOBBY hubs - `/practice`,
   `/battles`, `/contests` - via `isMemberAdRoute()` (exact match, so
   `/practice/session`, `/battles/<id>`, `/battles/invite` and
-  `/contests/<id>` never inherit it). `AppShell` widens to 1740px by the
-  same 300px so the rail uses empty margin, and drops the column (and the
-  width) for a visitor who opted out. Below 1740px the three lobby pages
-  render the native unit in-content under the intro
-  (`min-[1740px]:hidden`) so the page still carries one ad, never two.
+  `/contests/<id>` never inherit it). From 1280 to 1739 it takes its 300px
+  from the page; at 1740px and up `AppShell` widens by the same 300px so the
+  rail uses empty margin. It drops the column (and the width) for a visitor
+  who opted out. Below 1280px the three lobby pages render the native unit
+  in-content under the intro (`min-[1280px]:hidden`) so the page still
+  carries one ad, never two.
 - ⚠️ SERVER BUG #3: `POST /practices/results` has no auth middleware, so
   `req.user` is always empty → submit 401s until `verifyToken` is added.
 - Practice is server-driven: `getParagraphs` (admin bank, search/limit)

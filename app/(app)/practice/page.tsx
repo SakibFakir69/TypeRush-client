@@ -51,9 +51,9 @@ export default function PracticeHubPage() {
       </div>
 
       {/* Adsterra native, below the intro. It is only shown while there is
-          no right-hand column (below 1740px) — at 1740px and up the lobby
+          no right-hand column (below 1280px) — at 1280px and up the lobby
           rail carries the unit, so a page never has two. */}
-      <AdsterraNative className="min-[1740px]:hidden" />
+      <AdsterraNative className="min-[1280px]:hidden" />
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <label className="flex flex-1 items-center gap-2 rounded-lg border border-line bg-inset px-3 py-2">

@@ -166,9 +166,9 @@ export default function BattlesPage() {
         </p>
       </div>
 
-      {/* Adsterra native, below the intro. The 1740px+ lobby rail carries
+      {/* Adsterra native, below the intro. The 1280px+ lobby rail carries
           the unit instead, so the page never has two. */}
-      <AdsterraNative className="min-[1740px]:hidden" />
+      <AdsterraNative className="min-[1280px]:hidden" />
 
       <Card className="overflow-hidden p-0">
         <div className="grid gap-0 sm:grid-cols-[1fr_auto_1fr]">
