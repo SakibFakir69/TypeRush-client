@@ -10,16 +10,12 @@
 - Personal progress: a 7/30/90-day curve, streaks, personal bests and badges
 
 ## Key pages
-- Home: https://typepotijogita.com/
-- Typing test: https://typepotijogita.com/test
-- Typing speed test guide: https://typepotijogita.com/typing-speed-test
-- WPM test and benchmarks: https://typepotijogita.com/wpm-test
-- Typing practice drills: https://typepotijogita.com/type-practice
-- About: https://typepotijogita.com/about
-- Contact: https://typepotijogita.com/contact
-- Privacy policy: https://typepotijogita.com/privacy
-- Terms of service: https://typepotijogita.com/terms
-- Cookie policy: https://typepotijogita.com/cookies
+- [Home](https://typepotijogita.com/): Overview and entry point to the typing test
+- [Typing test](https://typepotijogita.com/test): Take a 15/30/60/120-second test
+- [Typing speed test guide](https://typepotijogita.com/typing-speed-test): How WPM speed testing works
+- [WPM test and benchmarks](https://typepotijogita.com/wpm-test): Benchmarks by age and profession
+- [Typing practice drills](https://typepotijogita.com/type-practice): Guided practice passages and drills
+- [About](https://typepotijogita.com/about): Who TypePotijogita is for and how it works
 
 ## Scoring
 One word counts as five characters, spaces included. WPM = (correct characters ÷ 5) ÷ minutes elapsed. Accuracy is the share of typed characters that matched the passage. Runs of different lengths are ranked in separate leaderboards and are never compared with each other.
@@ -28,3 +24,9 @@ One word counts as five characters, spaces included. WPM = (correct characters �
 - The typing test works without an account; an account is only needed to save results, appear on leaderboards, join contests and unlock badges.
 - Member areas (practice, battles, contests, leaderboard, progress, achievements) require a signed-in session.
 - Source code: https://github.com/SakibFakir69/TypeRush-client
+
+## Optional
+- [Contact](https://typepotijogita.com/contact)
+- [Privacy policy](https://typepotijogita.com/privacy)
+- [Terms of service](https://typepotijogita.com/terms)
+- [Cookie policy](https://typepotijogita.com/cookies)
