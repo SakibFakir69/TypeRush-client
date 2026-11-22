@@ -5,8 +5,8 @@ import StoreProvider from "./StoreProvider";
 import { AudioUnlock } from "@/components/ui/AudioUnlock";
 import { ThemedToaster } from "@/components/ui/ThemedToaster";
 import { MotionProvider } from "@/components/ui/MotionProvider";
-import { Analytics } from "@vercel/analytics/next"
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdConsentProvider } from "@/components/ads/AdConsentProvider";
 import { SITE_URL, TITLE_TEMPLATE } from "@/lib/seo/site";
 import "./globals.css";
@@ -23,21 +23,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  // The one place the public origin lives. Every relative canonical, og:url
-  // and image is resolved against it — a placeholder here silently points
-  // the whole site at a domain nobody owns.
   metadataBase: new URL(SITE_URL),
-
   title: {
     default: "TypePotijogita — Free Online Typing Test & Competition",
     template: TITLE_TEMPLATE,
   },
-
   description:
     "Improve your typing speed with TypePotijogita. Take free typing tests, measure WPM and accuracy, practice daily, join typing competitions, and climb global leaderboards.",
-
   applicationName: "TypePotijogita",
-
   keywords: [
     "typing test",
     "typing speed test",
@@ -45,15 +38,9 @@ export const metadata: Metadata = {
     "typing practice",
     "typing leaderboard",
     "typing contest",
-    "test de frappe",
-    "keyboard speed test",
+    "online typing competition",
+    "host a typing contest",
   ],
-
-  // No `alternates.canonical` here on purpose: a canonical set in the root
-  // layout is inherited by every page that does not override it, which would
-  // canonicalise /login, /signup and /test to the homepage. Each page that
-  // should be indexed sets its own.
-
   openGraph: {
     type: "website",
     siteName: "TypePotijogita",
@@ -61,20 +48,16 @@ export const metadata: Metadata = {
     description:
       "Test your typing speed, improve your accuracy, and compete with typists worldwide.",
     locale: "en_US",
-    // No `url` here on purpose: it would be inherited by every page that
-    // does not override `openGraph`, and a shared link to /login would then
-    // claim to be the homepage. Each indexable page sets its own.
-    // The image itself comes from `app/opengraph-image.tsx`, which Next
-    // renders into the right absolute URL for this site.
   },
-
+  other: {
+    "google-adsense-account": "ca-pub-6208140455870067",
+  },
   twitter: {
     card: "summary_large_image",
     title: "TypePotijogita — Practice. Compete. Improve.",
     description:
       "Improve your typing speed, compete with others, and climb the leaderboard.",
   },
-
   robots: {
     index: true,
     follow: true,
@@ -87,6 +70,33 @@ export const metadata: Metadata = {
     },
   },
 };
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/#website`,
+      url: process.env.NEXT_PUBLIC_SITE_URL,
+      name: "TypePotijogita",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/search?q={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "TypePotijogita",
+      applicationCategory: "EducationalApplication",
+      operatingSystem: "Web",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      description:
+        "Free online typing test and typing competition platform — measure WPM, accuracy, and compete on global and organization leaderboards.",
+    },
+  ],
+};
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -95,6 +105,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${ubuntu.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <AdConsentProvider>
           <ThemeProvider>
             <StoreProvider>
@@ -104,8 +118,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </StoreProvider>
           </ThemeProvider>
         </AdConsentProvider>
-        <Analytics/>
-        <SpeedInsights/>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
