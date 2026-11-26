@@ -191,5 +191,9 @@ export async function middleware(req: NextRequest) {
 export const config = {
   // Every page except Next's static assets. Maintenance mode needs to catch
   // all routes; the protected-path check above still narrows auth refreshes.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Icons and the manifest are excluded so Googlebot can always fetch the
+  // favicon — even during a maintenance window.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon-\\d+x\\d+\\.png|apple-touch-icon\\.png|manifest\\.webmanifest|opengraph-image).*)",
+  ],
 };
